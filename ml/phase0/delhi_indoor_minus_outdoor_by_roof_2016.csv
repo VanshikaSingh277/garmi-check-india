@@ -1,0 +1,10 @@
+window,roof_group,n_homes,mean_c,median_c,q25_c,q75_c,min_c,max_c
+afternoon_14_17,Not top floor (floor above),11,-5.44,-5.29,-6.65,-4.35,-6.8,-3.5
+afternoon_14_17,Top floor: CONCRETE / stone slab / brick (RCC-type),32,-3.73,-3.71,-5.61,-1.97,-6.79,-0.1
+afternoon_14_17,Top floor: TIN / metal sheet,13,0.75,1.26,-0.8,2.51,-3.85,4.43
+night_02_06,Not top floor (floor above),11,2.24,2.03,1.29,3.07,-1.16,5.94
+night_02_06,Top floor: CONCRETE / stone slab / brick (RCC-type),32,3.39,3.22,1.89,4.94,0.02,6.83
+night_02_06,Top floor: TIN / metal sheet,13,3.21,3.47,2.1,4.93,-1.06,5.62
+all_hours,Not top floor (floor above),11,-0.86,-0.82,-1.85,0.12,-3.14,1.54
+all_hours,Top floor: CONCRETE / stone slab / brick (RCC-type),32,0.48,0.51,-1.12,1.78,-2.17,3.19
+all_hours,Top floor: TIN / metal sheet,13,2.11,2.63,1.61,3.32,-2.16,4.95

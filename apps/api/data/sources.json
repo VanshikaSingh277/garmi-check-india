@@ -1,0 +1,173 @@
+[
+ {
+  "id": "S1",
+  "source": "South Asia Indoor Heat dataset (Tasgaonkar et al. 2022, *Scientific Data* 9:285)",
+  "used_for": "Delhi indoor−outdoor offsets by roof and floor",
+  "year": "2016",
+  "licence": "CC0",
+  "url": "https://doi.org/10.6084/m9.figshare.12546368.v1 · paper https://www.nature.com/articles/s41597-022-01314-5",
+  "status": "Downloaded, checked"
+ },
+ {
+  "id": "S2",
+  "source": "Census 2011 HL-02A, households by roof material, NCT of Delhi",
+  "used_for": "District/town roof prior",
+  "year": "2011 (old)",
+  "licence": "GODL-India",
+  "url": "https://censusindia.gov.in/nada/index.php/catalog/7860",
+  "status": "Downloaded, checked"
+ },
+ {
+  "id": "S3",
+  "source": "NFHS-5 Household Recode (hv215 roof)",
+  "used_for": "Roof prior (newer)",
+  "year": "2019–21",
+  "licence": "DHS terms (registration)",
+  "url": "https://dhsprogram.com",
+  "status": "Pending: team registration"
+ },
+ {
+  "id": "S4",
+  "source": "NSS 76th round, Delhi state report (DES Delhi)",
+  "used_for": "Housing context (pucca, flats, ventilation)",
+  "year": "2018",
+  "licence": "Govt publication",
+  "url": "https://des.delhi.gov.in/sites/default/files/survey_on_drinking_water_sanititation_hygiene_and_housing_condition.pdf",
+  "status": "Downloaded, checked"
+ },
+ {
+  "id": "S5",
+  "source": "Delhi Heat Action Plan 2024-25 (DDMA)",
+  "used_for": "Alert levels, hotspot wards (context)",
+  "year": "2024",
+  "licence": "Govt publication",
+  "url": "https://ddma.delhi.gov.in/sites/default/files/ddma/generic_multiple_files/hap_6.05.2024.pdf",
+  "status": "Downloaded, checked"
+ },
+ {
+  "id": "S6",
+  "source": "Building footprints: Google Open Buildings v3 / Microsoft / OSM / Overture",
+  "used_for": "Tap-to-select, density",
+  "year": "2023–26",
+  "licence": "CC BY 4.0 / ODbL",
+  "url": "(Phase 2)",
+  "status": "Not yet measured"
+ },
+ {
+  "id": "S7",
+  "source": "ERA5-Land hourly via Open-Meteo archive API",
+  "used_for": "Weather history, 2021-2026; p97 2008-2019",
+  "year": "2008-2026",
+  "licence": "Free non-commercial, attribution (Open-Meteo); ERA5 Copernicus licence",
+  "url": "https://open-meteo.com/en/docs/historical-weather-api",
+  "status": "Downloaded; validated vs 2016 AWS"
+ },
+ {
+  "id": "S8",
+  "source": "Open-Meteo forecast API",
+  "used_for": "Live status, 7-day",
+  "year": "live",
+  "licence": "Free non-commercial, attribution",
+  "url": "https://open-meteo.com/en/docs",
+  "status": "Tested"
+ },
+ {
+  "id": "S9",
+  "source": "Landsat 8/9 Collection 2 Level-2 (USGS) via Microsoft Planetary Computer",
+  "used_for": "Day surface heat, 30 m",
+  "year": "Apr-Jun 2021-2026 (84 scenes)",
+  "licence": "Public domain",
+  "url": "https://planetarycomputer.microsoft.com/dataset/landsat-c2-l2",
+  "status": "Composite built"
+ },
+ {
+  "id": "S10",
+  "source": "MODIS MYD11A2 v061 LST_Night_1km (NASA LP DAAC) via Planetary Computer",
+  "used_for": "Night surface heat",
+  "year": "Apr-Jun 2021-2026",
+  "licence": "Public domain",
+  "url": "https://planetarycomputer.microsoft.com/dataset/modis-11A2-061",
+  "status": "Composite built"
+ },
+ {
+  "id": "S11",
+  "source": "ESA WorldCover 10 m v200",
+  "used_for": "Land cover fractions",
+  "year": "2021",
+  "licence": "CC BY 4.0",
+  "url": "https://planetarycomputer.microsoft.com/dataset/esa-worldcover",
+  "status": "Done"
+ },
+ {
+  "id": "S12",
+  "source": "WorldPop Global2 R2025A 1 km constrained (UN-adj.), total + age 0, 1-4, 65-90 (all India)",
+  "used_for": "Population, 65+ and under-5 per Delhi ward and per Indian district",
+  "year": "2025",
+  "licence": "CC BY 4.0",
+  "url": "https://hub.worldpop.org/geodata/listing?id=135",
+  "status": "Done (age shares low-information)"
+ },
+ {
+  "id": "S13",
+  "source": "DataMeet Municipal_Spatial_Data - Delhi wards (pre-2022)",
+  "used_for": "Ward units",
+  "year": "pre-2022",
+  "licence": "CC BY-SA 2.5 IN",
+  "url": "https://github.com/datameet/Municipal_Spatial_Data/tree/master/Delhi",
+  "status": "Done (old delimitation)"
+ },
+ {
+  "id": "S14",
+  "source": "geoBoundaries IND ADM2 (source: Local Government Directory, Govt of India)",
+  "used_for": "District polygons for all India (735 units; outline follows India's official boundary)",
+  "year": "2021",
+  "licence": "ODbL 1.0",
+  "url": "https://www.geoboundaries.org",
+  "status": "Done"
+ },
+ {
+  "id": "S15",
+  "source": "DUSIB Directory - Index/Summary of assets",
+  "used_for": "JJ clusters per district",
+  "year": "2022",
+  "licence": "Govt publication",
+  "url": "https://delhishelterboard.in/main/wp-content/uploads/2022/06/Directory_of_DUSIB.pdf",
+  "status": "Done (counts only)"
+ },
+ {
+  "id": "S16",
+  "source": "NFHS-5 Delhi state report FR374 (IIPS/ICF)",
+  "used_for": "AC/cooler 74.3 %, fan 98.2 %, pucca 93.7 %",
+  "year": "2019-21",
+  "licence": "Public report",
+  "url": "https://dhsprogram.com/pubs/pdf/FR374/FR374_Delhi.pdf",
+  "status": "Done"
+ },
+ {
+  "id": "S17",
+  "source": "NWS heat index equation; Stull 2011 wet-bulb",
+  "used_for": "Formulas",
+  "year": "—",
+  "licence": "Public",
+  "url": "https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml ; doi:10.1175/JAMC-D-11-0143.1",
+  "status": "Implemented + tested"
+ },
+ {
+  "id": "S18",
+  "source": "GeoNames postal codes (IN) + all-India place names + admin codes",
+  "used_for": "Offline place naming, PIN / place search (no third-party geocoder at runtime)",
+  "year": "downloaded 2026-10-15",
+  "licence": "CC BY 4.0",
+  "url": "https://download.geonames.org/export/zip/IN.zip ; https://download.geonames.org/export/dump/IN.zip",
+  "status": "Done (PIN coordinates unreliable in cities -> PIN not shown for GPS points)"
+ },
+ {
+  "id": "S19",
+  "source": "Open-Meteo historical weather API (ECMWF ERA5 / ERA5-Land reanalysis) daily Tmax, Tmin, max wet-bulb",
+  "used_for": "District summer heat (1 Apr-30 Jun, 2021-2025)",
+  "year": "2021-2025",
+  "licence": "CC BY 4.0 (Open-Meteo), Copernicus licence (ERA5)",
+  "url": "https://open-meteo.com/en/docs/historical-weather-api",
+  "status": "Done"
+ }
+]

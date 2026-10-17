@@ -1,0 +1,13 @@
+inputs,model,MAE_all,RMSE_all,MAE_afternoon,MAE_night,bias,train_s,n_rows,n_homes
+station,Rule (outdoor + roof x hour median offset),2.234,2.897,2.567,2.279,-0.114,0.302,92868,56
+station,Linear regression,1.804,2.306,2.149,1.852,-0.075,0.084,92868,56
+station,Ridge (alpha=10),1.803,2.306,2.149,1.851,-0.075,0.033,92868,56
+station,Random Forest,1.759,2.334,1.867,1.931,0.158,26.925,92868,56
+station,LightGBM,1.629,2.157,1.774,1.741,0.118,3.535,92868,56
+station,XGBoost,1.63,2.144,1.761,1.753,0.156,1.812,92868,56
+forecast,Rule (outdoor + roof x hour median offset),2.105,2.645,2.169,2.311,-0.057,0.345,94955,56
+forecast,Linear regression,1.714,2.199,1.994,1.765,-0.074,0.083,94955,56
+forecast,Ridge (alpha=10),1.713,2.198,1.995,1.764,-0.074,0.041,94955,56
+forecast,Random Forest,1.648,2.227,1.988,1.57,-0.288,26.662,94955,56
+forecast,LightGBM,1.515,1.998,1.756,1.533,-0.192,3.48,94955,56
+forecast,XGBoost,1.51,1.993,1.764,1.53,-0.189,1.824,94955,56

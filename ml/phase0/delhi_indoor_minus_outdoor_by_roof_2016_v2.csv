@@ -1,0 +1,13 @@
+window,roof_group,n_homes,median_c,q25_c,q75_c,min_c,max_c,median_if_aws_stamp_is_hour_end
+afternoon_14_17,lower_floor,11,-5.29,-6.65,-4.35,-6.8,-3.5,-4.94
+afternoon_14_17,rcc_brick_top,23,-4.98,-5.8,-3.3,-6.79,-0.1,-4.66
+afternoon_14_17,stone_slab_top,9,-1.8,-2.1,-1.73,-3.33,-0.8,-1.57
+afternoon_14_17,tin_top,13,1.26,-0.8,2.51,-3.85,4.43,1.59
+night_02_06,lower_floor,11,2.03,1.29,3.07,-1.16,5.94,2.4
+night_02_06,rcc_brick_top,23,2.36,1.23,4.25,0.02,6.83,2.78
+night_02_06,stone_slab_top,9,4.45,4.18,5.61,2.54,6.43,4.87
+night_02_06,tin_top,13,3.47,2.1,4.93,-1.06,5.62,3.92
+all_hours,lower_floor,11,-0.82,-1.85,0.12,-3.14,1.54,-0.82
+all_hours,rcc_brick_top,23,-0.81,-1.26,1.05,-2.17,3.19,-0.81
+all_hours,stone_slab_top,9,1.63,1.44,2.49,0.19,3.01,1.63
+all_hours,tin_top,13,2.63,1.61,3.32,-2.16,4.95,2.63

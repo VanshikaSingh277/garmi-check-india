@@ -1,0 +1,32 @@
+{
+ "n_districts": 735,
+ "n_with_index": 734,
+ "spearman_equal_vs_pca": 0.916,
+ "pca_weights": {
+  "tmax_mean_c": 0.212,
+  "tmin_mean_c": 0.217,
+  "twb_max_mean_c": 0.108,
+  "days_tmax_ge40": 0.201,
+  "share_65plus": 0.101,
+  "share_under5": -0.06,
+  "density": 0.101
+ },
+ "pop_total_sum": 1456374921,
+ "years": [
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "season": "1 Apr - 30 Jun",
+ "notes": [
+  "Exposure uses reanalysis at one representative point per district (ERA5/ERA5-Land via Open-Meteo); large districts are not uniform.",
+  "No adaptive-capacity indicator with all-India district coverage was available openly (NFHS-5 compiled CSV covers 341 districts), so this is an exposure + sensitivity index, not a full vulnerability index.",
+  "District polygons: geoBoundaries IND ADM2 (LGD, 2021). Districts created after 2021 are not split out.",
+  "Weather point = where people live (population-weighted centre) when that is > 15 km from the polygon's representative point; this matters in mountain and desert districts (e.g. Leh, Kachchh).",
+  "WorldPop age shares follow state-level age structures, so 65+ / under-5 shares vary little within a state.",
+  "In high mountains the reanalysis grid averages over surrounding peaks and reads colder than valley towns (e.g. Leh, Kargil); these districts rank low either way."
+ ],
+ "n_population_centre_points": 143
+}

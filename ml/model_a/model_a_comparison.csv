@@ -1,0 +1,6 @@
+model,spatial_cv_MAE,RMSE,R2,train_s
+Linear regression,1.046,1.351,0.761,0.07
+Random Forest,0.905,1.19,0.815,30.121
+LightGBM,0.903,1.187,0.816,6.156
+XGBoost,0.905,1.19,0.815,2.874
+HistGradientBoosting,0.908,1.192,0.814,23.998
