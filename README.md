@@ -1,4 +1,4 @@
-# Garmi Check India: heat-risk status and practical fixes
+# Thandak: heat-risk status and practical fixes
 
 A mobile-first website that tells anyone **anywhere in India** their **current heat-risk status** and gives **only evidence-backed, implementable solutions**, in **Hindi and English**. It has three modes: **Individual · Society/RWA · Government**. Places are found by GPS, PIN code or place name using an offline gazetteer, so no location is sent to a third-party geocoder. All about 733 districts are ranked for summer heat and vulnerable people. Delhi additionally has ward-level satellite heat maps.
 

@@ -2,7 +2,7 @@
    grew (India-wide, redesign) and override earlier keys with the same name. */
 window.I18N = {
 en: {
-  app_name: "Garmi Check Delhi", disclaimer: "Guidance, not a diagnosis. Emergency: 108 (ambulance) · 112.",
+  app_name: "Thandak", disclaimer: "Guidance, not a diagnosis. Emergency: 108 (ambulance) · 112.",
   sources_link: "Data & sources", attrib: "Weather: Open-Meteo · Satellite: USGS Landsat, NASA MODIS, ESA WorldCover · People: WorldPop · Maps: © OpenStreetMap contributors, DataMeet",
   who_are_you: "Who are you?", individual: "Me / my family", individual_sub: "My heat risk now & what to do",
   society: "Society / RWA / basti", society_sub: "Our colony's heat & shared fixes", government: "Government / ward office", government_sub: "Ward ranking & priorities",
@@ -42,7 +42,7 @@ en: {
   outside_delhi: "You seem to be outside Delhi. Area data is Delhi-only; weather and home estimate still shown.",
 },
 hi: {
-  app_name: "गर्मी चेक दिल्ली", disclaimer: "यह सलाह है, इलाज नहीं। आपातकाल: 108 (एम्बुलेंस) · 112.",
+  app_name: "ठंडक", disclaimer: "यह सलाह है, इलाज नहीं। आपातकाल: 108 (एम्बुलेंस) · 112.",
   sources_link: "डेटा और स्रोत", attrib: "मौसम: Open-Meteo · उपग्रह: USGS Landsat, NASA MODIS, ESA WorldCover · आबादी: WorldPop · नक्शा: © OpenStreetMap, DataMeet",
   who_are_you: "आप कौन हैं?", individual: "मैं / मेरा परिवार", individual_sub: "अभी मेरी गर्मी का खतरा और क्या करें",
   society: "सोसाइटी / RWA / बस्ती", society_sub: "हमारी कॉलोनी की गर्मी और साझा उपाय", government: "सरकार / वार्ड कार्यालय", government_sub: "वार्ड रैंकिंग और प्राथमिकताएं",
@@ -116,7 +116,7 @@ Object.assign(window.I18N.hi, {
 
 /* ---- India-wide (15 Oct 2026): these override the Delhi-era strings above ---- */
 Object.assign(window.I18N.en, {
-  app_name: "Garmi Check India",
+  app_name: "Thandak",
   hero_sub: "Live heat risk for any home, colony or district in India — with only proven, practical fixes.",
   near_you: "Right now at", set_place_first: "Find your place to see live heat for it:", change_place: "Change place",
   search_ph: "Search PIN code, city, town, village or locality", approx: "approximate area", no_results: "No match — try a PIN code or nearby town",
@@ -152,7 +152,7 @@ Object.assign(window.I18N.en, {
   attrib: "Weather: Open-Meteo (ECMWF ERA5, forecast models) · People: WorldPop · Places: GeoNames (CC BY 4.0) · Districts: geoBoundaries / LGD (ODbL) · Maps: © OpenStreetMap contributors · Delhi wards: DataMeet",
 });
 Object.assign(window.I18N.hi, {
-  app_name: "गर्मी चेक भारत",
+  app_name: "ठंडक",
   hero_sub: "भारत के किसी भी घर, कॉलोनी या ज़िले के लिए लाइव गर्मी का खतरा — सिर्फ़ साबित, व्यावहारिक उपायों के साथ।",
   near_you: "अभी यहाँ", set_place_first: "अपनी जगह चुनें, फिर वहाँ की लाइव गर्मी देखें:", change_place: "जगह बदलें",
   search_ph: "PIN कोड, शहर, कस्बा, गाँव या मोहल्ला खोजें", approx: "अनुमानित इलाका", no_results: "कुछ नहीं मिला — PIN कोड या पास का शहर लिखें",
@@ -191,9 +191,9 @@ Object.assign(window.I18N.hi, {
 /* ---- redesign (15 Oct 2026): navigation, 24-hour plan, "why" for each fix, How-it-works page ---- */
 Object.assign(window.I18N.en, {
   tagline: "Heat risk & cooling plan", nav_home: "Home", nav_me: "My heat", nav_area: "Colony", nav_gov: "Government", nav_how: "How it works", nav_sources: "Sources",
-  theme_auto: "Theme: automatic", theme_light: "Theme: light", theme_dark: "Theme: dark",
-  hero_eyebrow: "All of India · live forecast · हिंदी / English", hero_title: "How hot is it for you right now?",
-  trust_private: "Your location stays on our server", trust_sourced: "Every number has a source", trust_free: "Free · open data · no sign-up",
+  theme_light: "Switch to light mode", theme_dark: "Switch to dark mode",
+  hero_title: "How hot is it for you right now?",
+  trust_sourced: "Every number has a source",
   now_title: "Right now", now_pick: "Pick your place to see live heat here.", today_band: "Today's heat band (IMD)", feels: "feels like",
   roles_title: "What would you like to do?", individual: "Me & my family", individual_sub: "My heat level now, an hour-by-hour plan and the cheapest fixes for my home.",
   society: "Colony / society / RWA", society_sub: "Our area's heat profile, shared fixes and a cool-roof cost calculator.",
@@ -221,7 +221,7 @@ Object.assign(window.I18N.en, {
   calc_title: "Cool-roof cost calculator", total_cost: "Total cost", per_hh: "Per household", cooler_by: "Rooms cooler by", roof_area: "Roof area to coat", households: "Households sharing",
   kpi_shown: "Districts", kpi_vh: "Very high", kpi_people_vh: "People in very-high districts", kpi_mean_tmax: "Avg summer day max",
   filter_ph: "Filter by district name", show_more: "Show more", sort_hint: "Tap a column heading to sort",
-  how_title: "How Garmi Check works", how_sub: "No black box. This is exactly how your heat level, your room's temperature and your suggestions are worked out.",
+  how_title: "How Thandak works", how_sub: "No black box. This is exactly how your heat level, your room's temperature and your suggestions are worked out.",
   p1_t: "Your place", p1_d: "GPS, PIN code or place search. Named offline with GeoNames — your location is never sent to another company.",
   p2_t: "Live weather", p2_d: "Hourly forecast for your exact point (Open-Meteo): temperature, humidity, sun and wind. We compute feels-like (heat index) and wet-bulb.",
   p3_t: "ML: your room", p3_d: "An XGBoost model turns the forecast, your roof and your fan/cooler into your room's temperature, hour by hour, with an error range.",
@@ -251,9 +251,9 @@ Object.assign(window.I18N.en, {
 });
 Object.assign(window.I18N.hi, {
   tagline: "गर्मी जोखिम और ठंडक योजना", nav_home: "होम", nav_me: "मेरी गर्मी", nav_area: "कॉलोनी", nav_gov: "सरकार", nav_how: "कैसे काम करता है", nav_sources: "स्रोत",
-  theme_auto: "थीम: अपने-आप", theme_light: "थीम: लाइट", theme_dark: "थीम: डार्क",
-  hero_eyebrow: "पूरा भारत · लाइव पूर्वानुमान · हिंदी / English", hero_title: "अभी आपके लिए कितनी गर्मी है?",
-  trust_private: "आपकी लोकेशन हमारे सर्वर पर ही रहती है", trust_sourced: "हर आंकड़े का स्रोत है", trust_free: "मुफ़्त · खुला डेटा · कोई साइन-अप नहीं",
+  theme_light: "लाइट मोड चालू करें", theme_dark: "डार्क मोड चालू करें",
+  hero_title: "अभी आपके लिए कितनी गर्मी है?",
+  trust_sourced: "हर आंकड़े का स्रोत है",
   now_title: "अभी", now_pick: "यहाँ लाइव गर्मी देखने के लिए अपनी जगह चुनें।", today_band: "आज का गर्मी स्तर (IMD)", feels: "महसूस",
   roles_title: "आप क्या करना चाहते हैं?", individual: "मैं और मेरा परिवार", individual_sub: "अभी मेरा गर्मी स्तर, घंटेवार योजना और मेरे घर के सबसे सस्ते उपाय।",
   society: "कॉलोनी / सोसाइटी / RWA", society_sub: "हमारे इलाके की गर्मी, साझा उपाय और कूल-रूफ खर्च कैलकुलेटर।",
@@ -281,7 +281,7 @@ Object.assign(window.I18N.hi, {
   calc_title: "कूल-रूफ खर्च कैलकुलेटर", total_cost: "कुल खर्च", per_hh: "प्रति घर", cooler_by: "कमरे ठंडे होंगे", roof_area: "कोट करने वाली छत का क्षेत्र", households: "साझा करने वाले घर",
   kpi_shown: "ज़िले", kpi_vh: "बहुत अधिक", kpi_people_vh: "बहुत अधिक वाले ज़िलों में लोग", kpi_mean_tmax: "गर्मी में औसत दिन अधिकतम",
   filter_ph: "ज़िले के नाम से छाँटें", show_more: "और दिखाएँ", sort_hint: "क्रम बदलने के लिए कॉलम के नाम पर टैप करें",
-  how_title: "गर्मी चेक कैसे काम करता है", how_sub: "कोई छिपा तरीका नहीं। आपका गर्मी स्तर, कमरे का तापमान और सुझाव ठीक इसी तरह निकलते हैं।",
+  how_title: "ठंडक कैसे काम करता है", how_sub: "कोई छिपा तरीका नहीं। आपका गर्मी स्तर, कमरे का तापमान और सुझाव ठीक इसी तरह निकलते हैं।",
   p1_t: "आपकी जगह", p1_d: "GPS, PIN कोड या जगह खोज। GeoNames से ऑफ़लाइन नाम — आपकी लोकेशन किसी दूसरी कंपनी को नहीं भेजी जाती।",
   p2_t: "लाइव मौसम", p2_d: "आपके ठीक स्थान का घंटेवार पूर्वानुमान (Open-Meteo): तापमान, नमी, धूप और हवा। हम महसूस होने वाला तापमान (हीट इंडेक्स) और वेट-बल्ब निकालते हैं।",
   p3_t: "ML: आपका कमरा", p3_d: "XGBoost मॉडल पूर्वानुमान, आपकी छत और पंखे/कूलर से आपके कमरे का घंटेवार तापमान, त्रुटि रेंज के साथ, निकालता है।",
@@ -311,3 +311,142 @@ Object.assign(window.I18N.hi, {
 });
 Object.assign(window.I18N.en, { go: "Open" });
 Object.assign(window.I18N.hi, { go: "खोलें" });
+
+/* ---- landing page + app split (22 Oct 2026) ---- */
+Object.assign(window.I18N.en, {
+  nav_about: "About Thandak", nav_about_short: "About", enter: "Enter Thandak", check_now: "Check my heat now",
+  lp_title: "Know how hot your home will get, and how to keep it cool.",
+  lp_sub: "Thandak reads the live forecast for your exact location, estimates the temperature inside your room, and gives you an hour-by-hour plan with only proven, low-cost fixes. Free, in Hindi and English.",
+  lp_saved: "Your saved place: {p}", go_my_heat: "Go to my heat",
+  prob_title: "The heat that hurts most is often indoors",
+  prob_sub: "Heat warnings talk about the air outside. But people spend the hottest hours, and the nights, inside homes that can stay hotter than the street.",
+  f1_t: "more deaths on heatwave days, pooled across 10 Indian cities (2008–2019).",
+  f2_t: "Tin-roof rooms in Delhi stayed this much hotter than the outside air at night (2–6 am), so the body never got to cool down.",
+  f3_t: "Above this, a fan alone is not enough for people over 65, and above 38 °C it can make heat stress worse.",
+  who_title: "Who it's for",
+  who_me_d: "Your heat level today, when to open the windows, when a fan stops helping, and the cheapest fixes for your roof.",
+  who_soc_d: "Your area's heat profile, fixes you can do together, and what a cool roof would cost per household.",
+  who_gov_d: "Every district in India ranked by heat and vulnerable people, with Delhi ward detail and data to download.",
+  how_lp_sub: "From your location to a plan you can act on, in five steps. Nothing is hidden.", full_method: "Read the full method and models",
+  trust_title: "Why you can trust it",
+  trust_sourced_d: "Every threshold and every fix links to the study or rule it comes from. If there is no source, we don't show it.",
+  trust_private: "Your location stays on our server",
+  trust_private_d: "Place names are looked up offline. Your location is never sent to another company.",
+  trust_free: "Free · open data · no sign-up",
+  trust_free_d: "No account and no ads. Built on open data that you can download yourself.",
+  data_title: "Data we use",
+  ds_openmeteo: "Live hourly forecast for your exact point", ds_geonames: "Place names and PIN search, offline",
+  ds_imd: "Heat-index bands and heat-wave rules", ds_xgb: "Room temperature model, trained on 56 measured Delhi homes",
+  ds_more: "Summer climate and population for the district ranking",
+  cta_title: "See the heat where you live", cta_sub: "It takes under a minute. No sign-up.",
+  air_now: "Air now",
+  foot_about: "Heat risk and a cooling plan for any home in India.", foot_data: "Data", foot_lang: "Language",
+  method_link: "Method & models", dl_districts: "Download district rankings (CSV)", dl_wards: "Download Delhi ward data (CSV)",
+});
+Object.assign(window.I18N.hi, {
+  nav_about: "ठंडक के बारे में", nav_about_short: "परिचय", enter: "ठंडक खोलें", check_now: "अभी मेरी गर्मी जाँचें",
+  lp_title: "जानिए आपका घर कितना गर्म होगा, और उसे ठंडा कैसे रखें।",
+  lp_sub: "ठंडक आपकी सही जगह का लाइव पूर्वानुमान पढ़ता है, आपके कमरे के अंदर का तापमान आँकता है, और घंटे-दर-घंटे की योजना देता है — सिर्फ़ आज़माए हुए, कम खर्च वाले उपायों के साथ। मुफ़्त, हिंदी और अंग्रेज़ी में।",
+  lp_saved: "आपकी सहेजी जगह: {p}", go_my_heat: "मेरी गर्मी देखें",
+  prob_title: "सबसे ज़्यादा नुकसान वाली गर्मी अक्सर घर के अंदर होती है",
+  prob_sub: "लू की चेतावनी बाहर की हवा की बात करती है। लेकिन लोग सबसे गर्म घंटे और रातें घर के अंदर बिताते हैं, और घर कई बार गली से भी ज़्यादा गर्म रहते हैं।",
+  f1_t: "ज़्यादा मौतें लू वाले दिनों में, भारत के 10 शहरों के आंकड़ों में (2008–2019)।",
+  f2_t: "दिल्ली में टिन की छत वाले कमरे रात में (2–6 बजे) बाहर की हवा से इतने ज़्यादा गर्म रहे — शरीर को ठंडा होने का मौका ही नहीं मिला।",
+  f3_t: "इससे ऊपर 65 से ज़्यादा उम्र के लोगों के लिए सिर्फ़ पंखा काफ़ी नहीं, और 38 °C से ऊपर यह गर्मी का असर बढ़ा भी सकता है।",
+  who_title: "यह किसके लिए है",
+  who_me_d: "आज आपका गर्मी स्तर, खिड़कियाँ कब खोलें, पंखा कब काम करना बंद करता है, और आपकी छत के लिए सबसे सस्ते उपाय।",
+  who_soc_d: "आपके इलाके की गर्मी, मिलकर किए जा सकने वाले उपाय, और कूल रूफ का प्रति घर खर्च।",
+  who_gov_d: "भारत के हर ज़िले की गर्मी और संवेदनशील लोगों के आधार पर रैंकिंग, दिल्ली के वार्ड की जानकारी और डाउनलोड करने योग्य डेटा के साथ।",
+  how_lp_sub: "आपकी जगह से लेकर काम की योजना तक, पाँच चरणों में। कुछ भी छिपा नहीं।", full_method: "पूरा तरीका और मॉडल पढ़ें",
+  trust_title: "इस पर भरोसा क्यों करें",
+  trust_sourced_d: "हर सीमा और हर उपाय उस अध्ययन या नियम से जुड़ा है जहाँ से वह आया है। स्रोत नहीं, तो हम उसे नहीं दिखाते।",
+  trust_private: "आपकी लोकेशन हमारे सर्वर पर ही रहती है",
+  trust_private_d: "जगहों के नाम ऑफ़लाइन खोजे जाते हैं। आपकी लोकेशन किसी दूसरी कंपनी को कभी नहीं भेजी जाती।",
+  trust_free: "मुफ़्त · खुला डेटा · कोई साइन-अप नहीं",
+  trust_free_d: "न खाता, न विज्ञापन। खुले डेटा पर बना, जिसे आप खुद डाउनलोड कर सकते हैं।",
+  data_title: "हम कौन-सा डेटा इस्तेमाल करते हैं",
+  ds_openmeteo: "आपकी सही जगह का लाइव घंटेवार पूर्वानुमान", ds_geonames: "जगहों के नाम और PIN खोज, ऑफ़लाइन",
+  ds_imd: "हीट-इंडेक्स स्तर और लू के नियम", ds_xgb: "कमरे के तापमान का मॉडल, दिल्ली के 56 मापे गए घरों पर प्रशिक्षित",
+  ds_more: "ज़िला रैंकिंग के लिए गर्मियों का मौसम और आबादी",
+  cta_title: "जहाँ आप रहते हैं, वहाँ की गर्मी देखें", cta_sub: "एक मिनट से कम लगता है। कोई साइन-अप नहीं।",
+  air_now: "अभी हवा",
+  foot_about: "भारत के किसी भी घर के लिए गर्मी का जोखिम और ठंडक की योजना।", foot_data: "डेटा", foot_lang: "भाषा",
+  method_link: "तरीका और मॉडल", dl_districts: "ज़िला रैंकिंग डाउनलोड करें (CSV)", dl_wards: "दिल्ली वार्ड डेटा डाउनलोड करें (CSV)",
+});
+
+/* ---- Design.md landing: dusk sky, matka, product peek (22 Oct 2026) ---- */
+Object.assign(window.I18N.en, {
+  search_go: "Search", chip_me: "Check my heat", chip_area: "Plan for my colony", chip_gov: "District ranking",
+  fc_label: "Tin-roof room, 2–6 am", fc_desc: "hotter than the air outside", fc_tag: "Measured in Delhi homes",
+  live_label: "Next 24 hours", live_next24: "Next 24 hours · {p}",
+  logos_title: "Built on open data and published science",
+  who_me_1: "Your room's temperature, hour by hour, as a range", who_me_2: "When to open the windows and when to keep them shut", who_me_3: "When a fan stops helping, with stricter limits for older people",
+  who_soc_1: "Your district's summer heat and how many people are at risk", who_soc_2: "Shared fixes that work for your kind of roofs", who_soc_3: "A cool-roof cost calculator, per household",
+  who_gov_1: "All 734 districts ranked by heat and vulnerable people", who_gov_2: "Delhi ward map from satellite data, with each ward's reasons for heat", who_gov_3: "Download everything as CSV",
+  q_text: "Cool first, transport second.", q_who: "NCDC heat-wave advisory, 2026", q_role: "The first-aid rule Thandak shows for heat stroke",
+});
+Object.assign(window.I18N.hi, {
+  search_go: "खोजें", chip_me: "मेरी गर्मी जाँचें", chip_area: "मेरी कॉलोनी की योजना", chip_gov: "ज़िला रैंकिंग",
+  fc_label: "टिन की छत वाला कमरा, रात 2–6 बजे", fc_desc: "बाहर की हवा से ज़्यादा गर्म", fc_tag: "दिल्ली के घरों में मापा गया",
+  live_label: "अगले 24 घंटे", live_next24: "अगले 24 घंटे · {p}",
+  logos_title: "खुले डेटा और प्रकाशित विज्ञान पर बना",
+  who_me_1: "आपके कमरे का तापमान, घंटे-दर-घंटे, एक रेंज में", who_me_2: "खिड़कियाँ कब खोलें और कब बंद रखें", who_me_3: "पंखा कब काम करना बंद करता है, बुज़ुर्गों के लिए सख़्त सीमा के साथ",
+  who_soc_1: "आपके ज़िले की गर्मी और कितने लोग जोखिम में हैं", who_soc_2: "आपकी तरह की छतों के लिए काम करने वाले साझा उपाय", who_soc_3: "कूल-रूफ खर्च कैलकुलेटर, प्रति घर",
+  who_gov_1: "सभी 734 ज़िले गर्मी और संवेदनशील लोगों के आधार पर रैंक", who_gov_2: "सैटेलाइट डेटा से दिल्ली वार्ड नक्शा, हर वार्ड की गर्मी के कारणों के साथ", who_gov_3: "सब कुछ CSV में डाउनलोड करें",
+  q_text: "पहले ठंडा करें, फिर अस्पताल ले जाएँ।", q_who: "NCDC लू सलाह, 2026", q_role: "लू लगने पर ठंडक यही प्राथमिक उपचार नियम दिखाता है",
+});
+
+/* ---- every page on the dusk theme + the matka's voice (22 Oct 2026) ----
+   Roof reactions = measured Delhi offsets (verified_numbers roof.offset.*); tips = NCDC heat advice (health.advice.ncdc_iec). */
+Object.assign(window.I18N.en, {
+  mascot_label: "Thandak's matka: tap for a cooling tip",
+  tip_1: "Drink water often through the day.", tip_2: "ORS, lemon water, buttermilk or lassi help you stay hydrated.", tip_3: "Stay out of the sun between 12 pm and 3 pm.",
+  tip_4: "Wear light-coloured, loose cotton clothes and cover your head.", tip_5: "Keep curtains or shades drawn on the sunny side during the day.", tip_6: "A cool bath helps bring your body temperature down.",
+  tip_src: "NCDC heat advice",
+  app_tip_empty: "Tell me where you are and I'll check the heat there.", app_tip_loading: "Checking the live forecast…", app_tip: "Today's heat band here: {b}. Tap me for a cooling tip.",
+  flow_tip_0: "Pick your home on the map, search, or use your location. I'll fetch the live forecast for that exact spot.",
+  flow_tip_1: "What's right above your room makes a big difference. Pick one to see what was measured in Delhi homes.",
+  flow_tip_2: "Older people, babies and people with a long illness need stricter limits. Pick everyone who lives with you.",
+  flow_tip_3: "Tell me what cooling you have. A fan helps only up to a point, and I'll show you where that point is.",
+  react_roof_tin_top: "Tin roof: in measured Delhi homes, these rooms stayed about 3.5 °C hotter than outside at night.",
+  react_roof_stone_slab_top: "Stone-slab roof: about 2 °C cooler than outside in the afternoon, but about 4.5 °C warmer at night.",
+  react_roof_rcc_brick_top: "Concrete or brick roof: about 5 °C cooler than outside in the afternoon, about 2.4 °C warmer at night.",
+  react_roof_lower_floor: "A floor above you: the coolest of the four in measured Delhi homes, by day and by night.",
+  react_people: "Got it. I'll use the stricter fan limits for them.", react_people_none: "Okay, I'll use the standard limits.",
+  react_dev_fan: "I'll mark the hours when a fan alone is not enough.", react_dev_cooler: "The room model takes your cooler into account.",
+  react_dev_ac: "Got it.", react_dev_none: "No fan or cooler: I'll put the free fixes first.", react_ok: "Got it.",
+  react_roof_access: "You can use your roof, so I'll include roof fixes such as cool-roof paint.",
+  res_tip_low: "Heat is mild right now. Keep water handy, and tap me for more tips.",
+  res_tip_moderate: "It's getting hot. Check the hours below when a fan alone is not enough.",
+  res_tip_high: "High heat today. Follow the plan below and watch for the warning signs.",
+  res_tip_extreme: "Extreme heat. Keep everyone cool, know the warning signs, and call 108 if anyone feels unwell.",
+  area_tip: "Tap anywhere on the map, or search, to see that district's heat.", area_tip_d: "Here's the heat profile for {d}. Scroll down for shared fixes.",
+  gov_tip: "Tap a row in the ranking and I'll fly the map there.", how_tip: "No black box. Every step below is how your result is worked out.",
+  src_tip: "Every number in Thandak comes from one of these sources.", scrub_hint: "Hover or drag across the chart to read any hour.",
+});
+Object.assign(window.I18N.hi, {
+  mascot_label: "ठंडक का मटका: ठंडक का सुझाव पाने के लिए टैप करें",
+  tip_1: "दिन भर बार-बार पानी पिएँ।", tip_2: "ORS, नींबू पानी, छाछ या लस्सी शरीर में पानी बनाए रखते हैं।", tip_3: "दोपहर 12 से 3 बजे तक धूप से बचें।",
+  tip_4: "हल्के रंग के ढीले सूती कपड़े पहनें और सिर ढकें।", tip_5: "दिन में धूप वाली तरफ़ पर्दे या चिक गिराकर रखें।", tip_6: "ठंडे पानी से नहाने से शरीर का तापमान कम होता है।",
+  tip_src: "NCDC की गर्मी सलाह",
+  app_tip_empty: "बताइए आप कहाँ हैं, मैं वहाँ की गर्मी देखता हूँ।", app_tip_loading: "लाइव पूर्वानुमान देख रहा हूँ…", app_tip: "यहाँ आज का गर्मी स्तर: {b}। सुझाव के लिए मुझे टैप करें।",
+  flow_tip_0: "नक्शे पर अपना घर चुनें, खोजें, या अपनी लोकेशन दें। मैं उसी जगह का लाइव पूर्वानुमान लाऊँगा।",
+  flow_tip_1: "आपके कमरे के ठीक ऊपर क्या है, इससे बड़ा फ़र्क पड़ता है। एक चुनें और देखें दिल्ली के घरों में क्या मापा गया।",
+  flow_tip_2: "बुज़ुर्गों, छोटे बच्चों और लंबी बीमारी वाले लोगों के लिए सख़्त सीमा चाहिए। घर के सभी लोगों को चुनें।",
+  flow_tip_3: "बताइए आपके पास ठंडक के लिए क्या है। पंखा एक हद तक ही मदद करता है, मैं वह हद दिखाऊँगा।",
+  react_roof_tin_top: "टिन की छत: दिल्ली के मापे गए घरों में ये कमरे रात में बाहर से लगभग 3.5 °C ज़्यादा गर्म रहे।",
+  react_roof_stone_slab_top: "पत्थर की पट्टी वाली छत: दोपहर में बाहर से लगभग 2 °C ठंडे, लेकिन रात में लगभग 4.5 °C गर्म।",
+  react_roof_rcc_brick_top: "कंक्रीट या ईंट की छत: दोपहर में बाहर से लगभग 5 °C ठंडे, रात में लगभग 2.4 °C गर्म।",
+  react_roof_lower_floor: "आपके ऊपर एक और मंज़िल: दिल्ली के मापे गए घरों में चारों में सबसे ठंडे, दिन और रात दोनों में।",
+  react_people: "ठीक है। उनके लिए मैं पंखे की सख़्त सीमा लगाऊँगा।", react_people_none: "ठीक है, मैं सामान्य सीमा लगाऊँगा।",
+  react_dev_fan: "मैं वे घंटे दिखाऊँगा जब सिर्फ़ पंखा काफ़ी नहीं।", react_dev_cooler: "कमरे का मॉडल आपके कूलर को भी गिनता है।",
+  react_dev_ac: "ठीक है।", react_dev_none: "पंखा या कूलर नहीं: मैं मुफ़्त उपाय पहले रखूँगा।", react_ok: "ठीक है।",
+  react_roof_access: "आप छत इस्तेमाल कर सकते हैं, इसलिए मैं छत के उपाय भी दिखाऊँगा, जैसे कूल-रूफ पेंट।",
+  res_tip_low: "अभी गर्मी हल्की है। पानी पास रखें, और सुझावों के लिए मुझे टैप करें।",
+  res_tip_moderate: "गर्मी बढ़ रही है। नीचे देखें किन घंटों में सिर्फ़ पंखा काफ़ी नहीं।",
+  res_tip_high: "आज तेज़ गर्मी है। नीचे की योजना अपनाएँ और खतरे के संकेतों पर नज़र रखें।",
+  res_tip_extreme: "बहुत ज़्यादा गर्मी। सबको ठंडा रखें, खतरे के संकेत पहचानें, और किसी की तबीयत बिगड़े तो 108 पर कॉल करें।",
+  area_tip: "उस ज़िले की गर्मी देखने के लिए नक्शे पर कहीं भी टैप करें या खोजें।", area_tip_d: "यह रही {d} की गर्मी की जानकारी। साझा उपायों के लिए नीचे देखें।",
+  gov_tip: "रैंकिंग की किसी पंक्ति पर टैप करें, मैं नक्शा वहाँ ले चलूँगा।", how_tip: "कोई छिपा तरीका नहीं। नीचे का हर चरण बताता है कि आपका नतीजा कैसे निकलता है।",
+  src_tip: "ठंडक का हर आंकड़ा इन्हीं स्रोतों में से किसी एक से आता है।", scrub_hint: "किसी भी घंटे का तापमान देखने के लिए चार्ट पर उँगली या माउस घुमाएँ।",
+});

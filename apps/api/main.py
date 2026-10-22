@@ -1,4 +1,4 @@
-"""Garmi Check India - heat-risk API + static frontend (one service). Works for any point in India;
+"""Thandak - heat-risk API + static frontend (one service). Works for any point in India;
 Delhi additionally gets ward-level detail.
 Run locally:  uvicorn main:app --reload --port 8000   (from apps/api)
 """
@@ -27,8 +27,18 @@ VULN = {"elderly", "child", "pregnant", "chronic", "outdoor_worker"}
 LAT = dict(ge=6, le=37.2)
 LON = dict(ge=68, le=97.6)
 
-app = FastAPI(title="Garmi Check India API", version="0.2.0")
+app = FastAPI(title="Thandak API", version="0.2.0")
 app.add_middleware(GZipMiddleware, minimum_size=1000)  # district / ward GeoJSON shrink ~5x on the wire
+
+
+@app.middleware("http")
+async def revalidate_frontend(request, call_next):
+    """The frontend has no build step or hashed filenames, so make browsers revalidate it (cheap 304 via ETag)
+    instead of guessing a cache lifetime and running an old app.js against new styles after a deploy."""
+    resp = await call_next(request)
+    if not request.url.path.startswith("/api/"):
+        resp.headers.setdefault("Cache-Control", "no-cache")
+    return resp
 
 
 @app.on_event("startup")
