@@ -1,4 +1,4 @@
-# Garmi Check India: how the whole app works
+# Thandak: how the whole app works
 
 **What it is:** a mobile-first website.
 - **For anyone in India:** it gives their **heat level right now**, an **hour-by-hour plan for their home**, and **only evidence-backed fixes**, cheapest first.
