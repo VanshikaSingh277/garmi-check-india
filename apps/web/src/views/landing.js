@@ -21,15 +21,15 @@ var WHO = [
   { ic: "landmark", k: "government", d: "who_gov_d", pts: ["who_gov_1", "who_gov_2", "who_gov_3"] }
 ];
 var DATA_SRC = [["Open-Meteo", "ds_openmeteo"], ["GeoNames", "ds_geonames"], ["IMD", "ds_imd"], ["XGBoost", "ds_xgb"], ["ERA5 · WorldPop", "ds_more"]];
-var DELHI_PT = { lat: 28.6139, lon: 77.209, label: "New Delhi" };
 var NCDC = "https://ncdc.mohfw.gov.in/uploads/pdf/4.%20Heat%20wave%20advisory%20for%20State%20Health%20department_2026.pdf";
 
 function whoPanel(i) {
   var w = WHO[i];
   return '<div><p class="lede">' + t(w.d) + '</p></div><ul>' + w.pts.map(function (k) { return "<li>" + I("check") + "<span>" + t(k) + "</span></li>"; }).join("") + "</ul>";
 }
-/* live floating card: the real next-24-hour forecast for the saved place (or New Delhi) */
+/* live floating card: the real next-24-hour forecast for the user's saved place (nothing until they pick one) */
 function liveCard(w, label) {
+  if (w === "pick") return '<div class="l">' + t("live_label") + '</div><p class="d" style="margin-top:6px">' + t("live_pick") + "</p>";
   if (!w) return '<div class="l">' + t("live_label") + '</div><div class="skeleton" style="height:96px;margin-top:8px"></div>';
   var hrs = (w.next24 || []).slice(0, 24), lvl = (w.today || {}).hi_level || "low";
   if (hrs.length < 2) return '<div class="l">' + t("live_label") + "</div>";
@@ -50,7 +50,7 @@ export function landing() {
     '<div class="cta-row"><a class="btn white lg" href="#/app">' + t("enter") + " " + I("arrow-r") + "</a></div>" +
     (saved ? '<p class="saved-link">' + I("pin", "sm") + "<span>" + t("lp_saved", { p: esc(a.where.label || a.where.district || "") }) + '</span><a href="#/app">' + t("go_my_heat") + " →</a></p>" : "") +
     '<div class="peek"><div class="mid">' + promptBox("lq") + '<button class="btn ghost-sky gps-btn" id="lgps" type="button">' + I("locate") + t("use_gps") + '</button><div class="statusline" id="lmsg"></div></div>' +
-    '<div class="fcard" id="livecard">' + liveCard(null) + "</div></div></div>" + mascot("hc") + "</section>" +
+    '<div class="fcard" id="livecard">' + liveCard(saved ? null : "pick") + "</div></div></div>" + mascot("hc") + "</section>" +
     '<section class="logos"><div class="wrap"><p>' + t("logos_title") + "</p><ul>" + ["Open-Meteo", "IMD", "GeoNames", "ERA5", "WorldPop", "OpenStreetMap", "Landsat", "NASA MODIS"].map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul></div></section>" +
     '<section class="lsec"><div class="wrap"><div class="head"><h2>' + t("prob_title") + "</h2><p>" + t("prob_sub") + '</p></div><div class="acards">' +
     FACTS.map(function (f) { return '<div class="acard ' + f.c + '"><div class="big">' + f.n + "</div><p>" + t(f.k + "_t") + "</p></div>"; }).join("") + "</div></div></section>" +
@@ -82,7 +82,7 @@ export function landing() {
       tabs[j].focus(); tabs[j].click(); e.preventDefault();
     };
   });
-  var p = saved ? { lat: a.lat, lon: a.lon, label: a.where.label || a.where.district } : DELHI_PT;
-  api("/api/weather?lat=" + p.lat + "&lon=" + p.lon).then(function (w) { if ($("livecard")) $("livecard").innerHTML = liveCard(w, p.label); }).catch(function () { var c = $("livecard"); if (c) c.style.display = "none"; });
+  var p = saved ? { lat: a.lat, lon: a.lon, label: a.where.label || a.where.district } : null;
+  if (p) api("/api/weather?lat=" + p.lat + "&lon=" + p.lon).then(function (w) { if ($("livecard")) $("livecard").innerHTML = liveCard(w, p.label); }).catch(function () { var c = $("livecard"); if (c) c.style.display = "none"; });
   if (a.lat != null && !a.where && !S._rw) { S._rw = true; refreshWhere().then(function () { if (route() === "" && S.a.where) landing(); }); }
 }

@@ -15,8 +15,10 @@ var SCHEMES = [["scheme_1", "https://ndma.gov.in/sites/default/files/PDF/Guideli
 var DATA = {};
 
 export function govView() {
+  var inDelhi = !!(S.a.where && S.a.where.in_delhi);
+  if (!inDelhi) S.gscope = "india";
   var india = S.gscope !== "delhi", key = S.lang + "|" + (india ? "india|" + S.gstate : "delhi");  // the fixes come back in the page language
-  var hero = pageHero({ id: "gm", title: t("gov_title"), sub: t("government_sub"), tip: t("gov_tip"), mood: "happy", extra: '<div class="seg lg" id="scope"><button type="button" data-scope="india" class="' + (india ? "on" : "") + '">' + I("map", "sm") + t("scope_india") + '</button><button type="button" data-scope="delhi" class="' + (!india ? "on" : "") + '">' + I("building", "sm") + t("scope_delhi") + "</button></div>" });
+  var hero = pageHero({ id: "gm", title: t("gov_title"), sub: t("government_sub"), tip: t("gov_tip"), mood: "happy", extra: inDelhi ? '<div class="seg lg" id="scope"><button type="button" data-scope="india" class="' + (india ? "on" : "") + '">' + I("map", "sm") + t("scope_india") + '</button><button type="button" data-scope="delhi" class="' + (!india ? "on" : "") + '">' + I("building", "sm") + t("scope_delhi") + "</button></div>" : "" });
   if (!DATA[key]) {
     render(skeletonCard(60) + "<br>" + skeletonCard(380), hero);
     bindScope();
