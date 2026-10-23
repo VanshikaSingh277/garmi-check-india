@@ -8,7 +8,7 @@ A mobile-first website that tells anyone **anywhere in India** their **current h
 | Part | Where | Notes |
 |---|---|---|
 | API + rules + ML serving | `apps/api` (FastAPI) | `/api/status/individual`, `/api/where`, `/api/search`, `/api/area`, `/api/gov/rank?scope=india|delhi`, `/api/weather`, `/api/sources`, `/api/india/districts.geojson`, `/api/wards.geojson` |
-| Frontend | `apps/web` (vanilla JS, 14 KB gzipped) | MapLibre loads lazily, only for map views |
+| Frontend + mobile apps | `apps/web` (vanilla JS ES modules, Vite, Capacitor) | One codebase for the website and the Android / iOS apps. Each screen and the Hindi strings load on demand; MapLibre is bundled and loads only for map views |
 | Verified numbers (single source of truth) | `docs/verified_numbers.csv` (copied to `apps/api/data`) | Every threshold/effect has a source and status |
 | Pipelines | `pipelines/` | `places/build_gazetteer.py` (GeoNames → offline India gazetteer), `india/district_layer.py` (ERA5 summers + WorldPop → all-India district index), weather, Landsat/MODIS/WorldCover (Planetary Computer), Delhi ward table |
 | Models | `ml/` | Indoor XGBoost (MAE 1.52 °C, leave-home-out), Model A LightGBM (spatial-CV MAE 0.90 °C, R² 0.82), HVI |
@@ -17,11 +17,24 @@ A mobile-first website that tells anyone **anywhere in India** their **current h
 
 ## Run locally
 ```bash
-cd apps/api
+cd apps/web
+npm install
+npm run build              # builds the website into apps/web/dist (the API serves it)
+cd ../api
 python3 -m pip install -r requirements.txt
 python3 run_local.py "" 8000
 ```
 Then open http://localhost:8000.
+
+While changing the frontend, keep the API running and use `npm run dev` in `apps/web` (http://localhost:5173, hot reload; `/api` is proxied to port 8000).
+
+## Android and iOS apps (Capacitor)
+The apps are the same frontend inside a native shell (`apps/web/android`, `apps/web/ios`). They use native location, the share sheet for CSV files and the Android back button, and they ship the district and ward maps inside the app.
+1. Deploy the API somewhere the phone can reach over HTTPS, then put its address in `apps/web/.env.app` (`VITE_API_BASE`). To test on an Android emulator against your own machine, create `apps/web/.env.app.local` with `VITE_API_BASE=http://10.0.2.2:8000` (`sh scripts/install-android.sh` builds, installs on a USB-connected phone and maps the phone's `localhost:8000` to your PC; it allows plain `http://` in that debug build only).
+2. `cd apps/web && npm run android` (needs Android Studio) or `npm run ios` (needs Xcode on a Mac). Both build the app bundle, copy it into the native project and open the IDE, where you run it on a device or make a release build.
+3. After changing icons: `node scripts/make-icons.mjs && npx capacitor-assets generate`.
+
+The API allows requests from the apps' origins (`capacitor://localhost`, `https://localhost`). Add any other web origins with the `THANDAK_ORIGINS` environment variable (comma-separated).
 
 On macOS, XGBoost needs OpenMP (`brew install libomp`). Linux/Docker installs `libgomp1` automatically.
 
@@ -29,6 +42,7 @@ On macOS, XGBoost needs OpenMP (`brew install libomp`). Linux/Docker installs `l
 ```bash
 python3 tests/test_heat_formulas.py
 python3 tests/test_rules.py
+python3 tests/test_i18n.py          # English and Hindi copy: same keys, same placeholders
 PYTHONPATH=tests python3 tests/test_india.py
 ```
 

@@ -9,6 +9,7 @@ from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -19,7 +20,10 @@ from engine import verified as V
 
 HERE = os.path.dirname(__file__)
 DATA = os.path.join(HERE, "data")
-WEB = os.path.join(HERE, "..", "web")
+# the built frontend (npm run build in apps/web); the Docker image copies it to ../web
+WEB = next((p for p in (os.path.join(HERE, "..", "web", "dist"), os.path.join(HERE, "..", "web")) if os.path.isfile(os.path.join(p, "index.html"))), None)
+# the Android / iOS app (Capacitor) calls the API from its own origin; extra web origins can be added with THANDAK_ORIGINS
+APP_ORIGINS = ["capacitor://localhost", "https://localhost", "http://localhost"] + [o for o in os.environ.get("THANDAK_ORIGINS", "").split(",") if o]
 IST = ZoneInfo("Asia/Kolkata")
 DELHI_BBOX = (28.40, 76.83, 28.89, 77.35)
 ROOFS = {"tin_top", "stone_slab_top", "rcc_brick_top", "lower_floor"}
@@ -29,14 +33,20 @@ LON = dict(ge=68, le=97.6)
 
 app = FastAPI(title="Thandak API", version="0.2.0")
 app.add_middleware(GZipMiddleware, minimum_size=1000)  # district / ward GeoJSON shrink ~5x on the wire
+app.add_middleware(CORSMiddleware, allow_origins=APP_ORIGINS, allow_methods=["GET", "POST"], allow_headers=["Content-Type"], max_age=86400)
 
 
 @app.middleware("http")
-async def revalidate_frontend(request, call_next):
-    """The frontend has no build step or hashed filenames, so make browsers revalidate it (cheap 304 via ETag)
-    instead of guessing a cache lifetime and running an old app.js against new styles after a deploy."""
+async def cache_headers(request, call_next):
+    """Built files under /assets/ have a content hash in their name, so they never change: cache them for a year.
+    Everything else (index.html, manifest) is revalidated (cheap 304 via ETag) so a deploy shows up on the next visit."""
     resp = await call_next(request)
-    if not request.url.path.startswith("/api/"):
+    path = request.url.path
+    if path.startswith("/assets/"):
+        resp.headers.setdefault("Cache-Control", "public, max-age=31536000, immutable")
+    elif path.endswith(".geojson"):
+        resp.headers.setdefault("Cache-Control", "public, max-age=86400")  # outlines change only when the pipeline re-runs
+    elif not path.startswith("/api/"):
         resp.headers.setdefault("Cache-Control", "no-cache")
     return resp
 
@@ -244,5 +254,5 @@ def sources():
             "verified_numbers": [{"key": k, "status": r["status"], "source": r["source_title"], "url": r["doi_or_url"]} for k, r in V.table().items()]}
 
 
-if os.path.isdir(WEB):
+if WEB:
     app.mount("/", StaticFiles(directory=WEB, html=True), name="web")

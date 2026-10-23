@@ -174,7 +174,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
     <div class="arch">
       <div class="col"><div class="node k-user"><b>User</b>Phone or laptop browser<small>GPS · taps · search</small></div></div>
       <div class="arr">→<small>HTTPS</small></div>
-      <div class="col"><div class="node k-web"><b>Frontend</b><code>apps/web</code><small>index.html · app.js · styles.css · icons.js · i18n.js</small></div></div>
+      <div class="col"><div class="node k-web"><b>Frontend</b><code>apps/web</code><small>src/ ES modules · Vite · website + Android/iOS (Capacitor)</small></div></div>
       <div class="arr">→<small>JSON</small></div>
       <div class="col"><div class="node k-api"><b>API</b><code>apps/api/main.py</code><small>FastAPI · one service · also serves the website</small></div></div>
       <div class="arr">→</div>
@@ -213,12 +213,11 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
 │   │   │   ├── <span class="f">solutions.py</span>         <span class="c">fix catalogue filter: why-for-you + skipped + cost tiers</span>
 │   │   │   └── <span class="f">verified.py</span>          <span class="c">reads verified_numbers.csv (single source of truth)</span>
 │   │   └── <span class="d">data/</span>                    <span class="c">files loaded at runtime (section 12)</span>
-│   └── <span class="d">web/</span>                         <span class="c">← the website (vanilla JS, no build)</span>
+│   └── <span class="d">web/</span>                         <span class="c">← website + Android / iOS app (one codebase)</span>
 │       ├── <span class="f">index.html</span>               <span class="c">app shell: top bar, tabs, bottom nav, footer</span>
-│       ├── <span class="f">app.js</span>                   <span class="c">router + all pages + map + search + charts</span>
-│       ├── <span class="f">styles.css</span>               <span class="c">design system (light/dark, teal brand)</span>
-│       ├── <span class="f">icons.js</span>                 <span class="c">inline SVG icons + roof illustrations</span>
-│       └── <span class="f">i18n.js</span>                  <span class="c">English + Hindi strings</span>
+│       ├── <span class="f">vite.config.js</span>           <span class="c">website build (dist/) and app build (dist-app/)</span>
+│       ├── <span class="d">android/, ios/</span>           <span class="c">native projects (Capacitor)</span>
+│       └── <span class="d">src/</span>                     <span class="c">main · router · views/ · api · native · map · place · ui · styles · icons · art · i18n/ (en, hi)</span>
 ├── <span class="d">pipelines/</span>                       <span class="c">← offline data builders</span>
 │   ├── <span class="f">places/build_gazetteer.py</span>    <span class="c">GeoNames → india_places / india_pins</span>
 │   ├── <span class="f">india/district_layer.py</span>      <span class="c">ERA5 summers + WorldPop + LGD districts → district index</span>
@@ -406,7 +405,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
     <div class="grid3" style="margin-top:12px">
       <div class="node k-web"><b>State</b><code>localStorage</code>: <code>gc_state</code> (language, place, answers) · <code>gc_last</code> (last result, offline fallback) · <code>gc_theme</code></div>
       <div class="node k-web"><b>Maps</b>MapLibre GL, lazy-loaded. The India view shows only LGD district polygons; OSM tiles appear from zoom 7. Colours use a 5-stop ramp at the 10/30/50/70/90th percentiles.</div>
-      <div class="node k-web"><b>Language &amp; theme</b>Every label comes from <code>i18n.js</code> (en/hi); fix texts come from <code>solutions.csv</code> in both languages. Light, dark or automatic theme.</div>
+      <div class="node k-web"><b>Language &amp; theme</b>Every label comes from <code>src/i18n/en.js</code> and <code>hi.js</code>; fix texts come from <code>solutions.csv</code> in both languages. Light, dark or automatic theme.</div>
     </div>
   </section>
 
@@ -484,7 +483,7 @@ function seq(id, parts, steps) {
   });
   el.innerHTML = h;
 }
-seq("seq1", [["B", "Browser<br>app.js", "k-web"], ["M", "main.py", "k-api"], ["P", "places · districts<br>· areas", "k-eng"], ["W", "weather.py", "k-eng"], ["O", "Open-Meteo", "k-ext"], ["I", "indoor.py<br>(ML)", "k-eng"], ["R", "rules · plan", "k-eng"], ["S", "solutions<br>· verified", "k-data"]], [
+seq("seq1", [["B", "Browser<br>src/views", "k-web"], ["M", "main.py", "k-api"], ["P", "places · districts<br>· areas", "k-eng"], ["W", "weather.py", "k-eng"], ["O", "Open-Meteo", "k-ext"], ["I", "indoor.py<br>(ML)", "k-eng"], ["R", "rules · plan", "k-eng"], ["S", "solutions<br>· verified", "k-data"]], [
   { f: "B", t: "M", x: "POST /api/status/individual {lat, lon, roof, people, devices, roof_access, lang}" },
   { f: "M", t: "P", x: "where_info(lat, lon)" },
   { f: "P", t: "M", ret: 1, x: "label, district, state, district heat profile, Delhi ward" },
