@@ -47,7 +47,7 @@ function mascot(id) { return SCENE.clouds(id, "back") + '<div class="mascot"><di
 export function landing() {
   var a = S.a, saved = known();
   render('<section class="sky" id="sky"><div class="wrap hero"><h1>' + t("lp_title") + '</h1><p class="lead">' + t("lp_sub") + "</p>" +
-    '<div class="cta-row"><a class="btn white lg" href="#/app">' + t("enter") + " " + I("arrow-r") + "</a></div>" +
+    '<div class="cta-row"><a class="btn white lg attn" href="#/app">' + t("enter") + " " + I("arrow-r") + "</a></div>" +
     (saved ? '<p class="saved-link">' + I("pin", "sm") + "<span>" + t("lp_saved", { p: esc(a.where.label || a.where.district || "") }) + '</span><a href="#/app">' + t("go_my_heat") + " →</a></p>" : "") +
     '<div class="peek"><div class="mid">' + promptBox("lq") + '<button class="btn ghost-sky gps-btn" id="lgps" type="button">' + I("locate") + t("use_gps") + '</button><div class="statusline" id="lmsg"></div></div>' +
     '<div class="fcard" id="livecard">' + liveCard(null) + "</div></div></div>" + mascot("hc") + "</section>" +
@@ -56,7 +56,10 @@ export function landing() {
     FACTS.map(function (f) { return '<div class="acard ' + f.c + '"><div class="big">' + f.n + "</div><p>" + t(f.k + "_t") + "</p></div>"; }).join("") + "</div></div></section>" +
     '<section class="sky band"><div class="wrap"><div class="panel"><h2>' + t("who_title") + '</h2><div class="tabnav" role="tablist">' +
     WHO.map(function (w, i) { return '<button role="tab" id="whot' + i + '" aria-controls="whop" aria-selected="' + (i === 0) + '" data-who="' + i + '">' + I(w.ic, "sm") + t(w.k) + "</button>"; }).join("") +
-    '</div><div class="tabpanel" id="whop" role="tabpanel" aria-labelledby="whot0">' + whoPanel(0) + "</div></div></div>" + SCENE.clouds("wc", "back") + "</section>" +
+    /* all three panels share one grid cell, so the box keeps the tallest one's height when switching tabs */
+    '</div><div class="tabstack" id="whop" role="tabpanel" aria-labelledby="whot0">' +
+    WHO.map(function (w, i) { return '<div class="tabpanel' + (i ? " off" : "") + '" data-whop="' + i + '"' + (i ? ' aria-hidden="true"' : "") + ">" + whoPanel(i) + "</div>"; }).join("") +
+    "</div></div></div>" + SCENE.clouds("wc", "back") + "</section>" +
     '<section class="lsec"><div class="wrap"><div class="head"><h2>' + t("how_teaser") + "</h2><p>" + t("how_lp_sub") + "</p></div>" + timeline() +
     '<div class="center"><a class="more-link" href="#/how">' + t("full_method") + " " + I("arrow-r", "sm") + "</a></div></div></section>" +
     '<section class="lsec" style="padding-top:16px"><div class="wrap quote"><span class="mark" aria-hidden="true">“</span><blockquote>' + t("q_text") + '</blockquote><div class="who"><span class="av">' + I("shield", "sm") +
@@ -66,14 +69,15 @@ export function landing() {
     '</div><div class="center" style="margin-top:28px"><h3 style="margin-bottom:12px">' + t("data_title") + '</h3><div class="badges wrapping" style="justify-content:center">' +
     DATA_SRC.map(function (x) { return '<span class="badge"><b>' + x[0] + "</b> · " + t(x[1]) + "</span>"; }).join("") +
     '</div><a class="more-link" href="#/sources">' + t("open_sources") + " " + I("arrow-r", "sm") + "</a></div></div></section>" +
-    '<section class="sky cta"><div class="wrap"><h2>' + t("cta_title") + "</h2><p>" + t("cta_sub") + '</p><div class="cta-row"><a class="btn white lg" href="#/app">' + t("enter") + " " + I("arrow-r") + "</a></div></div>" + mascot("cc") + "</section>", RAW);
+    '<section class="sky cta"><div class="wrap"><h2>' + t("cta_title") + "</h2><p>" + t("cta_sub") + '</p><div class="cta-row"><a class="btn white lg attn" href="#/app">' + t("enter") + " " + I("arrow-r") + "</a></div></div>" + mascot("cc") + "</section>", RAW);
   bindPrompt("lq", function (it) { setLoc(it.lat, it.lon, "search", null, null).then(function () { location.hash = "#/app"; }); });
   bindGps("lgps", "lmsg", function () { return null; }, function () { location.hash = "#/app"; });
   document.querySelectorAll("[data-who]").forEach(function (b) {
     b.onclick = function () {
       var i = +b.getAttribute("data-who");
       document.querySelectorAll("[data-who]").forEach(function (x) { x.setAttribute("aria-selected", String(x === b)); });
-      $("whop").setAttribute("aria-labelledby", b.id); $("whop").innerHTML = whoPanel(i);
+      $("whop").setAttribute("aria-labelledby", b.id);
+      document.querySelectorAll("[data-whop]").forEach(function (p) { var off = +p.getAttribute("data-whop") !== i; p.classList.toggle("off", off); p.setAttribute("aria-hidden", String(off)); });
     };
     /* arrow keys move between tabs */
     b.onkeydown = function (e) {
