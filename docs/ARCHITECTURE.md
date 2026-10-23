@@ -37,10 +37,9 @@
 
 ```mermaid
 flowchart LR
-  U["👤 User<br/>phone / laptop browser"] --> W["Frontend (apps/web)<br/>index.html · app.js · styles.css<br/>icons.js · i18n.js (EN/HI)"]
+  U["👤 User<br/>phone / laptop browser"] --> W["Frontend (apps/web/src)<br/>ES modules · Vite build<br/>website + Android/iOS (Capacitor)"]
   W -- "JSON over HTTPS" --> A["API (apps/api/main.py)<br/>FastAPI · one service"]
   W -- "map tiles (zoom ≥ 7)" --> OSM[("OpenStreetMap tiles")]
-  W -- "map library" --> ML[("MapLibre GL 4.7.1<br/>loaded only when a map shows")]
   A --> E["Engines (apps/api/engine)<br/>places · districts · areas · weather<br/>indoor (ML) · rules · plan · solutions · verified"]
   E -- "live hourly forecast" --> OM[("Open-Meteo forecast API")]
   E --> D[("Data files (apps/api/data)<br/>models · gazetteer · district & ward layers<br/>verified_numbers.csv · solutions.csv")]
@@ -49,12 +48,12 @@ flowchart LR
 
 | Layer | What it does | Key files |
 |---|---|---|
-| **Frontend** | Pages, maps, forms, language and theme. No build step. About 47 KB gzipped. | `apps/web/*` |
+| **Frontend** | Pages, maps, forms, language and theme. Built with Vite: about 35 KB gzipped to open; each screen, the Hindi strings and MapLibre (bundled, ~300 KB gzipped) load only when needed. The same build runs as the Android / iOS app through Capacitor. | `apps/web/src/*` |
 | **API** | One FastAPI app. It serves the JSON endpoints **and** the static frontend. | `apps/api/main.py` |
 | **Engines** | All logic: naming places, weather, the ML indoor model, safety rules, the plan and fix selection. | `apps/api/engine/*.py` |
 | **Data** | Pre-built files: models, gazetteer, district and ward layers, verified numbers. | `apps/api/data/*` |
 | **Pipelines / ML** | Run offline to download raw data, train models and build the data files. | `pipelines/`, `ml/`, `scripts/` |
-| **External (runtime)** | Live forecast (Open-Meteo), base map tiles (OSM), map library (unpkg CDN). | none |
+| **External (runtime)** | Live forecast (Open-Meteo), base map tiles (OSM). Fonts and the map library are bundled, not loaded from a CDN. | none |
 
 **Privacy:** place names and PIN search come from an **offline gazetteer** on our own server. The user's location is **never sent to a third-party geocoder**. The forecast request carries only the coordinates rounded to 0.01°.
 
@@ -81,12 +80,22 @@ heat-india/
 │   │   │   ├── solutions.py         fix catalogue filter: why-for-you + skipped + cost tiers
 │   │   │   └── verified.py          reads verified_numbers.csv (single source of truth)
 │   │   └── data/                    files loaded at runtime (see section 12)
-│   └── web/                         ← the website (vanilla JS, no build)
+│   └── web/                         ← website + Android / iOS app (one codebase)
 │       ├── index.html               app shell: top bar, tabs, bottom nav, footer
-│       ├── app.js                   router + all pages + map + search + charts
-│       ├── styles.css               design system (light/dark, teal brand)
-│       ├── icons.js                 inline SVG icons + roof illustrations
-│       └── i18n.js                  English + Hindi strings
+│       ├── vite.config.js           website build (dist/) and app build (dist-app/, bundles the map outlines)
+│       ├── capacitor.config.json    native app id, splash, status bar
+│       ├── android/, ios/           native projects (Capacitor)
+│       └── src/
+│           ├── main.js              entry: fonts, styles, shell (nav, language, theme), boot
+│           ├── router.js            hash routes; each view is a lazily loaded chunk
+│           ├── views/               landing · home · check (questions + result) · area · gov · info · parts
+│           ├── api.js               server address, timeouts, short cache, shared in-flight requests
+│           ├── native.js            location, CSV share sheet, back button, status bar (web vs app)
+│           ├── map.js · place.js    MapLibre maps; place card, search box, GPS button
+│           ├── ui.js · util.js      render, page header, cards, motion; small helpers
+│           ├── styles.css           design system (light/dark)
+│           ├── icons.js · art.js    inline SVG icons, roof illustrations, matka mascot and clouds
+│           └── i18n/                en.js, hi.js (Hindi loads only when chosen)
 ├── pipelines/                       ← offline data builders
 │   ├── places/build_gazetteer.py    GeoNames → india_places / india_pins
 │   ├── india/district_layer.py      ERA5 summers + WorldPop + LGD districts → district index
@@ -112,7 +121,7 @@ heat-india/
 ```mermaid
 sequenceDiagram
   autonumber
-  participant B as Browser (app.js)
+  participant B as Browser (src/views)
   participant M as main.py
   participant P as places / districts / areas
   participant W as weather.py
@@ -339,11 +348,11 @@ flowchart TB
 | `#/sources` | Data and sources | Sources table with status badges, verified-numbers table |
 
 - **State:** language, the saved place and your answers live in `localStorage` (`gc_state`). The last result is in `gc_last` (offline fallback). The theme is in `gc_theme`.
-- **Maps:** MapLibre GL loads lazily.
+- **Maps:** MapLibre GL is bundled and loads lazily. The app ships the district and ward outlines inside its bundle; the website fetches them from the API.
   - **India-wide view:** draws only the LGD district polygons, which follow India's official outline.
   - **Zoom ≥ 7:** OpenStreetMap tiles appear.
   - **Colour ramp:** layers use a 5-stop ramp at the 10/30/50/70/90th percentiles of the district values.
-- **Bilingual:** every label comes from `i18n.js` (`en`, `hi`). Fix texts come from `solutions.csv` in both languages.
+- **Bilingual:** every label comes from `src/i18n/en.js` and `hi.js` (the Hindi is written for Hindi speakers, not translated line by line; `tests/test_i18n.py` keeps keys and placeholders in step). Fix texts come from `solutions.csv` in both languages.
 
 ---
 

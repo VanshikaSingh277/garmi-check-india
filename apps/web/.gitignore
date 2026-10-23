@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-app/
+*.local
+# Capacitor copies the web build into the native projects on every sync
+android/app/src/main/assets/public/
+ios/App/App/public/
+# build settings, not secrets (the repo root ignores .env.*)
+!.env.app
+!.env.example
