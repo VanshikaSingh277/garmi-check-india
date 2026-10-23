@@ -5,7 +5,7 @@ Run locally:  uvicorn main:app --reload --port 8000   (from apps/api)
 import json
 import os
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, HTTPException, Query
@@ -26,7 +26,11 @@ WEB = next((p for p in (os.path.join(HERE, "..", "web", "dist"), os.path.join(HE
 APP_ORIGINS = ["capacitor://localhost", "https://localhost", "http://localhost"] + [o for o in os.environ.get("THANDAK_ORIGINS", "").split(",") if o]
 IST = ZoneInfo("Asia/Kolkata")
 DELHI_BBOX = (28.40, 76.83, 28.89, 77.35)
-ROOFS = {"tin_top", "stone_slab_top", "rcc_brick_top", "lower_floor"}
+ROOFS = {"tin_top", "asbestos_top", "stone_slab_top", "rcc_brick_top", "lower_floor"}
+# the room model learned from four roof groups; an asbestos-cement sheet roof behaves like tin (thin sheet, no thermal mass)
+MODEL_ROOF = {"asbestos_top": "tin_top"}
+# questionnaire roof answer -> the fix catalogue's roof type and floor
+ROOF_TYPE = {"tin_top": "tin", "asbestos_top": "asbestos", "stone_slab_top": "stone_slab", "rcc_brick_top": "concrete"}
 VULN = {"elderly", "child", "pregnant", "chronic", "outdoor_worker"}
 LAT = dict(ge=6, le=37.2)
 LON = dict(ge=68, le=97.6)
@@ -69,11 +73,40 @@ class IndividualIn(BaseModel):
     vulnerable: List[str] = []
     devices: Devices = Devices()
     roof_access: bool = True
+    cross_ventilation: Optional[bool] = None
+    budget: Optional[Union[int, str]] = None
     lang: str = "en"
+
+
+class Reading(BaseModel):
+    indoor_c: Optional[float] = None
+    outdoor_c: Optional[float] = None
+
+
+class EffectIn(BaseModel):
+    before: List[Reading] = []
+    after: List[Reading] = []
 
 
 def _now():
     return datetime.now(IST).strftime("%Y-%m-%dT%H:00")
+
+
+def _now_dt():
+    return datetime.now(IST).replace(tzinfo=None)
+
+
+def _afternoon_rh(w):
+    return solutions.afternoon_rh([r["time"] for r in w["hourly"]], [r["rh"] for r in w["hourly"]], _now_dt())
+
+
+def household_of(q: "IndividualIn", vul: list) -> dict:
+    """The questionnaire answers in the fix catalogue's terms."""
+    devices = [d for d in ("fan", "cooler", "ac") if getattr(q.devices, d)]
+    return {"roof_type": ROOF_TYPE.get(q.roof), "top_floor": q.roof != "lower_floor", "roof_access": q.roof_access,
+            "vulnerable": any(v in vul for v in ("elderly", "child", "pregnant", "chronic")),
+            "outdoor_worker": "outdoor_worker" in vul, "devices": devices,
+            "cross_ventilation": q.cross_ventilation, "budget": q.budget}
 
 
 def _in_delhi_bbox(lat, lon):
@@ -152,9 +185,12 @@ def status_individual(q: IndividualIn):
         raise HTTPException(503, "forecast unavailable")
     start = next(i for i, r in enumerate(w["hourly"]) if r["time"][:13] >= now[:13])
     fit = indoor.applicability(nxt, place["in_delhi"])
-    ind = indoor.predict(w["hourly"], start, q.roof, q.devices.fan, q.devices.cooler) if fit["ok"] else []
+    model_roof = MODEL_ROOF.get(q.roof, q.roof)
+    ind = indoor.predict(w["hourly"], start, model_roof, q.devices.fan, q.devices.cooler) if fit["ok"] else []
     peak = max(ind, key=lambda h: h["indoor"]) if ind else None
-    risk = rules.risk(nxt, today, tom, q.roof, vul, q.devices.model_dump(), peak["indoor"] if peak else None, in_delhi=place["in_delhi"])
+    risk = rules.risk(nxt, today, tom, model_roof, vul, q.devices.model_dump(), peak["indoor"] if peak else None, in_delhi=place["in_delhi"])
+    fixes = solutions.recommend("family", {"climate": solutions.climate_of(place.get("district_heat"))}, household_of(q, vul),
+                                {"heat_level": risk["level"], "afternoon_rh_pct": _afternoon_rh(w)}, q.lang if q.lang in ("en", "hi") else "en")
     # fan limits are about the air around the person: the indoor estimate when we trust it, else the outdoor air (labelled)
     fan = rules.fan_advice(ind or [{"time": r["time"], "indoor": r["t"]} for r in nxt], vul)
     fan["basis"] = "indoor" if ind else "outdoor"
@@ -165,16 +201,16 @@ def status_individual(q: IndividualIn):
         "time": now, "place": place, "in_delhi": place["in_delhi"], "in_india": place.get("in_india", False),
         "weather": {"now": nxt[0], "today": _day_summary(today), "tomorrow": _day_summary(tom), "fetched_at": w["fetched_at"]},
         "indoor": {"next24": ind, "peak": peak, "night_min": min(night, key=lambda h: h["indoor"]) if night else None,
-                   "applicability": fit, "note_code": note, "model": indoor.model_info(),
+                   "applicability": fit, "note_code": note, "model": indoor.model_info(), "roof_proxy": MODEL_ROOF.get(q.roof),
                    "outdoor24": [{"time": r["time"], "t": r["t"]} for r in nxt]},
         "risk": risk, "fan": fan, "plan": day_plan,
-        "solutions": solutions.pick("individual", q.roof, q.roof_access, q.lang),
+        "fixes": fixes,
         "how": {"risk": "IMD heat-index bands + IMD heat-wave (Tmax >= 45 C) + wet-bulb danger limit"
                         + (" + Delhi HAP two-day rule" if place["in_delhi"] else "") + "; home factors raise it only when it is hot",
                 "indoor": "XGBoost on 56 measured Delhi homes; leave-home-out MAE 1.5 C; shown as an 80 % range",
                 "fan": "published fan limits applied to the " + ("room estimate" if ind else "outdoor air"),
                 "windows": "open when outdoor air is below the low end of the room's predicted range" if ind else "not shown (no indoor estimate)",
-                "fixes": "verified catalogue filtered by role, roof type and roof access; ordered free -> low -> medium -> high cost"},
+                "fixes": "one catalogue (fixes.json): triggered by your answers and today's heat level, filtered by roof, roof access, budget, afternoon humidity and climate; measured fixes first"},
         "health": {"signs": V.value("health.signs.delhi_hap"), "advice": V.value("health.advice.ncdc_iec"),
                    "emergency": {"ambulance": "108", "emergency": "112"},
                    "cool_first": V.value("health.cool_first_transport_second")["rule"],
@@ -190,9 +226,16 @@ def area(lat: float = Query(..., **LAT), lon: float = Query(..., **LON), lang: s
     if not info.get("in_india") or not info.get("district_heat"):
         raise HTTPException(404, "No Indian district at this point")
     ward_full = areas.ward_at(lat, lon) if info["in_delhi"] else None
+    try:
+        w = weather.fetch(lat, lon)
+        nxt, _, _ = weather.split_days(w, _now())
+        wx = {"heat_level": rules.LEVELS[rules.base_from_heat_index(max(r["hi"] for r in nxt))] if nxt else None, "afternoon_rh_pct": _afternoon_rh(w)}
+    except Exception:  # no forecast: the colony list still shows everything that doesn't depend on today
+        wx = None
+    sol = solutions.recommend("colony", {"climate": solutions.climate_of(info["district_heat"])}, None, wx, lang if lang in ("en", "hi") else "en")
     return {"where": info, "district": info["district_heat"], "ward": ward_full,
             "ward_percentiles": {k: areas.percentile(k, ward_full[k]) for k in ["lst_day_mean_c", "lst_night_mean_c", "hvi", "frac_tree"]} if ward_full else None,
-            "solutions": solutions.pick("society", "any", True, lang),
+            "solutions": sol,
             "coolroof_cost_inr_per_m2": V.value("cost.coolroof_per_m2")["inr_per_m2"],
             "coolroof_effect_c": V.value("coolroof.indoor_drop"),
             "sources": [V.source("cost.coolroof_per_m2"), V.source("coolroof.indoor_drop")]}
@@ -202,7 +245,7 @@ def area(lat: float = Query(..., **LAT), lon: float = Query(..., **LON), lang: s
 def gov_rank(scope: str = "india", state: Optional[str] = None, district: Optional[str] = None,
              limit: int = Query(100, ge=1, le=800), lang: str = "en"):
     """scope=india: all-India district ranking (optionally one state). scope=delhi: Delhi ward ranking (extra detail)."""
-    sol = solutions.pick("government", "any", True, lang)
+    sol = solutions.recommend("government", None, None, None, lang if lang in ("en", "hi") else "en")
     if scope == "delhi":
         d = json.load(open(os.path.join(DATA, "gov_rank.json"), encoding="utf-8"))
         wards = [w for w in d["wards"] if not district or w["district"] == district]
@@ -214,6 +257,23 @@ def gov_rank(scope: str = "india", state: Optional[str] = None, district: Option
     r = districts.ranking(state, limit)
     chk = districts.checks()
     return {"scope": "india", **r, "checks": chk, "solutions": sol, "notes": chk.get("notes", [])}
+
+
+@app.get("/api/outdoor")
+def outdoor_now(lat: float = Query(..., **LAT), lon: float = Query(..., **LON)):
+    """Outside air temperature for this hour at a point, from the forecast already cached for its ~1 km cell
+    (pairs with a family's indoor thermometer reading)."""
+    w = weather.fetch(lat, lon)
+    nxt, _, _ = weather.split_days(w, _now())
+    if not nxt:
+        raise HTTPException(503, "forecast unavailable")
+    return {"time": nxt[0]["time"], "outdoor_c": nxt[0]["t"]}
+
+
+@app.post("/api/fix_effect")
+def fix_effect(q: EffectIn):
+    """How much a fix helped in this home, from its own before/after readings (stored on the device; nothing is kept here)."""
+    return solutions.estimate_fix_effect([r.model_dump() for r in q.before], [r.model_dump() for r in q.after])
 
 
 @app.get("/api/wards/list")
