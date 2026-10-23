@@ -191,6 +191,11 @@ main { display: block; }
 /* filled action (paper) - hero / on the sky */
 .btn.white { background: var(--paper); color: var(--ink-black); box-shadow: var(--sh-sky); }
 .btn.white:hover { background: var(--cream); color: var(--ink-black); transform: translateY(-1px); }
+/* main "open the app" button: a soft light ring pulses out, and a small wiggle every few seconds */
+.btn.attn { animation: glow 2.4s ease-out infinite, wiggle 4.8s ease-in-out 1.2s infinite; }
+.btn.attn:hover, .btn.attn:focus-visible { animation: glow 2.4s ease-out infinite; }
+@keyframes glow { 0% { box-shadow: var(--sh-sky), 0 0 0 0 rgba(255, 236, 200, .75); } 70% { box-shadow: var(--sh-sky), 0 0 0 16px rgba(255, 236, 200, 0); } 100% { box-shadow: var(--sh-sky), 0 0 0 0 rgba(255, 236, 200, 0); } }
+@keyframes wiggle { 0%, 84%, 100% { transform: none; } 87% { transform: rotate(-3deg) scale(1.04); } 90% { transform: rotate(3deg) scale(1.04); } 93% { transform: rotate(-2deg) scale(1.02); } 96% { transform: rotate(1deg); } }
 /* ghost on the sky */
 .btn.ghost-sky { background: rgb(25 9 34 / .38); color: var(--cream); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .18); }
 .btn.ghost-sky:hover { background: rgb(25 9 34 / .55); color: var(--cream); }
@@ -276,7 +281,7 @@ input[type="range"] { width: 100%; accent-color: var(--jamun-deep); height: 28px
 .sky .wrap { position: relative; z-index: 2; }
 
 .hero { padding: calc(var(--bar-h) + var(--safe-top) + clamp(48px, 9vw, 104px)) 0 clamp(250px, 26vw, 330px); text-align: center; }
-.hero h1 { font-size: clamp(40px, 6.2vw, 64px); line-height: 1.12; letter-spacing: -0.023em; color: var(--paper); max-width: 15.5ch; margin: 0 auto; }
+.hero h1 { font-size: clamp(34px, 4.4vw, 54px); line-height: 1.18; letter-spacing: -0.023em; color: var(--paper); max-width: 30ch; margin: 0 auto; text-wrap: balance; }
 .hero .lead { font-size: clamp(16px, 1.5vw, 18px); line-height: 1.56; color: rgb(248 247 242 / .82); margin: 18px auto 0; max-width: 600px; }
 .hero .cta-row { justify-content: center; }
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
@@ -327,6 +332,9 @@ input[type="range"] { width: 100%; accent-color: var(--jamun-deep); height: 28px
 .tabnav button { border: 0; background: none; cursor: pointer; padding: 10px 8px; font-size: 16px; font-weight: 600; color: var(--ink-muted); box-shadow: inset 0 -2px 0 transparent; display: inline-flex; gap: 8px; align-items: center; }
 .tabnav button:hover { color: var(--ink); }
 .tabnav button[aria-selected="true"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+.tabstack { display: grid; }
+.tabstack > .tabpanel { grid-area: 1 / 1; }
+.tabpanel.off { visibility: hidden; }
 .tabpanel { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
 .tabpanel .lede { font-size: 18px; line-height: 1.56; }
 .tabpanel ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
