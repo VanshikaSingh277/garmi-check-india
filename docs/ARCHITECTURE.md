@@ -42,7 +42,7 @@ flowchart LR
   W -- "map tiles (zoom ≥ 7)" --> OSM[("OpenStreetMap tiles")]
   A --> E["Engines (apps/api/engine)<br/>places · districts · areas · weather<br/>indoor (ML) · rules · plan · solutions · verified"]
   E -- "live hourly forecast" --> OM[("Open-Meteo forecast API")]
-  E --> D[("Data files (apps/api/data)<br/>models · gazetteer · district & ward layers<br/>verified_numbers.csv · solutions.csv")]
+  E --> D[("Data files (apps/api/data)<br/>models · gazetteer · district & ward layers<br/>verified_numbers.csv · fixens.csv")]
   P["Offline pipelines + ML training<br/>(pipelines/, ml/, scripts/)"] -- "build once" --> D
 ```
 
@@ -256,17 +256,15 @@ Older or vulnerable people use the stricter limits: 35 °C ("not enough") and 38
 
 ```mermaid
 flowchart TD
-  C[("solutions.csv<br/>10 fixes")] --> R1{"Meant for this role?<br/>individual / society / government"}
-  R1 -- no --> X0["not listed"]
-  R1 -- yes --> R2{"Fits your roof type?"}
-  R2 -- no --> X1["Not suggested: 'not for your roof type'"]
-  R2 -- yes --> R3{"Needs roof access — do you have it?"}
-  R3 -- no --> X2["Not suggested: 'needs access to the roof'"]
-  R3 -- yes --> R4{"Effect key usable in verified_numbers.csv?<br/>(not UNVERIFIED / TO VERIFY)"}
-  R4 -- no --> X3["Not suggested: 'evidence not verified yet'"]
-  R4 -- yes --> OK["Shown, with why-for-you chips<br/>(costs nothing · fits your roof · you can use your roof · verified study)"]
-  OK --> T["Sorted by cost tier: free → low → medium → investment"]
+  C[("fixes.json<br/>31 fixes · family / colony / government")] --> TR{"Triggered?<br/>family: your answers + today's heat level<br/>colony / gov: also area causes"}
+  TR -- no --> X0["not listed"]
+  TR -- yes --> C1{"Conditions hold?<br/>climate · roof type · roof access · verified evidence<br/>afternoon humidity (12–5 pm forecast) · budget"}
+  C1 -- no --> X1["Not suggested, with the reason<br/>(over budget → subsidy pointer · too humid today · not for your roof …)"]
+  C1 -- yes --> OK["Shown with 'because' lines<br/>(top-floor home · you have a cooler · dry afternoon 24% …)"]
+  OK --> T["Tiers: Today (safety → core → advice) · Quick wins · This season · Long term · Avoid<br/>measured fixes first; at most 6 today, 3 per other tier"]
 ```
+
+The engine is `engine/solutions.py` (`recommend()`), ported from `reference/thandak_v2`. Effect numbers come only from `verified_numbers.csv` (each fix's `effect.key`). Fixes with no source yet are shown as "general advice, not measured". A family can also measure a fix at home: one room reading a day, paired with the outside air for that hour (`/api/outdoor`), and the before/after difference of the indoor-minus-outdoor gap (`/api/fix_effect`); the readings stay on the phone.
 
 ---
 
@@ -280,7 +278,7 @@ sequenceDiagram
   participant D as districts / areas / solutions
   B->>M: tap map or search → GET /api/area?lat&lon&lang
   M->>D: where_info + district heat profile (+ Delhi ward if inside Delhi)
-  M->>D: solutions.pick("society")
+  M->>D: solutions.recommend("colony") with today's heat level and the district's climate
   M-->>B: place, district profile, ward, fixes, cool-roof cost ₹/m² + effect 1.0–1.38 °C
   B->>B: cost calculator (sliders): roof m² × ₹300/m², ÷ households
 ```
@@ -352,7 +350,7 @@ flowchart TB
   - **India-wide view:** draws only the LGD district polygons, which follow India's official outline.
   - **Zoom ≥ 7:** OpenStreetMap tiles appear.
   - **Colour ramp:** layers use a 5-stop ramp at the 10/30/50/70/90th percentiles of the district values.
-- **Bilingual:** every label comes from `src/i18n/en.js` and `hi.js` (the Hindi is written for Hindi speakers, not translated line by line; `tests/test_i18n.py` keeps keys and placeholders in step). Fix texts come from `solutions.csv` in both languages.
+- **Bilingual:** every label comes from `src/i18n/en.js` and `hi.js` (the Hindi is written for Hindi speakers, not translated line by line; `tests/test_i18n.py` keeps keys and placeholders in step). Fix texts come from `fixes.json` in both languages (the same test checks every fix has its Hindi).
 
 ---
 
@@ -383,7 +381,7 @@ flowchart TB
 | `india_districts.geojson`, `india_district_stats.csv`, `india_district_checks.json` | All-India district heat + people layer | `pipelines/india/district_layer.py` |
 | `wards.geojson`, `gov_rank.json`, `hvi_checks.json`, `model_a_card.json` | Delhi ward layer, ranking, model card | `ml/model_a`, `ml/hvi`, `scripts/build_site_data.py` |
 | `verified_numbers.csv` | **Single source of truth** for every threshold and effect (value, status, source) | hand-curated with sources (`docs/`) |
-| `solutions.csv` | Fix catalogue (EN/HI): role, roof, needs, effect key, cost key, tier, source | hand-curated |
+| `fixes.json` | The one fix catalogue (EN/HI): audiences, tier, triggers, conditions, effect key, cost band and key, steps, sources | hand-curated (merged from solutions.csv + reference/thandak_v2) |
 | `sources.json` | Sources table for the website | `scripts/build_site_data.py` from `docs/sources.md` |
 
 ---

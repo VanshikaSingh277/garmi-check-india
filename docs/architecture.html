@@ -182,7 +182,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
         <div class="node k-eng"><b>Engines</b><code>apps/api/engine/</code><small>places · districts · areas · weather · heat · <b style="display:inline;color:inherit">indoor (ML)</b> · rules · plan · solutions · verified</small></div>
       </div>
       <div class="arr">→</div>
-      <div class="col"><div class="node k-data"><b>Data files</b><code>apps/api/data/</code><small>ML model + card · gazetteer · district &amp; ward layers · verified_numbers.csv · solutions.csv</small></div></div>
+      <div class="col"><div class="node k-data"><b>Data files</b><code>apps/api/data/</code><small>ML model + card · gazetteer · district &amp; ward layers · verified_numbers.csv · fixes.json</small></div></div>
     </div>
     <div class="arch-under">
       <div><div class="down">↕</div><div class="node k-ext"><b>Outside services (runtime)</b>Open-Meteo forecast API (from engine/weather.py) · OpenStreetMap tiles at zoom ≥ 7 and the MapLibre GL library (from the browser)</div></div>
@@ -332,7 +332,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
 
     <h3>6.4 Which fixes you see</h3>
     <div class="funnel">
-      <div class="fstage"><div class="fbar"><b>solutions.csv</b>: 10 fixes, each with an effect key and a cost key</div><div></div></div>
+      <div class="fstage"><div class="fbar"><b>fixes.json</b>: 31 fixes, triggered by your answers and today's weather, each number through verified_numbers.csv</div><div></div></div>
       <div class="fstage"><div class="fbar">① Meant for this role? (individual / society / government)</div><div class="fside">no → not listed at all</div></div>
       <div class="fstage"><div class="fbar">② Fits your roof type?</div><div class="fside">no → "Not for your roof type"</div></div>
       <div class="fstage"><div class="fbar">③ Needs roof access, and do you have it?</div><div class="fside">no → "Needs access to the roof"</div></div>
@@ -405,7 +405,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
     <div class="grid3" style="margin-top:12px">
       <div class="node k-web"><b>State</b><code>localStorage</code>: <code>gc_state</code> (language, place, answers) · <code>gc_last</code> (last result, offline fallback) · <code>gc_theme</code></div>
       <div class="node k-web"><b>Maps</b>MapLibre GL, lazy-loaded. The India view shows only LGD district polygons; OSM tiles appear from zoom 7. Colours use a 5-stop ramp at the 10/30/50/70/90th percentiles.</div>
-      <div class="node k-web"><b>Language &amp; theme</b>Every label comes from <code>src/i18n/en.js</code> and <code>hi.js</code>; fix texts come from <code>solutions.csv</code> in both languages. Light, dark or automatic theme.</div>
+      <div class="node k-web"><b>Language &amp; theme</b>Every label comes from <code>src/i18n/en.js</code> and <code>hi.js</code>; fix texts come from <code>fixes.json</code> in both languages. Light, dark or automatic theme.</div>
     </div>
   </section>
 
@@ -436,7 +436,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
       <tr><td><code>india_districts.geojson</code>, <code>india_district_stats.csv</code>, <code>india_district_checks.json</code></td><td>All-India district heat + people layer</td><td><code>pipelines/india/district_layer.py</code></td></tr>
       <tr><td><code>wards.geojson</code>, <code>gov_rank.json</code>, <code>hvi_checks.json</code>, <code>model_a_card.json</code></td><td>Delhi ward layer, ranking, model card</td><td><code>ml/model_a</code>, <code>ml/hvi</code>, <code>scripts/build_site_data.py</code></td></tr>
       <tr><td><code>verified_numbers.csv</code></td><td><b>Single source of truth</b> for every threshold and effect (value, status, source)</td><td>hand-curated with sources (<code>docs/</code>)</td></tr>
-      <tr><td><code>solutions.csv</code></td><td>Fix catalogue (EN/HI): role, roof, needs, effect key, cost key, tier, source</td><td>hand-curated</td></tr>
+      <tr><td><code>fixes.json</code></td><td>The one fix catalogue (EN/HI): audiences, tier, triggers, conditions, effect key, cost key, steps, source</td><td>hand-curated</td></tr>
       <tr><td><code>sources.json</code></td><td>Sources table for the website</td><td><code>scripts/build_site_data.py</code> from <code>docs/sources.md</code></td></tr>
     </table></div>
   </section>

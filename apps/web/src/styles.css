@@ -806,3 +806,16 @@ table.data td b { font-weight: 700; }
 /* inside the app the website footer (links, download, language) is redundant: those live in the screens and the top bar */
 .native .foot { display: none; }
 .typing .bottomnav { display: none !important; }
+
+/* ---------- personalised fixes: today's actions, steps, cautions, the extra questions ---------- */
+.card.today { border-top: 4px solid var(--accent); }
+.card.today .fix + .fix, .tiergroup .fix + .fix { margin-top: 8px; }
+.fix .steps { margin: 0 0 4px; padding-left: 18px; display: grid; gap: 4px; }
+.fix .caution { display: flex; gap: 6px; align-items: flex-start; color: var(--ext-text); }
+.fix .caution .icon { flex: none; margin-top: 3px; }
+.fix .why .badge { white-space: normal; text-align: left; }
+.qrow { margin-top: 20px; gap: 12px; }
+.chips.pick { justify-content: flex-start; }
+.chips.pick .chip { box-shadow: 0 0 0 1px var(--line); }
+.chips.pick .chip.on { background: var(--ink); color: var(--bg); box-shadow: none; }
+#measure .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
