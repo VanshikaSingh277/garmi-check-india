@@ -1,7 +1,7 @@
 /* English UI strings. Keys must match hi.js; {x} are placeholders filled by t(key, {x: ...}). */
 export default {
   app_name: "Thandak",
-  disclaimer: "Advice, not a medical diagnosis. In an emergency call 108 (ambulance) or 112.",
+  disclaimer: "Advice, not a medical diagnosis. In an emergency call 112 (or 108 for an ambulance).",
   sources_link: "Data & sources",
   attrib: "Weather: Open-Meteo (ECMWF ERA5, forecast models) · People: WorldPop · Places: GeoNames (CC BY 4.0) · Districts: geoBoundaries / LGD (ODbL) · Maps: © OpenStreetMap contributors · Delhi wards: DataMeet",
   individual: "Me & my family",
@@ -64,8 +64,8 @@ export default {
   exhaustion: "Heat exhaustion",
   stroke: "Heat stroke (emergency)",
   sx_ex: "Tiredness, weakness, dizziness, headache, nausea or vomiting, cramps, heavy sweating",
-  sx_st: "Body temperature of 40 °C or more, with confusion, fits or fainting",
-  cool_first: "Cool the body first, then go to hospital. Move the person to shade, pour cool water over the body and fan them, and call 108 at the same time.",
+  sx_st: "Confused or strange talk, fits, fainting or not waking up, hot, red and dry skin, or a very hot body (40 °C or more). Any one of these is an emergency.",
+  cool_first: "Call 112 right away (or 108 for an ambulance), and start cooling the person while help comes: move them somewhere cool, pour or sponge cool water over the skin and clothes, and fan them hard. Don't give water by mouth if they aren't fully awake.",
   surface_heat: "Ground heat (pre-monsoon, satellite)",
   night_ground: "Ground heat at night",
   hotter_than: "hotter ground than {p}% of Delhi wards",
@@ -402,7 +402,7 @@ export default {
   res_tip_low: "The heat is mild right now. Keep water close by, and tap me for more tips.",
   res_tip_moderate: "It's getting hot. Check the hours below when a fan alone isn't enough.",
   res_tip_high: "It's very hot today. Follow the plan below and watch for the warning signs.",
-  res_tip_extreme: "Extreme heat. Keep everyone cool, know the warning signs, and call 108 if anyone feels unwell.",
+  res_tip_extreme: "Extreme heat. Keep everyone cool, know the warning signs, and call 112 (or 108) if anyone feels unwell.",
   area_tip: "Tap anywhere on the map, or search, to see that district's heat.",
   area_tip_d: "Here's the heat in {d}. Scroll down for fixes you can do together.",
   gov_tip: "Tap a row in the ranking and I'll take the map there.",
@@ -481,4 +481,5 @@ export default {
   measure_result_title: "Measured in your home",
   measure_result_cooler: "Your room now runs about {e} °C cooler compared with outside (likely {lo} to {hi} °C), from {b} days before and {a} days after.",
   measure_result_warmer: "Your room now runs about {e} °C warmer compared with outside (likely {lo} to {hi} °C), from {b} days before and {a} days after. Check the fix was done fully, or try another.",
+  credit_wx: "Weather data by",
 };

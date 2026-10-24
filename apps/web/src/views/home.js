@@ -5,7 +5,7 @@ import { I } from "../icons.js";
 import { esc, fmt, hm, $ } from "../util.js";
 import { S } from "../state.js";
 import { api } from "../api.js";
-import { render, pageHero, setMascot, moodOf, fx } from "../ui.js";
+import { render, pageHero, setMascot, moodOf, fx, wxCredit } from "../ui.js";
 import { promptBox, bindPrompt, bindGps, setLoc, refreshWhere, known, needsRefresh } from "../place.js";
 import { route } from "../router.js";
 import { warmMaps } from "../map.js";
@@ -54,5 +54,5 @@ function heatCard(w) {
   return head + '<div class="body"><div><div class="temp"><span data-count="' + fmt(n.t, 0) + '">' + fmt(n.t, 0) + '</span>°</div><p class="feels">' + t("air_now") + " · " + t("feels") + " <b>" + fmt(n.hi, 0) + "°</b> · " + fmt(n.rh, 0) + "% RH</p></div>" +
     '<div><div class="small muted">' + t("today_band") + '</div><div class="bandname"><i aria-hidden="true"></i>' + t("level_" + lvl) + "</div>" +
     '<div class="stats" style="margin-top:16px"><div class="stat"><div class="l">' + t("today_max") + '</div><div class="v"><span data-count="' + fmt(td.hi_max, 0) + '">' + fmt(td.hi_max, 0) + '</span><small>°C</small></div></div><div class="stat"><div class="l">' + t("tomorrow_max") + '</div><div class="v"><span data-count="' + fmt(tm.hi_max, 0) + '">' + fmt(tm.hi_max, 0) + "</span><small>°C</small></div></div></div></div></div>" +
-    '<div class="foot-row"><span class="tiny muted">' + t("updated", { t: hm(n.time) }) + "</span></div>";
+    '<div class="foot-row"><span class="tiny muted">' + t("updated", { t: hm(n.time) }) + "</span>" + wxCredit() + "</div>";
 }

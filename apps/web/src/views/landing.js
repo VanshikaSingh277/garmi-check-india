@@ -5,7 +5,7 @@ import { SCENE } from "../art.js";
 import { esc, fmt, $ } from "../util.js";
 import { S } from "../state.js";
 import { api } from "../api.js";
-import { render, RAW, timeline } from "../ui.js";
+import { render, RAW, timeline, wxCredit } from "../ui.js";
 import { promptBox, bindPrompt, bindGps, setLoc, refreshWhere, known } from "../place.js";
 import { route } from "../router.js";
 
@@ -39,7 +39,7 @@ function liveCard(w, label) {
   var mx = function (k) { return Math.max.apply(null, hrs.map(function (h) { return h[k]; })); };
   return '<div class="l">' + t("live_next24", { p: esc(label) }) + '</div>' +
     '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" role="img" aria-label="' + esc(t("live_next24", { p: label })) + '"><path d="' + line("t") + '" fill="none" style="stroke:var(--aam-deep)" stroke-width="2.5" vector-effect="non-scaling-stroke"/><path d="' + line("hi") + '" fill="none" style="stroke:var(--jamun-deep)" stroke-width="2.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/></svg>' +
-    '<div class="lg"><span><i style="background:var(--aam-deep)"></i>' + t("outside") + " " + fmt(mx("t"), 0) + '°</span><span><i style="background:var(--jamun-deep)"></i>' + t("feels") + " " + fmt(mx("hi"), 0) + "°</span></div>" +
+    '<div class="lg"><span><i style="background:var(--aam-deep)"></i>' + t("outside") + " " + fmt(mx("t"), 0) + '°</span><span><i style="background:var(--jamun-deep)"></i>' + t("feels") + " " + fmt(mx("hi"), 0) + "°</span></div>" + wxCredit() +
     '<div style="margin-top:10px"><span class="badge ' + lvl + '">' + t("today_band") + ": " + t("level_" + lvl) + "</span></div>";
 }
 function mascot(id) { return SCENE.clouds(id, "back") + '<div class="mascot"><div class="bubble float" role="status" hidden></div><button class="mascot-btn" type="button" aria-label="' + esc(t("mascot_label")) + '">' + SCENE.mascot(id.charAt(0) + "m") + "</button></div>" + SCENE.clouds(id, "front"); }

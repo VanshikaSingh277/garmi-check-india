@@ -170,7 +170,7 @@ function bindScrub(box) {
   svg.addEventListener("pointermove", at); svg.addEventListener("pointerdown", at); svg.addEventListener("pointerleave", off);
 }
 function sosCard() {
-  return '<div class="card sos"><div class="card-h"><div class="ic">' + I("alert") + "</div><h3>" + t("signs") + "</h3></div><p><b>" + t("exhaustion") + ":</b> " + t("sx_ex") + "</p><p><b>" + t("stroke") + ":</b> " + t("sx_st") + "</p><p>" + t("cool_first") + '</p><div class="calls"><a href="tel:108">' + I("phone") + "108</a><a href=\"tel:112\">" + I("phone") + "112</a></div></div>";
+  return '<div class="card sos"><div class="card-h"><div class="ic">' + I("alert") + "</div><h3>" + t("signs") + "</h3></div><p><b>" + t("exhaustion") + ":</b> " + t("sx_ex") + "</p><p><b>" + t("stroke") + ":</b> " + t("sx_st") + "</p><p>" + t("cool_first") + '</p><div class="calls"><a href="tel:112">' + I("phone") + "112</a><a href=\"tel:108\">" + I("phone") + "108</a></div></div>";
 }
 export function resultView() {
   var r = S.result, k = r.risk.level, w = r.weather, ind = r.indoor, fan = r.fan, p = r.place, a = S.a;

@@ -96,6 +96,8 @@ button, input, select { font: inherit; color: inherit; letter-spacing: inherit; 
 .icon { width: 20px; height: 20px; flex: none; display: inline-block; vertical-align: middle; }
 .icon.sm { width: 16px; height: 16px; } .icon.lg { width: 24px; height: 24px; } .icon.xl { width: 32px; height: 32px; }
 .num { font-variant-numeric: tabular-nums; }
+.credit { font-size: 11.5px; color: var(--ink-muted); } .credit a { color: inherit; }
+.credit-row { margin-top: 12px; }
 .muted { color: var(--ink-muted); } .small { font-size: 14px; } .tiny { font-size: 12.5px; }
 .warn { color: var(--mod-text); } .err { color: var(--ext-text); }
 .stack { display: flex; flex-direction: column; gap: 16px; }

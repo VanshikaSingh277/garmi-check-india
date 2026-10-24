@@ -211,11 +211,11 @@ def status_individual(q: IndividualIn):
                 "fan": "published fan limits applied to the " + ("room estimate" if ind else "outdoor air"),
                 "windows": "open when outdoor air is below the low end of the room's predicted range" if ind else "not shown (no indoor estimate)",
                 "fixes": "one catalogue (fixes.json): triggered by your answers and today's heat level, filtered by roof, roof access, budget, afternoon humidity and climate; measured fixes first"},
-        "health": {"signs": V.value("health.signs.delhi_hap"), "advice": V.value("health.advice.ncdc_iec"),
-                   "emergency": {"ambulance": "108", "emergency": "112"},
+        "health": {"signs": V.value("health.signs.ncdc_public_2026"), "advice": V.value("health.advice.ncdc_iec"),
+                   "emergency": {"emergency": "112", "ambulance": "108"},  # NCDC 2026 advisory: call 112
                    "cool_first": V.value("health.cool_first_transport_second")["rule"],
-                   "sources": [V.source("health.signs.delhi_hap"), V.source("health.advice.ncdc_iec"), V.source("health.cool_first_transport_second")]},
-        "disclaimer": "Guidance, not a diagnosis. In an emergency call 108 (ambulance) or 112.",
+                   "sources": [V.source("health.signs.ncdc_public_2026"), V.source("health.advice.ncdc_iec"), V.source("health.cool_first_transport_second")]},
+        "disclaimer": "Guidance, not a diagnosis. In an emergency call 112 (or 108 for an ambulance).",
     }
 
 

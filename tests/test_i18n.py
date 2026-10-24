@@ -50,7 +50,7 @@ def test_no_empty_or_untranslated():
 def test_emergency_numbers_everywhere():
     en, hi = load("en"), load("hi")
     for k in ("disclaimer", "cool_first", "res_tip_extreme"):
-        assert "108" in en[k] and "108" in hi[k], k
+        assert all(n in en[k] and n in hi[k] for n in ("112", "108")), k
 
 
 DEVANAGARI = re.compile(r"[\u0900-\u097F]")

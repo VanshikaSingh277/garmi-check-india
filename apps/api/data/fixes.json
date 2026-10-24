@@ -343,7 +343,7 @@
    "url": "https://doi.org/10.1016/S2542-5196(24)00030-5"
   },
   "vellingiri": {
-   "title": "Vellingiri et al. 2020, Indian J Occup Environ Med (Ahmedabad roof trial)",
+   "title": "Vellingiri et al. 2020, Indian J Occup Environ Med (16 Ahmedabad slum homes, roof comparison)",
    "url": "https://doi.org/10.4103/ijoem.IJOEM_120_19"
   }
  },
@@ -966,12 +966,12 @@
     "metric": "indoor_air",
     "key": "modroof.indoor_drop",
     "range": [
-     "at_1pm_vs_controls",
-     "at_1pm_vs_controls"
+     "mean_vs_tin",
+     "mean_vs_tin"
     ]
    },
-   "effect_text_en": "One home in Ahmedabad: about 4.5 °C cooler at 1 pm (weak evidence, a single home)",
-   "effect_text_hi": "अहमदाबाद का एक घर: दोपहर 1 बजे लगभग 4.5 °C ठंडा (कमज़ोर सबूत, सिर्फ़ एक घर)",
+   "effect_text_en": "One home in Ahmedabad: about 2 °C cooler indoors than tin-roof homes over the day, but no cooler than a concrete roof (weak evidence, a single home)",
+   "effect_text_hi": "अहमदाबाद का एक घर: दिन भर में टिन की छत वाले घरों से अंदर लगभग 2 °C ठंडा, पर पक्की छत से ज़्यादा ठंडा नहीं (कमज़ोर सबूत, सिर्फ़ एक घर)",
    "cost_key": "cost.modroof_per_sqft",
    "cost_text_en": "About ₹270 per sq ft (2021, reported)",
    "cost_text_hi": "लगभग ₹270 प्रति वर्ग फ़ुट (2021, बताया गया)",
@@ -1012,9 +1012,20 @@
    ],
    "conditions": {},
    "cost_band": "medium",
-   "evidence_level": "qualitative",
-   "effect": null,
-   "source_ids": [],
+   "evidence_level": "measured",
+   "effect": {
+    "metric": "indoor_air",
+    "key": "insulation.thermocol_ceiling",
+    "range": [
+     "mean_vs_tin",
+     "mean_vs_asbestos"
+    ]
+   },
+   "effect_text_en": "One home in Ahmedabad with a thermocol false ceiling under an asbestos roof: about 1.9–2.4 °C cooler indoors than sheet-roof homes (weak evidence, a single home)",
+   "effect_text_hi": "अहमदाबाद का एक घर, जहाँ एस्बेस्टस की छत के नीचे थर्मोकोल की फ़ॉल्स सीलिंग थी: चादर की छत वाले घरों से अंदर लगभग 1.9–2.4 °C ठंडा (कमज़ोर सबूत, सिर्फ़ एक घर)",
+   "source_ids": [
+    "vellingiri"
+   ],
    "categories": [
     "family"
    ],
