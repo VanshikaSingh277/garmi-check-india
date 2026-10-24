@@ -17,3 +17,7 @@ Thumbs.db
 
 # Runtime caches
 apps/api/.cache/
+
+# Secrets and backups (backend kit)
+secrets/
+backups/
