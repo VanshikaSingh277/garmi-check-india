@@ -15,9 +15,9 @@ def rows(t, rh, n=24):
     return [{"time": f"2026-05-20T{h:02d}:00", "t": t, "rh": rh, "hi": heat_index_c(t, rh), "twb": wet_bulb_c(t, rh)} for h in range(n)]
 
 
-def level(t, rh, normal=None, station="plains", in_delhi=False):
+def level(t, rh, normal=None, station="plains", in_delhi=False, uncertain=False):
     r = rows(t, rh)
-    return rules.risk(r, r, r, in_delhi=in_delhi, days=[{"day": "today", "tmax": t, "normal": normal}], station=station)
+    return rules.risk(r, r, r, in_delhi=in_delhi, days=[{"day": "today", "tmax": t, "normal": normal, "uncertain": uncertain}], station=station)
 
 
 def codes(r):
@@ -41,6 +41,7 @@ def test_b_chennai_36_humid_is_extreme_from_wet_bulb():
 
 def test_c_shimla_32_hill_heatwave():
     assert level(32, 40, normal=24.5, station="hill")["level"] == "extreme"      # 7.5 above normal: severe
+    assert level(32, 40, normal=24.5, station="hill", uncertain=True)["level"] == "high"   # uncertain normal: one level at most
     assert level(32, 40, normal=27.0, station="hill")["level"] == "high"         # 5 above normal
     assert level(32, 40, normal=27.0, station="plains")["level"] == "low"       # plains need 40 C first
     r = level(32, 40, normal=None, station="hill")                              # no normal: no crash, no departure rule

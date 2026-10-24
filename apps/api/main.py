@@ -112,8 +112,8 @@ def household_of(q: "IndividualIn", vul: list) -> dict:
             "cross_ventilation": q.cross_ventilation, "budget": q.budget}
 
 
-def _heat_days(w, nxt, today, tom, district_id):
-    """Today / tomorrow, when their afternoon falls in the next 24 h, with the day's maximum and its 1991-2020 normal."""
+def _heat_days(w, nxt, today, tom, district_id, lat, lon):
+    """Today / tomorrow, when their afternoon falls in the next 24 h, with the day's maximum and its normal."""
     out = []
     for label, rows in (("today", today), ("tomorrow", tom)):
         if not rows:
@@ -122,8 +122,9 @@ def _heat_days(w, nxt, today, tom, district_id):
         if not any(r["time"][:10] == ds and 12 <= int(r["time"][11:13]) < 17 for r in nxt):
             continue
         tmax = w.get("daily_tmax", {}).get(ds, max(r["t"] for r in rows))
-        normal = normals.normal_tmax(district_id, date.fromisoformat(ds), w.get("elevation")) if district_id else None
-        out.append({"day": label, "date": ds, "tmax": round(tmax, 1), "normal": normal})
+        normal, uncertain = (normals.point_normal_tmax(district_id, date.fromisoformat(ds), lat, lon, w.get("elevation"))
+                             if district_id else (None, True))
+        out.append({"day": label, "date": ds, "tmax": round(tmax, 1), "normal": normal, "uncertain": uncertain})
     return out
 
 
@@ -132,7 +133,7 @@ def _heat(w, lat, lon, district_id, in_delhi):
     nxt, today, tom = weather.split_days(w, _now())
     if not nxt:
         return None, nxt, today, tom
-    days = _heat_days(w, nxt, today, tom, district_id)
+    days = _heat_days(w, nxt, today, tom, district_id, lat, lon)
     station = normals.station_type(lat, lon, w.get("elevation"))
     return rules.risk(nxt, today, tom, in_delhi=in_delhi, days=days, station=station), nxt, today, tom
 

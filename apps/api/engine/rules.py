@@ -26,7 +26,8 @@ def risk(next24: list, today: list, tomorrow: list, in_delhi: bool = False, days
       4.5-6.4 C above the 1991-2020 normal (severe above 6.4); coastal: Tmax >= 37 and >= 4.5 above normal.
       Severe heatwave -> Extreme, heatwave -> at least High
     - Delhi only: the Delhi HAP two-day 97th-percentile rule; everywhere: the wet-bulb danger limit -> Extreme
-    days: [{"day": "today"|"tomorrow", "tmax": C, "normal": C or None}] for the days whose afternoon is in next24;
+    days: [{"day": "today"|"tomorrow", "tmax": C, "normal": C or None, "uncertain": bool}] for the days whose afternoon
+      is in next24; with an uncertain normal (raised ground, heat.normal_point) the departure rule stops at High;
     station: "plains" | "hill" | "coastal" (engine/normals.station_type)."""
     reasons = []
     hi_max = max(r["hi"] for r in next24)
@@ -46,8 +47,10 @@ def risk(next24: list, today: list, tomorrow: list, in_delhi: bool = False, days
         elif dep is not None and t >= entry:
             if station == "coastal":
                 code = "heatwave_coastal" if dep >= hw["coastal_hw_departure"] else None
-            elif dep > hw["shw_departure_above"]:
+            elif dep > hw["shw_departure_above"] and not d.get("uncertain"):
                 code = "severe_heatwave_departure"
+            elif dep > hw["shw_departure_above"]:            # less certain normal (raised ground): at most one level
+                code = "heatwave_departure"
             elif dep >= hw["hw_departure"][0]:
                 code = "heatwave_departure"
         if code is None and t >= hw["hw_actual_tmax"]:
