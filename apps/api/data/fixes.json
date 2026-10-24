@@ -1,0 +1,1812 @@
+{
+ "version": 2,
+ "updated": "2026-10-23",
+ "about": "Thandak's one fix catalogue. A fix appears when one of its triggers matches (household answers, today's heat level, or for colony/government the area causes) and its conditions hold; otherwise it is left out with a reason. Effect numbers come only from verified_numbers.csv (effect.key). Merged from solutions.csv and the v2 reference rules (reference/thandak_v2); existing ids and numbers won where the two overlapped.",
+ "enums": {
+  "category": [
+   "family",
+   "colony",
+   "government"
+  ],
+  "tier": [
+   "today",
+   "quick",
+   "moderate",
+   "long",
+   "avoid"
+  ],
+  "climate": {
+   "arid": "Very dry, e.g. Jaisalmer, Bikaner",
+   "semi_arid": "Hot and dry, e.g. Jaipur, Ahmedabad, Gandhinagar, Delhi (pre-monsoon)",
+   "tropical_savanna": "Seasonally humid, e.g. Bengaluru, Hyderabad, Chennai",
+   "humid": "Humid most of the year, e.g. Mumbai, Kolkata, coastal cities"
+  },
+  "roof_type": [
+   "tin",
+   "asbestos",
+   "stone_slab",
+   "concrete",
+   "tile",
+   "other"
+  ],
+  "cost_band": {
+   "free": "Rs 0",
+   "low": "under Rs 5,000",
+   "medium": "Rs 5,000 - 50,000",
+   "high": "over Rs 50,000 (or public budget)"
+  },
+  "effect_metric": [
+   "indoor_air",
+   "outdoor_air",
+   "heat_index",
+   "exposure",
+   "context",
+   "harm"
+  ],
+  "evidence_level": {
+   "measured": "Measured in published study or official policy document",
+   "review": "Global review of many studies; not India-specific",
+   "program_claim": "Reported by an implementing organisation; not a controlled study",
+   "qualitative": "Well-established practice, but no reliable number for Indian homes yet",
+   "guideline": "From official Indian heat guidelines (NDMA / NCDC)"
+  },
+  "heat_level": [
+   "low",
+   "moderate",
+   "high",
+   "extreme"
+  ],
+  "device": [
+   "fan",
+   "cooler",
+   "ac"
+  ],
+  "rank_group": {
+   "safety": "protects people at risk today",
+   "core": "basic daily plan for every home",
+   "advice": "useful tips for today"
+  }
+ },
+ "aliases": {
+  "roof_type": {
+   "stone slab": "stone_slab",
+   "stone": "stone_slab",
+   "patti": "stone_slab",
+   "concrete or brick": "concrete",
+   "concrete_or_brick": "concrete",
+   "brick": "concrete",
+   "rcc": "concrete",
+   "metal": "tin",
+   "tin sheet": "tin",
+   "cement sheet": "asbestos"
+  },
+  "device": {
+   "air conditioner": "ac",
+   "a/c": "ac",
+   "desert cooler": "cooler"
+  }
+ },
+ "thresholds": {
+  "afternoon_window_hours": {
+   "value": [
+    12,
+    17
+   ],
+   "status": "design_choice"
+  },
+  "evaporative_max_twb_c": {
+   "key": "evaporative.max_twb",
+   "field": "max_twb_c"
+  }
+ },
+ "climate": {
+  "key": "climate.dryness_classes"
+ },
+ "budget": {
+  "key": "cost.band_limits_inr"
+ },
+ "labels": {
+  "reason": {
+   "always": {
+    "en": "Part of every home's daily plan",
+    "hi": "हर घर के रोज़ के प्लान का हिस्सा"
+   },
+   "heat_level": {
+    "en": "Heat level today: {level}",
+    "hi": "आज गर्मी का स्तर: {level}"
+   },
+   "household.top_floor": {
+    "en": "Top-floor home",
+    "hi": "सबसे ऊपर की मंज़िल वाला घर"
+   },
+   "household.roof_type": {
+    "en": "{roof} roof",
+    "hi": "{roof} की छत"
+   },
+   "household.vulnerable": {
+    "en": "Elderly, baby or ill person at home",
+    "hi": "घर में बुज़ुर्ग, छोटा बच्चा या बीमार व्यक्ति"
+   },
+   "household.device": {
+    "en": "You have a {device}",
+    "hi": "आपके पास {device} है"
+   },
+   "household.no_cross_ventilation": {
+    "en": "No through-breeze in the home",
+    "hi": "घर में आर-पार हवा नहीं आती"
+   },
+   "household.outdoor_worker": {
+    "en": "Someone at home works outdoors",
+    "hi": "घर का कोई सदस्य बाहर काम करता है"
+   },
+   "household.has_open_ground": {
+    "en": "You have open ground",
+    "hi": "आपके पास खुली ज़मीन है"
+   },
+   "dry_afternoon": {
+    "en": "Dry afternoon (wet-bulb {twb} °C)",
+    "hi": "दोपहर में हवा सूखी रहेगी (वेट-बल्ब {twb} °C)"
+   },
+   "humid_afternoon": {
+    "en": "Humid afternoon (wet-bulb {twb} °C)",
+    "hi": "दोपहर में उमस रहेगी (वेट-बल्ब {twb} °C)"
+   },
+   "area_cause": {
+    "en": "{cause} in your area (+{c} °C)",
+    "hi": "आपके इलाक़े में {cause} (+{c} °C)"
+   },
+   "no_area_profile": {
+    "en": "A common fix (no local satellite data here yet)",
+    "hi": "आम तौर पर कारगर उपाय (यहाँ का सैटेलाइट डेटा अभी नहीं है)"
+   },
+   "household.roof_access": {
+    "en": "You can use your roof",
+    "hi": "आप छत इस्तेमाल कर सकते हैं"
+   },
+   "avoid_harm": {
+    "en": "Avoids a proven harm",
+    "hi": "साबित हुए नुकसान से बचाता है"
+   }
+  },
+  "excluded": {
+   "over_budget": {
+    "en": "Above your budget",
+    "hi": "आपके बजट से ज़्यादा"
+   },
+   "over_budget_subsidy": {
+    "en": "Above your budget. Check cool-roof subsidies or NGO programmes",
+    "hi": "आपके बजट से ज़्यादा। कूल-रूफ़ सब्सिडी या NGO की योजनाएँ देखें"
+   },
+   "too_humid": {
+    "en": "Too humid this afternoon (wet-bulb {twb} °C)",
+    "hi": "आज दोपहर उमस ज़्यादा है (वेट-बल्ब {twb} °C)"
+   },
+   "humidity_unknown": {
+    "en": "Humidity forecast not available",
+    "hi": "नमी का पूर्वानुमान नहीं मिला"
+   },
+   "climate": {
+    "en": "Not suited to your area's climate",
+    "hi": "आपके इलाक़े के मौसम के लिए सही नहीं"
+   },
+   "roof_mismatch": {
+    "en": "Doesn't suit your roof",
+    "hi": "आपकी छत के लिए सही नहीं"
+   },
+   "no_roof_access": {
+    "en": "Needs use of the roof",
+    "hi": "छत इस्तेमाल करनी पड़ती है"
+   },
+   "evidence_not_verified": {
+    "en": "Evidence not checked yet",
+    "hi": "इसके सबूत अभी जाँचे नहीं गए"
+   },
+   "climate_unknown": {
+    "en": "Your area's climate isn't known, so we can't tell if this suits it",
+    "hi": "आपके इलाक़े का मौसम पता नहीं, इसलिए यह नहीं कह सकते कि यह वहाँ ठीक रहेगा"
+   }
+  },
+  "effect": {
+   "indoor_air": {
+    "en": "{lo}–{hi} °C cooler indoors",
+    "hi": "घर के अंदर {lo}–{hi} °C तक ठंडक"
+   },
+   "outdoor_air": {
+    "en": "{lo}–{hi} °C cooler outdoor air",
+    "hi": "बाहर की हवा {lo}–{hi} °C तक ठंडी"
+   },
+   "heat_index": {
+    "en": "{lo}–{hi} °C lower feels-like heat",
+    "hi": "महसूस होने वाली गर्मी {lo}–{hi} °C तक कम"
+   },
+   "exposure": {
+    "en": "Lowers your exposure, not the temperature",
+    "hi": "तापमान नहीं घटाता, गर्मी से बचाता है"
+   },
+   "unmeasured": {
+    "en": "No reliable number yet",
+    "hi": "अभी कोई पक्का आँकड़ा नहीं"
+   },
+   "unmeasured_family": {
+    "en": "No reliable number yet. Note your indoor temperature before and after",
+    "hi": "अभी कोई पक्का आँकड़ा नहीं। पहले और बाद में घर का तापमान नोट करें"
+   },
+   "global_only": {
+    "en": "Range comes from a global review, not a promise for your area",
+    "hi": "यह आँकड़ा दुनिया भर के अध्ययनों से है, आपके इलाक़े के लिए पक्का नहीं"
+   },
+   "general": {
+    "en": "General advice, not measured",
+    "hi": "आम सलाह, इसका माप नहीं हुआ"
+   },
+   "context": {
+    "en": "No reliable number yet. Note your indoor temperature before and after",
+    "hi": "अभी कोई पक्का आँकड़ा नहीं। पहले और बाद में घर का तापमान नोट करें"
+   },
+   "harm": {
+    "en": "Makes rooms hotter",
+    "hi": "कमरे को और गर्म करता है"
+   }
+  },
+  "value": {
+   "heat_level": {
+    "low": {
+     "en": "Low",
+     "hi": "कम"
+    },
+    "moderate": {
+     "en": "Moderate",
+     "hi": "मध्यम"
+    },
+    "high": {
+     "en": "High",
+     "hi": "ज़्यादा"
+    },
+    "extreme": {
+     "en": "Extreme",
+     "hi": "बहुत ज़्यादा"
+    }
+   },
+   "roof_type": {
+    "tin": {
+     "en": "Tin",
+     "hi": "टिन"
+    },
+    "asbestos": {
+     "en": "Asbestos sheet",
+     "hi": "एस्बेस्टस"
+    },
+    "stone_slab": {
+     "en": "Stone slab",
+     "hi": "पत्थर की पट्टी"
+    },
+    "concrete": {
+     "en": "Concrete",
+     "hi": "लिंटर"
+    },
+    "tile": {
+     "en": "Tile",
+     "hi": "खपरैल"
+    },
+    "other": {
+     "en": "Other",
+     "hi": "दूसरी तरह"
+    }
+   },
+   "device": {
+    "fan": {
+     "en": "fan",
+     "hi": "पंखा"
+    },
+    "cooler": {
+     "en": "cooler",
+     "hi": "कूलर"
+    },
+    "ac": {
+     "en": "AC",
+     "hi": "AC"
+    }
+   }
+  }
+ },
+ "sources": {
+  "nrdc_telangana": {
+   "title": "Telangana Announces a Groundbreaking Cool Roof Policy (NRDC)",
+   "url": "https://www.nrdc.org/bio/prima-madan/telangana-announces-groundbreaking-cool-roof-policy"
+  },
+  "epic_mht": {
+   "title": "A cool idea on the roof can bring down slum home heat (EPIC India)",
+   "url": "https://epic.uchicago.in/a-cool-idea-on-the-roof-can-bring-down-slum-home-heat/"
+  },
+  "cam_trees": {
+   "title": "Wrong trees in the wrong place can make cities hotter at night (University of Cambridge)",
+   "url": "https://www.cam.ac.uk/research/news/wrong-trees-in-the-wrong-place-can-make-cities-hotter-at-night-study-reveals"
+  },
+  "iitgn_humid": {
+   "title": "Cooling cities needs climate-smart design, not just more trees (Mongabay India, on IIT Gandhinagar / Northeastern study of 138 Indian cities)",
+   "url": "http://india.mongabay.com/2026/07/cooling-cities-needs-climate-smart-design-not-just-more-trees/"
+  },
+  "cpr_hap": {
+   "title": "Most heat action plans in India are not suited to local contexts (Down To Earth, on CPR review of 37 HAPs)",
+   "url": "https://www.downtoearth.org.in/climate-change/most-heat-action-plans-in-india-are-not-suited-to-local-contexts-study-88491"
+  },
+  "isprs_jaipur": {
+   "title": "Jaipur surface and atmospheric UHI with Random Forest (ISPRS Annals 2026)",
+   "url": "https://isprs-annals.copernicus.org/articles/XI-3-2026/333/2026/"
+  },
+  "thandak_ndma": {
+   "title": "NDMA guidelines for heat-wave action plans (2019)",
+   "url": "https://ndma.gov.in/sites/default/files/PDF/Guidelines/Heatwaveguidelines.pdf"
+  },
+  "thandak_ncdc": {
+   "title": "NCDC heat-wave advisory for state health departments (2026)",
+   "url": "https://ncdc.mohfw.gov.in/uploads/pdf/4.%20Heat%20wave%20advisory%20for%20State%20Health%20department_2026.pdf"
+  },
+  "thandak_fan_studies": {
+   "title": "Meade et al., Lancet Planetary Health 2024 (fan limits; see verified_numbers fan.limit.*)",
+   "url": "https://doi.org/10.1016/S2542-5196(24)00030-5"
+  },
+  "vellingiri": {
+   "title": "Vellingiri et al. 2020, Indian J Occup Environ Med (16 Ahmedabad slum homes, roof comparison)",
+   "url": "https://doi.org/10.4103/ijoem.IJOEM_120_19"
+  },
+  "who_breastfeeding": {
+   "title": "WHO e-Library: exclusive breastfeeding for the first 6 months (no water needed, even in hot weather)",
+   "url": "https://www.who.int/tools/elena/interventions/exclusive-breastfeeding"
+  }
+ },
+ "causes": [
+  {
+   "id": "dark_roofs",
+   "label_en": "Dark, heat-absorbing roofs",
+   "label_hi": "गर्मी सोखने वाली गहरे रंग की छतें",
+   "detect": {
+    "feature": "roof_albedo",
+    "shap_min_c": 0.3,
+    "note": "Active when SHAP contribution of low roof albedo to the cell's surface temperature anomaly is >= 0.3 degC"
+   }
+  },
+  {
+   "id": "dense_buildings",
+   "label_en": "Dense buildings and little airflow",
+   "label_hi": "घनी इमारतें और कम हवा का बहाव",
+   "detect": {
+    "feature": [
+     "built_up_fraction",
+     "building_height_mean",
+     "sky_view_factor"
+    ],
+    "shap_min_c": 0.3
+   }
+  },
+  {
+   "id": "low_tree_cover",
+   "label_en": "Low or lost tree cover",
+   "label_hi": "पेड़ों की कमी या कटाई",
+   "detect": {
+    "feature": [
+     "tree_cover_fraction",
+     "ndvi_change_since_2016"
+    ],
+    "shap_min_c": 0.3
+   }
+  },
+  {
+   "id": "bare_paved_ground",
+   "label_en": "Large bare or paved ground",
+   "label_hi": "खुली बंजर या पक्की ज़मीन",
+   "detect": {
+    "feature": [
+     "bare_fraction",
+     "impervious_fraction"
+    ],
+    "shap_min_c": 0.3
+   }
+  },
+  {
+   "id": "water_loss",
+   "label_en": "Lost or dried water bodies",
+   "label_hi": "सूखे या खत्म हुए जलाशय",
+   "detect": {
+    "feature": [
+     "water_fraction",
+     "water_change_since_2000"
+    ],
+    "shap_min_c": 0.2
+   }
+  },
+  {
+   "id": "night_heat",
+   "label_en": "Hot nights (walls and roofs release stored heat)",
+   "label_hi": "गर्म रातें (दीवारें और छतें जमा गर्मी छोड़ती हैं)",
+   "detect": {
+    "feature": "night_lst_anomaly",
+    "min_anomaly_c": 1.0,
+    "note": "Night surface temp anomaly vs city average"
+   }
+  }
+ ],
+ "fixes": [
+  {
+   "id": "night_ventilation",
+   "categories": [
+    "family"
+   ],
+   "tier": "today",
+   "rank_group": "core",
+   "order": 1,
+   "title_en": "Close windows and curtains in the hot hours, open them at night",
+   "title_hi": "गर्म घंटों में खिड़की-पर्दे बंद रखें, रात में खोलें",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [
+    "night_heat",
+    "dense_buildings",
+    "dark_roofs"
+   ],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "guideline",
+   "effect": {
+    "metric": "context",
+    "key": "roof.offset.rcc_top"
+   },
+   "effect_text_en": "Measured in 56 Delhi homes: from 2 to 6 am, rooms stayed about 2–4.5 °C warmer than outside, so night air can carry the heat out.",
+   "effect_text_hi": "दिल्ली के 56 घरों में मापा गया: रात 2 से 6 बजे तक कमरे बाहर से लगभग 2–4.5 °C ज़्यादा गर्म थे, यानी रात की हवा गर्मी बाहर निकाल सकती है।",
+   "steps_en": [
+    "Follow the window row in your hourly plan: keep windows shut while it is hotter outside than inside",
+    "Open windows on opposite sides once it is cooler outside, usually late at night to early morning"
+   ],
+   "steps_hi": [
+    "अपने घंटेवार प्लान की खिड़की वाली लाइन देखें: जब तक बाहर अंदर से ज़्यादा गर्म है, खिड़कियाँ बंद रखें",
+    "बाहर ठंडक होते ही आमने-सामने की खिड़कियाँ खोलें, अक्सर देर रात से सुबह तक"
+   ],
+   "source_ids": [
+    "thandak_ndma"
+   ]
+  },
+  {
+   "id": "fam_vulnerable_care",
+   "tier": "today",
+   "rank_group": "safety",
+   "order": 1,
+   "title_en": "Keep elderly, babies and ill family members in the coolest room",
+   "title_hi": "बुज़ुर्गों, छोटे बच्चों और बीमारों को घर के सबसे ठंडे कमरे में रखें",
+   "triggers": [
+    {
+     "household": {
+      "vulnerable": true
+     },
+     "min_heat_level": "moderate"
+    }
+   ],
+   "addresses": [
+    "night_heat",
+    "dark_roofs"
+   ],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "guideline",
+   "effect": {
+    "metric": "exposure"
+   },
+   "steps_hi": [
+    "दोपहर 12 से शाम 5 बजे तक उन्हें सबसे ठंडे कमरे में रखें — अक्सर सबसे नीचे की मंज़िल, धूप वाली दीवार से दूर",
+    "बार-बार उनका हाल पूछें। बुज़ुर्गों को बार-बार पानी दें, भले वे ख़ुद न माँगें",
+    "छोटे बच्चे को ज़्यादा बार माँ का दूध पिलाएँ। 6 महीने से छोटे बच्चे को गर्मी में भी अलग से पानी नहीं देना होता",
+    "अगर डॉक्टर ने किसी के लिए पानी की मात्रा तय की है (दिल या किडनी की बीमारी), तो गर्मी में कितना पीना है, यह उन्हीं से पूछें। बिना पूछे कोई दवा बंद न करें",
+    "लू लगने के पहले लक्षण दिखते ही उन्हें ठंडा करें और मदद के लिए फ़ोन करें"
+   ],
+   "source_ids": [
+    "thandak_ndma",
+    "thandak_ncdc",
+    "who_breastfeeding"
+   ],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "From noon to 5 pm keep them in the coolest room, usually the lowest floor and away from sun-facing walls",
+    "Check on them often. Give older people water often, even if they don't ask",
+    "Breastfeed babies more often. Babies under 6 months need no extra water, even in the heat",
+    "If a doctor limits someone's fluids (heart or kidney disease), ask that doctor how much to drink in the heat. Don't stop any medicine without asking",
+    "At the first warning signs of heat illness, cool them down and call for help"
+   ]
+  },
+  {
+   "id": "fam_fan_limits",
+   "tier": "today",
+   "rank_group": "safety",
+   "order": 3,
+   "title_en": "Know when the fan stops helping",
+   "title_hi": "जानें कब पंखा मदद करना बंद कर देता है",
+   "triggers": [
+    {
+     "household": {
+      "devices": [
+       "fan"
+      ]
+     },
+     "min_heat_level": "high"
+    }
+   ],
+   "addresses": [],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "review",
+   "effect": {
+    "metric": "exposure"
+   },
+   "steps_hi": [
+    "आपके घंटेवार प्लान में दिखता है कि पंखा कब मदद करता है और कब नहीं",
+    "उस सीमा के ऊपर पंखा गर्मी बढ़ा सकता है: त्वचा या कपड़े गीले करके पंखे के सामने बैठें, या किसी ठंडे कमरे में चले जाएँ",
+    "बुज़ुर्गों और बीमार लोगों के लिए यह सीमा और कम होती है"
+   ],
+   "source_ids": [
+    "thandak_fan_studies"
+   ],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "Your hourly plan shows when the fan helps and when it stops helping",
+    "Above that limit the fan can add heat: wet your skin or clothes and stay in front of it, or move to a cooler room",
+    "The limit is lower for elderly and ill family members"
+   ]
+  },
+  {
+   "id": "fam_cooler_dry",
+   "tier": "today",
+   "rank_group": "advice",
+   "order": 1,
+   "variant_group": "cooler_today",
+   "title_en": "Your cooler should help this afternoon",
+   "title_hi": "आज दोपहर कूलर से राहत मिलनी चाहिए",
+   "triggers": [
+    {
+     "household": {
+      "devices": [
+       "cooler"
+      ]
+     },
+     "min_heat_level": "moderate"
+    }
+   ],
+   "addresses": [],
+   "conditions": {
+    "max_twb_c": "evaporative_max_twb_c"
+   },
+   "cost_band": "free",
+   "evidence_level": "qualitative",
+   "effect": null,
+   "steps_hi": [
+    "एक खिड़की या दरवाज़ा थोड़ा खुला रखें ताकि नमी वाली हवा बाहर निकल सके",
+    "हफ़्ते में एक बार टंकी खाली करके सुखाएँ, ताकि मच्छर न पनपें"
+   ],
+   "source_ids": [],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "Keep a window or door slightly open so the moist air can escape",
+    "Empty and dry the tank once a week so mosquitoes can't breed"
+   ]
+  },
+  {
+   "id": "fam_cooler_humid",
+   "tier": "today",
+   "rank_group": "advice",
+   "order": 1,
+   "variant_group": "cooler_today",
+   "title_en": "Too humid for the cooler this afternoon",
+   "title_hi": "आज दोपहर कूलर के लिए उमस ज़्यादा है",
+   "triggers": [
+    {
+     "household": {
+      "devices": [
+       "cooler"
+      ]
+     },
+     "min_heat_level": "moderate"
+    }
+   ],
+   "addresses": [],
+   "conditions": {
+    "min_twb_c": "evaporative_max_twb_c"
+   },
+   "cost_band": "free",
+   "evidence_level": "qualitative",
+   "effect": null,
+   "steps_hi": [
+    "उमस में कूलर ठंडक कम और नमी ज़्यादा देता है: इसे सिर्फ़ पंखे वाले मोड पर चलाएँ या पंखा चलाएँ",
+    "घर में हवा का बहाव बनाए रखें"
+   ],
+   "source_ids": [],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "In humid air the cooler adds moisture but barely cools: run it on fan-only mode or use a fan",
+    "Keep air moving through the house"
+   ]
+  },
+  {
+   "id": "fam_night_fan_pull",
+   "tier": "today",
+   "rank_group": "advice",
+   "order": 2,
+   "title_en": "No through-breeze? Pull night air in with a fan",
+   "title_hi": "आर-पार हवा नहीं आती? रात में पंखे से ठंडी हवा अंदर खींचें",
+   "triggers": [
+    {
+     "household": {
+      "cross_ventilation": false,
+      "devices": [
+       "fan"
+      ]
+     },
+     "min_heat_level": "moderate"
+    }
+   ],
+   "addresses": [
+    "night_heat",
+    "dense_buildings"
+   ],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "qualitative",
+   "effect": null,
+   "steps_hi": [
+    "सूरज ढलने के बाद, जब बाहर ठंडक हो, एक खिड़की में पंखा बाहर की तरफ़ मुँह करके रखें",
+    "दूसरी तरफ़ की खिड़की या दरवाज़ा खोलें, ताकि ठंडी हवा अंदर खिंचे"
+   ],
+   "source_ids": [],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "After sunset, once it is cooler outside, put a fan in one window facing out",
+    "Open a window or door on the other side so cooler air is pulled in"
+   ]
+  },
+  {
+   "id": "fam_outdoor_work",
+   "tier": "today",
+   "rank_group": "safety",
+   "order": 2,
+   "title_en": "Protect family members who work outdoors",
+   "title_hi": "बाहर काम करने वालों का ख़ास ध्यान रखें",
+   "triggers": [
+    {
+     "household": {
+      "outdoor_worker": true
+     },
+     "min_heat_level": "moderate"
+    }
+   ],
+   "addresses": [
+    "bare_paved_ground",
+    "low_tree_cover"
+   ],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "guideline",
+   "effect": {
+    "metric": "exposure"
+   },
+   "steps_hi": [
+    "जहाँ तक हो सके, दोपहर 12 से 3 बजे के बीच धूप में भारी काम न करें",
+    "प्यास न लगे तब भी बार-बार पानी पिएँ और ORS साथ रखें",
+    "छाँव में आराम करें और लू के पहले लक्षण दिखते ही काम रोक दें"
+   ],
+   "source_ids": [
+    "thandak_ndma"
+   ],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "Avoid heavy work in the sun between 12 and 3 pm when possible",
+    "Drink water often, even without feeling thirsty, and carry ORS",
+    "Rest in the shade and stop work at the first signs of heat illness"
+   ]
+  },
+  {
+   "id": "hydrate_shade",
+   "categories": [
+    "family"
+   ],
+   "tier": "quick",
+   "title_en": "Water, shade and timing",
+   "title_hi": "पानी, छाँव और सही समय",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "guideline",
+   "effect": {
+    "metric": "exposure",
+    "key": "health.advice.ncdc_iec"
+   },
+   "effect_text_en": "Protects your health (no claim that it lowers the temperature)",
+   "effect_text_hi": "सेहत की हिफ़ाज़त (तापमान घटाने का दावा नहीं)",
+   "steps_en": [
+    "Drink water often (ORS, lemon water, buttermilk). Stay out of the sun from 12 to 3 pm. Wear light, loose cotton clothes. Take a cool bath. Keep curtains or blinds closed."
+   ],
+   "steps_hi": [
+    "बार-बार पानी पिएँ (ORS, नींबू पानी, छाछ)। दोपहर 12 से 3 बजे तक धूप में न निकलें। हल्के, ढीले सूती कपड़े पहनें। ठंडे पानी से नहाएँ। पर्दे या चिक गिराकर रखें।"
+   ],
+   "time_en": "Today",
+   "time_hi": "आज",
+   "who_en": "You",
+   "who_hi": "आप",
+   "source_ids": [
+    "thandak_ncdc",
+    "who_breastfeeding"
+   ],
+   "avoid_if_en": "Babies under 6 months: breastfeed more often instead of giving water. If a doctor limits your fluids, ask them how much to drink in the heat.",
+   "avoid_if_hi": "6 महीने से छोटे बच्चे: पानी की जगह ज़्यादा बार माँ का दूध पिलाएँ। अगर डॉक्टर ने आपके लिए पानी की मात्रा तय की है, तो गर्मी में कितना पीना है, यह उन्हीं से पूछें।"
+  },
+  {
+   "id": "fam_wet_screen",
+   "tier": "quick",
+   "title_en": "Wet khus or jute screen on sun-facing windows",
+   "title_hi": "धूप वाली खिड़कियों पर गीली खस या जूट की चिक",
+   "triggers": [
+    {
+     "min_heat_level": "moderate"
+    }
+   ],
+   "addresses": [
+    "dense_buildings",
+    "low_tree_cover"
+   ],
+   "conditions": {
+    "climate": [
+     "arid",
+     "semi_arid"
+    ],
+    "max_twb_c": "evaporative_max_twb_c"
+   },
+   "cost_band": "low",
+   "evidence_level": "qualitative",
+   "effect": null,
+   "source_ids": [],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "Hang khus or jute on west- and south-facing windows",
+    "Keep it damp during the afternoon",
+    "Keep the window slightly open so air passes through the wet screen"
+   ],
+   "avoid_if_en": "Humidity is high - evaporation stops working and the room feels muggier",
+   "steps_hi": [
+    "पश्चिम और दक्षिण वाली खिड़कियों पर खस या जूट की चिक लटकाएँ",
+    "दोपहर भर इसे गीला रखें",
+    "खिड़की थोड़ी खुली रखें ताकि हवा गीली चिक से होकर आए"
+   ],
+   "avoid_if_hi": "उमस ज़्यादा हो तो पानी सूखता नहीं और कमरा और घुटन भरा लगता है"
+  },
+  {
+   "id": "fam_external_shade",
+   "tier": "quick",
+   "title_en": "Shade windows from outside (bamboo chik, awning, chajja)",
+   "title_hi": "खिड़कियों को बाहर से छाया दें (बाँस की चिक, छज्जा)",
+   "triggers": [
+    {
+     "min_heat_level": "moderate"
+    }
+   ],
+   "addresses": [
+    "low_tree_cover",
+    "dense_buildings"
+   ],
+   "conditions": {},
+   "cost_band": "low",
+   "evidence_level": "guideline",
+   "effect": null,
+   "source_ids": [
+    "thandak_ncdc"
+   ],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "Shade outside the glass - inside curtains let the heat in first",
+    "Prioritise west-facing windows (afternoon sun)"
+   ],
+   "steps_hi": [
+    "शीशे के बाहर छाया करें: अंदर के पर्दे से गर्मी पहले ही अंदर आ जाती है",
+    "पहले पश्चिम वाली खिड़कियाँ लें, वहाँ दोपहर की धूप आती है"
+   ]
+  },
+  {
+   "id": "lime_whitewash",
+   "categories": [
+    "family"
+   ],
+   "tier": "quick",
+   "title_en": "Lime whitewash (chuna) on the roof",
+   "title_hi": "छत पर चूने की पुताई",
+   "triggers": [
+    {
+     "household": {
+      "top_floor": true
+     }
+    }
+   ],
+   "addresses": [
+    "dark_roofs",
+    "night_heat"
+   ],
+   "conditions": {
+    "roof_type": [
+     "asbestos",
+     "stone_slab",
+     "concrete",
+     "tile"
+    ],
+    "requires_roof_access": true
+   },
+   "cost_band": "low",
+   "evidence_level": "measured",
+   "effect": {
+    "metric": "indoor_air",
+    "key": "coolroof.indoor_drop",
+    "range": [
+     "india_low",
+     "india_high"
+    ]
+   },
+   "effect_text_en": "White roof coatings: about 1.0–1.4 °C cooler indoors (lime itself has not been measured separately)",
+   "effect_text_hi": "सफ़ेद छत कोटिंग: अंदर लगभग 1.0–1.4 °C ठंडक (चूने को अलग से नहीं मापा गया)",
+   "cost_key": "cost.lime_per_kg",
+   "cost_text_en": "₹3–8 per kg of lime (wholesale listings, not verified)",
+   "cost_text_hi": "₹3–8 प्रति किलो चूना (थोक भाव, पक्का नहीं)",
+   "time_en": "1 day",
+   "time_hi": "1 दिन",
+   "who_en": "Owner / family",
+   "who_hi": "मकान-मालिक / परिवार",
+   "steps_en": [
+    "Whitewash concrete, stone-slab or brick roofs with lime. Not for tin sheets. Wear goggles and gloves, keep children away, and redo it every year because rain washes it off."
+   ],
+   "steps_hi": [
+    "लिंटर, पत्थर की पट्टी या ईंट की छत पर चूने की पुताई करें। टिन पर नहीं। चश्मा और दस्ताने पहनें, बच्चों को दूर रखें, और हर साल दोबारा करें, क्योंकि बारिश में चूना धुल जाता है।"
+   ],
+   "source_ids": [
+    "vellingiri"
+   ],
+   "cautions": [
+    {
+     "roof_type": [
+      "asbestos"
+     ],
+     "en": "Asbestos sheets: never stand or walk on them (they break and people fall through), and never scrape, brush or sand them: the dust harms the lungs. Work from a ladder or hire trained workers.",
+     "hi": "एस्बेस्टस की चादर: इस पर कभी खड़े न हों, न चलें (यह टूट जाती है और लोग नीचे गिर जाते हैं), और इसे कभी न खुरचें, न रगड़ें, न घिसें: इसकी धूल फेफड़ों को नुकसान पहुँचाती है। सीढ़ी से काम करें या प्रशिक्षित कारीगर बुलाएँ।"
+    }
+   ]
+  },
+  {
+   "id": "cool_roof_coating",
+   "categories": [
+    "family"
+   ],
+   "tier": "moderate",
+   "title_en": "White cool-roof paint",
+   "title_hi": "छत पर सफ़ेद कूल-रूफ़ पेंट",
+   "triggers": [
+    {
+     "household": {
+      "top_floor": true
+     }
+    }
+   ],
+   "addresses": [
+    "dark_roofs",
+    "night_heat"
+   ],
+   "conditions": {
+    "roof_type": [
+     "tin",
+     "asbestos",
+     "stone_slab",
+     "concrete",
+     "tile"
+    ],
+    "requires_roof_access": true
+   },
+   "subsidy_possible": true,
+   "cost_band": "medium",
+   "evidence_level": "measured",
+   "effect": {
+    "metric": "indoor_air",
+    "key": "coolroof.indoor_drop",
+    "range": [
+     "india_low",
+     "india_high"
+    ]
+   },
+   "effect_text_en": "Small Indian field studies: room air about 1.0–1.4 °C cooler (larger trials still under way)",
+   "effect_text_hi": "भारत की छोटी फ़ील्ड स्टडी: कमरे की हवा लगभग 1.0–1.4 °C ठंडी (बड़े ट्रायल अभी चल रहे हैं)",
+   "cost_key": "cost.coolroof_per_m2",
+   "cost_text_en": "About ₹300 per m² (figure reported in Telangana's policy)",
+   "cost_text_hi": "लगभग ₹300 प्रति वर्ग मीटर (तेलंगाना की नीति में बताया गया आंकड़ा)",
+   "time_en": "1 day",
+   "time_hi": "1 दिन",
+   "who_en": "Owner / RWA",
+   "who_hi": "मकान-मालिक / RWA",
+   "steps_en": [
+    "Paint the roof with white reflective (cool-roof) paint. On tin or metal sheets, use a paint made for metal.",
+    "Check if your city or state has a cool-roof subsidy",
+    "Clean it once a year so it stays reflective"
+   ],
+   "steps_hi": [
+    "छत पर धूप लौटाने वाला सफ़ेद (कूल-रूफ़) पेंट लगवाएँ। टिन या लोहे की चादर पर सिर्फ़ धातु वाला पेंट ही लगाएँ।",
+    "देखें कि आपके शहर या राज्य में कूल-रूफ़ पर सब्सिडी मिलती है या नहीं",
+    "साल में एक बार सफ़ाई करें ताकि यह धूप लौटाता रहे"
+   ],
+   "source_ids": [
+    "vellingiri",
+    "nrdc_telangana"
+   ],
+   "cautions": [
+    {
+     "roof_type": [
+      "asbestos"
+     ],
+     "en": "Asbestos sheets: never stand or walk on them (they break and people fall through), and never scrape, brush or sand them: the dust harms the lungs. Work from a ladder or hire trained workers.",
+     "hi": "एस्बेस्टस की चादर: इस पर कभी खड़े न हों, न चलें (यह टूट जाती है और लोग नीचे गिर जाते हैं), और इसे कभी न खुरचें, न रगड़ें, न घिसें: इसकी धूल फेफड़ों को नुकसान पहुँचाती है। सीढ़ी से काम करें या प्रशिक्षित कारीगर बुलाएँ।"
+    }
+   ]
+  },
+  {
+   "id": "modroof",
+   "categories": [
+    "family"
+   ],
+   "tier": "moderate",
+   "title_en": "Swap tin for an insulated modular roof",
+   "title_hi": "टिन हटाकर इंसुलेटेड मॉड्यूलर छत",
+   "triggers": [
+    {
+     "household": {
+      "top_floor": true
+     }
+    }
+   ],
+   "addresses": [
+    "dark_roofs",
+    "night_heat"
+   ],
+   "conditions": {
+    "roof_type": [
+     "tin",
+     "asbestos"
+    ],
+    "requires_roof_access": true
+   },
+   "subsidy_possible": true,
+   "cost_band": "high",
+   "evidence_level": "measured",
+   "effect": {
+    "metric": "indoor_air",
+    "key": "modroof.indoor_drop",
+    "range": [
+     "mean_vs_tin",
+     "mean_vs_tin"
+    ]
+   },
+   "effect_text_en": "One home in Ahmedabad: about 2 °C cooler indoors than tin-roof homes over the day, but no cooler than a concrete roof (weak evidence, a single home)",
+   "effect_text_hi": "अहमदाबाद का एक घर: दिन भर में टिन की छत वाले घरों से अंदर लगभग 2 °C ठंडा, पर पक्की छत से ज़्यादा ठंडा नहीं (कमज़ोर सबूत, सिर्फ़ एक घर)",
+   "cost_key": "cost.modroof_per_sqft",
+   "cost_text_en": "About ₹270 per sq ft (2021, reported)",
+   "cost_text_hi": "लगभग ₹270 प्रति वर्ग फ़ुट (2021, बताया गया)",
+   "time_en": "1–2 weeks",
+   "time_hi": "1–2 हफ़्ते",
+   "who_en": "Owner",
+   "who_hi": "मकान-मालिक",
+   "steps_en": [
+    "Replace the tin sheet with an insulated, reflective modular roof panel (for example, ModRoof).",
+    "Ask local NGOs or housing trusts about modular-roof programmes",
+    "Never cut or break asbestos sheets yourself: the dust is harmful"
+   ],
+   "steps_hi": [
+    "टिन की चादर हटाकर गर्मी रोकने वाला, धूप लौटाने वाला मॉड्यूलर छत पैनल लगवाएँ (जैसे ModRoof)।",
+    "मॉड्यूलर छत की योजनाओं के बारे में आसपास के NGO या हाउसिंग ट्रस्ट से पूछें",
+    "एस्बेस्टस की चादर ख़ुद कभी न काटें या तोड़ें: इसकी धूल नुकसान करती है"
+   ],
+   "source_ids": [
+    "vellingiri",
+    "epic_mht"
+   ],
+   "evidence_n": 1
+  },
+  {
+   "id": "fam_roof_insulation",
+   "tier": "moderate",
+   "title_en": "False ceiling or under-roof insulation",
+   "title_hi": "फ़ॉल्स सीलिंग या छत के नीचे इंसुलेशन",
+   "triggers": [
+    {
+     "household": {
+      "top_floor": true
+     }
+    }
+   ],
+   "addresses": [
+    "dark_roofs",
+    "night_heat"
+   ],
+   "conditions": {},
+   "cost_band": "medium",
+   "evidence_level": "measured",
+   "effect": {
+    "metric": "indoor_air",
+    "key": "insulation.thermocol_ceiling",
+    "range": [
+     "mean_vs_tin",
+     "mean_vs_asbestos"
+    ]
+   },
+   "effect_text_en": "One home in Ahmedabad with a thermocol false ceiling under an asbestos roof: about 1.9–2.4 °C cooler indoors than sheet-roof homes (weak evidence, a single home)",
+   "effect_text_hi": "अहमदाबाद का एक घर, जहाँ एस्बेस्टस की छत के नीचे थर्मोकोल की फ़ॉल्स सीलिंग थी: चादर की छत वाले घरों से अंदर लगभग 1.9–2.4 °C ठंडा (कमज़ोर सबूत, सिर्फ़ एक घर)",
+   "source_ids": [
+    "vellingiri"
+   ],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "Leave a ventilated air gap between roof and ceiling",
+    "Combine with a cool roof for the best result"
+   ],
+   "steps_hi": [
+    "छत और सीलिंग के बीच हवा आने-जाने वाली खाली जगह छोड़ें",
+    "सबसे अच्छे नतीजे के लिए इसे कूल-रूफ़ पेंट के साथ करें"
+   ],
+   "avoid_if_en": "Don't use plain thermocol: it catches fire easily and gives off toxic smoke. Ask for a fire-retardant board, and keep it away from lights, wiring and the kitchen.",
+   "avoid_if_hi": "सादा थर्मोकोल न लगवाएँ: इसमें आसानी से आग लगती है और ज़हरीला धुआँ निकलता है। आग न पकड़ने वाला (फ़ायर-रिटार्डेंट) बोर्ड लगवाएँ, और इसे बल्ब, बिजली के तारों और रसोई से दूर रखें।",
+   "evidence_n": 1
+  },
+  {
+   "id": "fam_shade_tree",
+   "tier": "long",
+   "title_en": "Plant a native shade tree on the west or south side",
+   "title_hi": "पश्चिम या दक्षिण की ओर देसी छायादार पेड़ लगाएँ",
+   "triggers": [
+    {
+     "household": {
+      "has_open_ground": true
+     }
+    }
+   ],
+   "addresses": [
+    "low_tree_cover",
+    "bare_paved_ground"
+   ],
+   "conditions": {
+    "climate": [
+     "arid",
+     "semi_arid",
+     "tropical_savanna"
+    ]
+   },
+   "cost_band": "low",
+   "evidence_level": "review",
+   "effect": null,
+   "source_ids": [
+    "cam_trees",
+    "iitgn_humid"
+   ],
+   "categories": [
+    "family"
+   ],
+   "steps_en": [
+    "Choose native species such as neem or arjuna",
+    "Plant where it will shade walls and windows in the afternoon"
+   ],
+   "steps_hi": [
+    "नीम या अर्जुन जैसे देसी पेड़ चुनें",
+    "ऐसी जगह लगाएँ जहाँ दोपहर में दीवारों और खिड़कियों पर छाया पड़े"
+   ]
+  },
+  {
+   "id": "avoid_translucent_sheets",
+   "categories": [
+    "family",
+    "colony",
+    "government"
+   ],
+   "tier": "avoid",
+   "title_en": "Don't use see-through roof sheets",
+   "title_hi": "पारदर्शी छत की चादर न लगाएँ",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "measured",
+   "effect": {
+    "metric": "harm",
+    "key": "coolroof.airlite_harm"
+   },
+   "effect_text_en": "Measured about 3 °C HOTTER than a tin roof (Ahmedabad)",
+   "effect_text_hi": "टिन की छत से भी लगभग 3 °C ज़्यादा गर्म मापी गईं (अहमदाबाद)",
+   "steps_en": [
+    "Don't put up translucent or skylight roof sheets (such as Airlite) to cool a room."
+   ],
+   "steps_hi": [
+    "कमरा ठंडा करने के लिए पारदर्शी या स्काईलाइट वाली चादरें (जैसे Airlite) न लगवाएँ।"
+   ],
+   "source_ids": [
+    "vellingiri"
+   ]
+  },
+  {
+   "id": "col_buddy_checks",
+   "tier": "today",
+   "rank_group": "safety",
+   "order": 1,
+   "title_en": "Heat-day check-ins for elderly and ill residents",
+   "title_hi": "गर्मी के दिनों में बुज़ुर्गों और बीमारों की खोज-खबर",
+   "triggers": [
+    {
+     "min_heat_level": "high"
+    }
+   ],
+   "addresses": [
+    "night_heat"
+   ],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "qualitative",
+   "effect": {
+    "metric": "exposure",
+    "note_en": "Reduces health risk; does not lower the temperature",
+    "note_hi": "सेहत का खतरा घटाता है; तापमान नहीं घटाता"
+   },
+   "source_ids": [],
+   "categories": [
+    "colony"
+   ],
+   "steps_en": [
+    "Make a volunteer list in the RWA group",
+    "Start check-ins when Thandak shows High or above"
+   ],
+   "steps_hi": [
+    "RWA के ग्रुप में स्वयंसेवकों की लिस्ट बनाएँ",
+    "जब ठंडक में गर्मी का स्तर 'ज़्यादा' या उससे ऊपर दिखे, तो खोज-खबर शुरू कर दें"
+   ]
+  },
+  {
+   "id": "water_points",
+   "categories": [
+    "colony",
+    "government"
+   ],
+   "tier": "quick",
+   "title_en": "Drinking-water points",
+   "title_hi": "पीने के पानी के ठिकाने",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [
+    "bare_paved_ground",
+    "low_tree_cover",
+    "dense_buildings"
+   ],
+   "conditions": {},
+   "cost_band": "low",
+   "evidence_level": "guideline",
+   "effect": {
+    "metric": "exposure",
+    "key": "health.public_cooling_and_water"
+   },
+   "effect_text_en": "Health measure recommended by NCDC (no temperature claim)",
+   "effect_text_hi": "NCDC का सुझाया सेहत का उपाय (तापमान घटाने का दावा नहीं)",
+   "time_en": "A few weeks",
+   "time_hi": "कुछ हफ़्ते",
+   "who_en": "RWA / ward office",
+   "who_hi": "RWA / वार्ड दफ़्तर",
+   "steps_en": [
+    "Put out drinking water (and ORS) at busy spots, parks, bus stops and markets.",
+    "Put them near gates, markets and bus stops, where vendors, guards and delivery workers stop"
+   ],
+   "steps_hi": [
+    "भीड़ वाली जगहों, पार्कों, बस स्टॉप और बाज़ारों में पीने का पानी (और ORS) रखवाएँ।",
+    "इन्हें गेट, बाज़ार और बस स्टॉप के पास रखें, जहाँ ठेले वाले, गार्ड और डिलीवरी वाले रुकते हैं"
+   ],
+   "source_ids": [
+    "thandak_ncdc"
+   ]
+  },
+  {
+   "id": "cooling_room",
+   "categories": [
+    "colony",
+    "government"
+   ],
+   "tier": "quick",
+   "title_en": "Cool room / cooling shelter",
+   "title_hi": "ठंडा कमरा / कूलिंग शेल्टर",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [
+    "dense_buildings",
+    "night_heat"
+   ],
+   "conditions": {},
+   "cost_band": "medium",
+   "evidence_level": "guideline",
+   "effect": {
+    "metric": "exposure",
+    "key": "health.public_cooling_and_water"
+   },
+   "effect_text_en": "Health measure recommended by NCDC (no temperature claim)",
+   "effect_text_hi": "NCDC का सुझाया सेहत का उपाय (तापमान घटाने का दावा नहीं)",
+   "time_en": "Before summer",
+   "time_hi": "गर्मी से पहले",
+   "who_en": "RWA / ward office",
+   "who_hi": "RWA / वार्ड दफ़्तर",
+   "steps_en": [
+    "During heat alerts, set up an airy or cooled room with water and ORS for older people, children and anyone unwell.",
+    "Use schools, community halls and health centres you already have; the ward ranking shows where to start"
+   ],
+   "steps_hi": [
+    "लू की चेतावनी के दिनों में बुज़ुर्गों, बच्चों और बीमारों के लिए एक हवादार या ठंडा कमरा तैयार रखें, जिसमें पानी और ORS हो।",
+    "मौजूदा स्कूल, सामुदायिक भवन और स्वास्थ्य केंद्र इस्तेमाल करें; वार्ड रैंकिंग बताती है कहाँ से शुरू करें"
+   ],
+   "source_ids": [
+    "thandak_ncdc"
+   ]
+  },
+  {
+   "id": "col_bulk_cool_roofs",
+   "tier": "moderate",
+   "title_en": "Colony-wide cool-roof painting drive",
+   "title_hi": "पूरी कॉलोनी में कूल-रूफ पेंटिंग अभियान",
+   "triggers": [
+    {
+     "area_causes": [
+      "dark_roofs",
+      "night_heat"
+     ]
+    }
+   ],
+   "addresses": [
+    "dark_roofs",
+    "night_heat"
+   ],
+   "conditions": {},
+   "cost_band": "medium",
+   "evidence_level": "measured",
+   "effect": {
+    "metric": "indoor_air",
+    "key": "coolroof.indoor_drop",
+    "range": [
+     "india_low",
+     "india_high"
+    ],
+    "note_en": "Per home. Roofs, light paving and shade trees together cool the whole area most",
+    "note_hi": "हर घर के हिसाब से। छतें, हल्के रंग की पेविंग और छायादार पेड़ मिलकर पूरे इलाके को सबसे ज़्यादा ठंडा करते हैं"
+   },
+   "source_ids": [
+    "vellingiri",
+    "nrdc_telangana"
+   ],
+   "categories": [
+    "colony"
+   ],
+   "subsidy_possible": true,
+   "steps_en": [
+    "Count the dark roofs in the colony",
+    "Buy the coating in bulk through the RWA for a lower price",
+    "Start with top-floor homes and homes with elderly residents"
+   ],
+   "steps_hi": [
+    "गिनें कि कॉलोनी में कितनी छतें गहरे रंग की हैं",
+    "RWA के ज़रिए कोटिंग थोक में खरीदें ताकि सस्ती पड़े",
+    "शुरुआत सबसे ऊपर की मंज़िल वाले और बुज़ुर्गों वाले घरों से करें"
+   ]
+  },
+  {
+   "id": "col_shade_structures",
+   "tier": "moderate",
+   "title_en": "Shade sails or pergolas over lanes, parks and waiting spots",
+   "title_hi": "गलियों, पार्कों और रुकने की जगहों पर छाया के शेड",
+   "triggers": [
+    {
+     "area_causes": [
+      "dense_buildings",
+      "bare_paved_ground",
+      "low_tree_cover"
+     ]
+    }
+   ],
+   "addresses": [
+    "dense_buildings",
+    "bare_paved_ground",
+    "low_tree_cover"
+   ],
+   "conditions": {},
+   "cost_band": "medium",
+   "evidence_level": "qualitative",
+   "effect": null,
+   "source_ids": [],
+   "categories": [
+    "colony"
+   ],
+   "steps_en": [
+    "Shade the most-used walking routes and bus stops first",
+    "Use light-coloured, breathable fabric so hot air can escape"
+   ],
+   "steps_hi": [
+    "सबसे ज़्यादा इस्तेमाल होने वाले रास्ते और बस स्टॉप पहले ढकें",
+    "हल्के रंग का, हवा निकलने वाला कपड़ा लगाएँ ताकि गर्म हवा बाहर जा सके"
+   ]
+  },
+  {
+   "id": "col_trees_dense_native",
+   "tier": "long",
+   "title_en": "Plant dense native shade trees",
+   "title_hi": "घने देसी छायादार पेड़ लगाएँ",
+   "triggers": [
+    {
+     "area_causes": [
+      "low_tree_cover",
+      "bare_paved_ground"
+     ]
+    }
+   ],
+   "addresses": [
+    "low_tree_cover",
+    "bare_paved_ground"
+   ],
+   "conditions": {
+    "climate": [
+     "arid",
+     "semi_arid"
+    ]
+   },
+   "cost_band": "medium",
+   "evidence_level": "review",
+   "effect": {
+    "metric": "outdoor_air",
+    "kind": "global_only",
+    "note_en": "Dense native trees cool streets most in dry climates, but can keep nights slightly warmer",
+    "note_hi": "सूखे मौसम वाले इलाकों में घने देसी पेड़ गलियों को सबसे ज़्यादा ठंडा करते हैं, पर रातें थोड़ी गर्म रख सकते हैं"
+   },
+   "source_ids": [
+    "cam_trees",
+    "iitgn_humid"
+   ],
+   "categories": [
+    "colony"
+   ],
+   "steps_en": [
+    "Prefer native species such as neem and arjuna over ornamental trees",
+    "Plant on bare ground and along south/west edges of streets"
+   ],
+   "steps_hi": [
+    "सजावटी पेड़ों की जगह नीम और अर्जुन जैसे देसी पेड़ चुनें",
+    "खाली ज़मीन पर और गलियों के दक्षिण-पश्चिम किनारे पर लगाएँ"
+   ]
+  },
+  {
+   "id": "col_trees_sparse_ventilated",
+   "tier": "long",
+   "title_en": "Plant spaced-out trees that keep air moving",
+   "title_hi": "दूरी पर पेड़ लगाएँ ताकि हवा चलती रहे",
+   "triggers": [
+    {
+     "area_causes": [
+      "low_tree_cover",
+      "bare_paved_ground"
+     ]
+    }
+   ],
+   "addresses": [
+    "low_tree_cover",
+    "bare_paved_ground"
+   ],
+   "conditions": {
+    "climate": [
+     "tropical_savanna",
+     "humid"
+    ]
+   },
+   "cost_band": "medium",
+   "evidence_level": "review",
+   "effect": {
+    "metric": "heat_index",
+    "note_en": "In humid cities a very dense canopy can make it feel hotter. Plant with gaps so air can move",
+    "note_hi": "उमस वाले शहरों में बहुत घने पेड़ गर्मी ज़्यादा महसूस करा सकते हैं। बीच में जगह छोड़कर लगाएँ ताकि हवा चले"
+   },
+   "source_ids": [
+    "iitgn_humid",
+    "cam_trees"
+   ],
+   "categories": [
+    "colony"
+   ],
+   "steps_en": [
+    "Space trees out and keep gaps aligned with the prevailing wind",
+    "Combine with built shade where streets are narrow"
+   ],
+   "avoid_if_en": "Do not plant dense clusters in packed, humid areas - they trap moisture and block wind",
+   "steps_hi": [
+    "पेड़ दूरी पर लगाएँ और बीच की जगह हवा की दिशा में रखें",
+    "जहाँ गलियाँ संकरी हों, वहाँ शेड भी साथ लगाएँ"
+   ],
+   "avoid_if_hi": "भीड़-भाड़ वाले उमस भरे इलाकों में पेड़ों के घने झुंड न लगाएँ: वे नमी रोकते हैं और हवा का रास्ता बंद करते हैं"
+  },
+  {
+   "id": "col_cool_paving",
+   "tier": "long",
+   "title_en": "Light-coloured or permeable paving for open areas",
+   "title_hi": "खुली जगहों पर हल्के रंग की या पानी सोखने वाली पेविंग",
+   "triggers": [
+    {
+     "area_causes": [
+      "bare_paved_ground",
+      "night_heat"
+     ]
+    }
+   ],
+   "addresses": [
+    "bare_paved_ground",
+    "night_heat"
+   ],
+   "conditions": {},
+   "cost_band": "high",
+   "evidence_level": "qualitative",
+   "effect": null,
+   "source_ids": [],
+   "categories": [
+    "colony"
+   ],
+   "steps_en": [
+    "Replace dark asphalt in parking and courtyards when it is due for repair",
+    "Use grass pavers where cars park rarely"
+   ],
+   "steps_hi": [
+    "पार्किंग और आँगन की काली सड़क की मरम्मत का समय आए तो उसे बदलें",
+    "जहाँ गाड़ियाँ कम खड़ी होती हैं, वहाँ घास वाले पेवर लगाएँ"
+   ]
+  },
+  {
+   "id": "col_water_revival",
+   "tier": "long",
+   "title_en": "Revive ponds and add rainwater harvesting",
+   "title_hi": "तालाबों को पुनर्जीवित करें, वर्षा जल संचयन करें",
+   "triggers": [
+    {
+     "area_causes": [
+      "water_loss"
+     ]
+    }
+   ],
+   "addresses": [
+    "water_loss"
+   ],
+   "conditions": {},
+   "cost_band": "high",
+   "evidence_level": "qualitative",
+   "effect": null,
+   "source_ids": [],
+   "categories": [
+    "colony"
+   ],
+   "steps_en": [
+    "Find the dried ponds and water bodies nearby",
+    "Work with the municipality: this usually needs public land and budget"
+   ],
+   "steps_hi": [
+    "आसपास के सूखे तालाब और जलाशय पहचानें",
+    "नगर निगम के साथ मिलकर काम करें: इसके लिए अक्सर सरकारी ज़मीन और बजट चाहिए"
+   ]
+  },
+  {
+   "id": "outdoor_work_hours",
+   "categories": [
+    "government"
+   ],
+   "tier": "quick",
+   "title_en": "Move outdoor work out of 12–3 pm",
+   "title_hi": "दोपहर 12–3 बजे बाहर का काम न हो",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [
+    "bare_paved_ground",
+    "low_tree_cover"
+   ],
+   "conditions": {},
+   "cost_band": "free",
+   "evidence_level": "guideline",
+   "effect": {
+    "metric": "exposure",
+    "key": "health.advice.ncdc_iec"
+   },
+   "effect_text_en": "Health measure (NCDC: stay out of the sun from 12 to 3 pm)",
+   "effect_text_hi": "सेहत का उपाय (NCDC: 12 से 3 बजे तक धूप से बचें)",
+   "time_en": "Alert days",
+   "time_hi": "चेतावनी वाले दिन",
+   "who_en": "Govt / employers",
+   "who_hi": "सरकार / मालिक-ठेकेदार",
+   "steps_en": [
+    "On heat-alert days, shift outdoor work (construction, sanitation, street vending) away from 12–3 pm.",
+    "Start with municipal staff and construction sites"
+   ],
+   "steps_hi": [
+    "लू की चेतावनी वाले दिनों में बाहर का काम (निर्माण, सफ़ाई, ठेला-फेरी) दोपहर 12 से 3 बजे के बीच न रखें।",
+    "शुरुआत नगर निगम के कर्मचारियों और निर्माण स्थलों से करें"
+   ],
+   "source_ids": [
+    "thandak_ncdc"
+   ]
+  },
+  {
+   "id": "gov_local_alerts",
+   "tier": "quick",
+   "title_en": "Heat alerts using local thresholds (including humidity and hot nights)",
+   "title_hi": "स्थानीय सीमाओं (नमी और गर्म रातों सहित) पर आधारित हीट अलर्ट",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [
+    "night_heat",
+    "dense_buildings"
+   ],
+   "conditions": {},
+   "cost_band": "low",
+   "evidence_level": "review",
+   "effect": {
+    "metric": "exposure",
+    "note_en": "Few Indian heat action plans set their own local thresholds",
+    "note_hi": "भारत के कम ही हीट एक्शन प्लान अपनी स्थानीय सीमाएँ तय करते हैं"
+   },
+   "source_ids": [
+    "cpr_hap"
+   ],
+   "categories": [
+    "government"
+   ],
+   "steps_en": [
+    "Set ward-level thresholds from local data, not national defaults",
+    "Include humidity, night temperature and heat-wave duration"
+   ],
+   "steps_hi": [
+    "राष्ट्रीय सीमाओं की जगह स्थानीय डेटा से वार्ड-स्तर की सीमाएँ तय करें",
+    "नमी, रात का तापमान और लू कितने दिन चली, यह सब शामिल करें"
+   ]
+  },
+  {
+   "id": "gov_vulnerability_index",
+   "tier": "moderate",
+   "title_en": "Ward-level heat vulnerability assessment",
+   "title_hi": "वार्ड-स्तरीय गर्मी संवेदनशीलता आकलन",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [
+    "dark_roofs",
+    "dense_buildings",
+    "low_tree_cover",
+    "bare_paved_ground",
+    "water_loss",
+    "night_heat"
+   ],
+   "conditions": {},
+   "cost_band": "low",
+   "evidence_level": "review",
+   "effect": {
+    "metric": "exposure",
+    "note_en": "Few Indian heat action plans assess who is most at risk, ward by ward",
+    "note_hi": "भारत के कम ही हीट एक्शन प्लान वार्ड-वार देखते हैं कि सबसे ज़्यादा खतरा किसे है"
+   },
+   "source_ids": [
+    "cpr_hap"
+   ],
+   "categories": [
+    "government"
+   ],
+   "steps_en": [
+    "Combine exposure (Thandak heat maps), sensitivity (elderly, slums, outdoor workers) and adaptive capacity",
+    "Use the ranking to target every other fix in this list"
+   ],
+   "steps_hi": [
+    "गर्मी का असर (ठंडक के नक्शे), संवेदनशीलता (बुज़ुर्ग, झुग्गियाँ, बाहर काम करने वाले) और निपटने की क्षमता को साथ जोड़ें",
+    "बाक़ी हर उपाय को सही जगह पहुँचाने के लिए इस रैंकिंग का इस्तेमाल करें"
+   ]
+  },
+  {
+   "id": "cool_roof_program",
+   "categories": [
+    "government"
+   ],
+   "tier": "moderate",
+   "title_en": "Ward cool-roof programme",
+   "title_hi": "वार्ड कूल-रूफ़ योजना",
+   "triggers": [
+    {
+     "always": true
+    }
+   ],
+   "addresses": [
+    "dark_roofs",
+    "night_heat"
+   ],
+   "conditions": {},
+   "cost_band": "medium",
+   "evidence_level": "measured",
+   "effect": {
+    "metric": "indoor_air",
+    "key": "coolroof.indoor_drop",
+    "range": [
+     "india_low",
+     "india_high"
+    ]
+   },
+   "effect_text_en": "About 1.0–1.4 °C cooler indoors in each treated home (Indian studies)",
+   "effect_text_hi": "हर ऐसे घर के अंदर लगभग 1.0–1.4 °C ठंडक (भारतीय स्टडी)",
+   "cost_key": "cost.coolroof_per_m2",
+   "cost_text_en": "About ₹300 per m² (reported)",
+   "cost_text_hi": "लगभग ₹300 प्रति वर्ग मीटर (बताया गया)",
+   "time_en": "Months",
+   "time_hi": "कुछ महीने",
+   "who_en": "Municipal corporation / housing board / state govt",
+   "who_hi": "नगर निगम / आवास बोर्ड / राज्य सरकार",
+   "steps_en": [
+    "Fund white reflective roof coatings first in the highest-HVI wards that have many metal-sheet and stone-slab roofs.",
+    "Cover low-income and government housing first, as Telangana's policy does"
+   ],
+   "steps_hi": [
+    "सबसे ज़्यादा HVI वाले उन वार्डों में पहले सफ़ेद कूल-रूफ़ कोटिंग करवाएँ, जहाँ लोहे की चादर और पत्थर की पट्टी वाली छतें ज़्यादा हैं।",
+    "तेलंगाना की नीति की तरह पहले कम आय वाले और सरकारी आवास लें"
+   ],
+   "source_ids": [
+    "vellingiri",
+    "nrdc_telangana"
+   ]
+  },
+  {
+   "id": "gov_cool_roof_code",
+   "tier": "long",
+   "title_en": "Make cool roofs mandatory in building rules",
+   "title_hi": "भवन नियमों में कूल रूफ अनिवार्य करें",
+   "triggers": [
+    {
+     "area_causes": [
+      "dark_roofs",
+      "night_heat"
+     ]
+    }
+   ],
+   "addresses": [
+    "dark_roofs",
+    "night_heat"
+   ],
+   "conditions": {},
+   "cost_band": "low",
+   "evidence_level": "review",
+   "effect": {
+    "metric": "outdoor_air",
+    "note_en": "Roofs work best together with light paving and shade trees across the city",
+    "note_hi": "पूरे शहर में हल्के रंग की पेविंग और छायादार पेड़ों के साथ छतें सबसे अच्छा काम करती हैं"
+   },
+   "source_ids": [
+    "nrdc_telangana"
+   ],
+   "categories": [
+    "government"
+   ],
+   "steps_en": [
+    "Follow Telangana: mandatory for government, commercial and large residential buildings",
+    "Check it when approving new building plans"
+   ],
+   "steps_hi": [
+    "तेलंगाना की तरह: सरकारी, व्यावसायिक और बड़ी रिहायशी इमारतों के लिए अनिवार्य करें",
+    "नई इमारतों के नक्शे पास करते समय इसे जाँचें"
+   ]
+  },
+  {
+   "id": "gov_urban_forest",
+   "tier": "long",
+   "title_en": "Climate-matched urban forest and green corridors",
+   "title_hi": "जलवायु के अनुसार शहरी वन और हरित गलियारे",
+   "triggers": [
+    {
+     "area_causes": [
+      "low_tree_cover",
+      "bare_paved_ground",
+      "water_loss"
+     ]
+    }
+   ],
+   "addresses": [
+    "low_tree_cover",
+    "bare_paved_ground",
+    "water_loss"
+   ],
+   "conditions": {},
+   "cost_band": "high",
+   "evidence_level": "review",
+   "effect": null,
+   "source_ids": [
+    "iitgn_humid",
+    "cam_trees"
+   ],
+   "categories": [
+    "government"
+   ],
+   "steps_en": [
+    "Dry cities: dense native canopy. Humid cities: spaced trees with ventilation corridors",
+    "Measure tree cover and heat change every year"
+   ],
+   "steps_hi": [
+    "सूखे शहर: घने देसी पेड़। उमस वाले शहर: दूरी पर पेड़ और हवा के गलियारे",
+    "पेड़ों और गर्मी में बदलाव हर साल नापें"
+   ]
+  }
+ ],
+ "ranking": {
+  "about": "Today tier: safety, then core, then advice. Other tiers: fixes with a measured or programme-reported number first, then the rest; within each group score = effect x evidence x cost x (1 + area bonus). Tune after before/after readings. A number measured in a single home counts half (single_home_factor).",
+  "today_group_order": [
+   "safety",
+   "core",
+   "advice"
+  ],
+  "numeric_evidence": [
+   "measured",
+   "program_claim"
+  ],
+  "evidence_weight": {
+   "measured": 1.0,
+   "guideline": 0.9,
+   "review": 0.8,
+   "program_claim": 0.7,
+   "qualitative": 0.5
+  },
+  "cost_weight": {
+   "free": 1.0,
+   "low": 0.9,
+   "medium": 0.7,
+   "high": 0.5
+  },
+  "effect_full_weight_c": 4.0,
+  "effect_weight_floor": 0.25,
+  "area_bonus_per_c": 0.2,
+  "area_bonus_cap_c": 2.5,
+  "max_per_tier": {
+   "today": 6,
+   "quick": 3,
+   "moderate": 3,
+   "long": 3,
+   "avoid": 3
+  },
+  "single_home_factor": 0.5
+ }
+}

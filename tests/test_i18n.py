@@ -50,16 +50,47 @@ def test_no_empty_or_untranslated():
 def test_emergency_numbers_everywhere():
     en, hi = load("en"), load("hi")
     for k in ("disclaimer", "cool_first", "res_tip_extreme"):
-        assert "108" in en[k] and "108" in hi[k], k
+        assert all(n in en[k] and n in hi[k] for n in ("112", "108")), k
 
 
-def test_solutions_csv_has_both_languages():
-    with open(os.path.join(ROOT, "apps", "api", "data", "solutions.csv"), newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
-    assert rows
-    for r in rows:
-        for col in ("name", "what"):
-            assert r[col + "_en"].strip() and r[col + "_hi"].strip(), (r["id"], col)
+DEVANAGARI = re.compile(r"[\u0900-\u097F]")
+
+
+def _fixes():
+    with open(os.path.join(ROOT, "apps", "api", "data", "fixes.json"), encoding="utf-8") as f:
+        return json.load(f)
+
+
+def test_fix_catalogue_has_both_languages():
+    """Every English field of every fix has a Hindi one, written in Devanagari, with the same placeholders."""
+    cat = _fixes()
+    assert cat["fixes"]
+    for f in cat["fixes"]:
+        pairs = [(k, f[k], f.get(k[:-3] + "_hi")) for k in f if k.endswith("_en") and f[k]]
+        e = f.get("effect") or {}
+        if e.get("note_en"):
+            pairs.append(("effect.note_en", e["note_en"], e.get("note_hi")))
+        for k, en, hi in pairs:
+            assert hi, (f["id"], k)
+            if isinstance(en, list):
+                assert isinstance(hi, list) and len(hi) == len(en), (f["id"], k)
+                assert all(DEVANAGARI.search(x) for x in hi), (f["id"], k)
+            else:
+                assert DEVANAGARI.search(hi), (f["id"], k, hi)
+
+
+def test_fix_catalogue_labels_have_both_languages():
+    cat = _fixes()
+    def walk(node, path):
+        if isinstance(node, dict) and "en" in node:
+            assert node.get("hi"), path
+            assert placeholders(node["en"]) == placeholders(node["hi"]), path
+        elif isinstance(node, dict):
+            for k, v in node.items():
+                walk(v, path + "." + k)
+    walk(cat["labels"], "labels")
+    for c in cat["causes"]:
+        assert c.get("label_hi") and DEVANAGARI.search(c["label_hi"]), c["id"]
 
 
 if __name__ == "__main__":

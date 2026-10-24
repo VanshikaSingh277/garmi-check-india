@@ -5,7 +5,7 @@ import { I } from "../icons.js";
 import { esc, fmt, hm, $ } from "../util.js";
 import { S } from "../state.js";
 import { api } from "../api.js";
-import { render, pageHero, setMascot, moodOf, fx } from "../ui.js";
+import { render, pageHero, setMascot, moodOf, fx, wxCredit } from "../ui.js";
 import { promptBox, bindPrompt, bindGps, setLoc, refreshWhere, known, needsRefresh } from "../place.js";
 import { route } from "../router.js";
 import { warmMaps } from "../map.js";
@@ -29,7 +29,7 @@ export function appHome() {
   if (!S._rw && needsRefresh()) { S._rw = true; refreshWhere().then(function () { if (route() === "app") appHome(); }); }
   if (k) api("/api/weather?lat=" + a.lat + "&lon=" + a.lon).then(function (w) {
     var c = $("nowcard"); if (!c) return;
-    var lvl = (w.today || {}).hi_level || "low";
+    var lvl = w.level || (w.today || {}).hi_level || "low";
     c.className = "heat " + lvl; c.innerHTML = heatCard(w); fx();
     if (!finding) setMascot("ahm", moodOf(lvl), t("app_tip", { b: t("level_" + lvl) }));
   }).catch(function () { var c = $("nowcard"); if (c) c.innerHTML = heatCard("offline"); });
@@ -50,9 +50,9 @@ function heatCard(w) {
   var head = '<div class="top"><span class="where">' + I("pin", "sm") + esc(lab + st) + '</span><button type="button" class="linkbtn small" id="chgplace">' + t("change_place") + "</button></div>";
   if (w === "offline") return head + '<div class="callout warn" style="margin-top:14px">' + I("alert") + "<div>" + t("net_error") + "</div></div>";
   if (!w) return head + '<div class="skeleton" style="height:120px;margin-top:14px"></div>';
-  var n = w.now || {}, td = w.today || {}, tm = w.tomorrow || {}, lvl = td.hi_level || "low";
+  var n = w.now || {}, td = w.today || {}, tm = w.tomorrow || {}, lvl = w.level || td.hi_level || "low";
   return head + '<div class="body"><div><div class="temp"><span data-count="' + fmt(n.t, 0) + '">' + fmt(n.t, 0) + '</span>°</div><p class="feels">' + t("air_now") + " · " + t("feels") + " <b>" + fmt(n.hi, 0) + "°</b> · " + fmt(n.rh, 0) + "% RH</p></div>" +
     '<div><div class="small muted">' + t("today_band") + '</div><div class="bandname"><i aria-hidden="true"></i>' + t("level_" + lvl) + "</div>" +
     '<div class="stats" style="margin-top:16px"><div class="stat"><div class="l">' + t("today_max") + '</div><div class="v"><span data-count="' + fmt(td.hi_max, 0) + '">' + fmt(td.hi_max, 0) + '</span><small>°C</small></div></div><div class="stat"><div class="l">' + t("tomorrow_max") + '</div><div class="v"><span data-count="' + fmt(tm.hi_max, 0) + '">' + fmt(tm.hi_max, 0) + "</span><small>°C</small></div></div></div></div></div>" +
-    '<div class="foot-row"><span class="tiny muted">' + t("updated", { t: hm(n.time) }) + "</span></div>";
+    '<div class="foot-row"><span class="tiny muted">' + t("updated", { t: hm(n.time) }) + "</span>" + wxCredit() + "</div>";
 }

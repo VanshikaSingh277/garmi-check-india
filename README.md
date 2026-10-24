@@ -42,7 +42,9 @@ On macOS, XGBoost needs OpenMP (`brew install libomp`). Linux/Docker installs `l
 ```bash
 python3 tests/test_heat_formulas.py
 python3 tests/test_rules.py
-python3 tests/test_i18n.py          # English and Hindi copy: same keys, same placeholders
+python3 tests/test_i18n.py          # English and Hindi copy (UI strings and fixes.json): same keys, same placeholders
+python3 tests/test_recommend.py     # fix recommendations against the real catalogue
+python3 tests/test_api_fixes.py     # /api/status/individual: Jaipur family, village, humid city
 PYTHONPATH=tests python3 tests/test_india.py
 ```
 

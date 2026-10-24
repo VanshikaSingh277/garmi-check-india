@@ -33,24 +33,21 @@ def test_older_limit_never_looser_than_healthy():
     assert rules.fan_limits("older")["avoid_from"] <= rules.fan_limits("adult")["avoid_from"]
 
 
-def test_mild_day_not_raised_by_household_factors():
-    r = rules.risk(rows(29, 50), rows(29, 50), rows(29, 50), "tin_top", ["elderly"], {"fan": False}, indoor_peak=30.0)
-    assert r["level"] == "low", r
-
-
-def test_hot_day_raises_apply_and_cap_at_extreme():
-    r = rules.risk(rows(42, 30), rows(42, 30), rows(42, 30), "tin_top", ["elderly"], {}, indoor_peak=44.0)
-    assert r["level_index"] == 3, r
+def test_household_factors_are_listed_not_added_to_the_level():
+    r = rules.risk(rows(42, 30), rows(42, 30), rows(42, 30))
+    assert r["level_index"] == rules.base_from_heat_index(max(r["hi_max"], r["tmax"])), r   # weather only
+    assert rules.home_factors("tin_top", ["elderly"], {}) == ["tin_roof_top_floor", "vulnerable_person", "no_cooling"]
+    assert rules.home_factors("rcc_brick_top", [], {"fan": True}) == []
 
 
 def test_heatwave_tmax_forces_at_least_high():
     hw = V.value("imd.heatwave")["hw_actual_tmax"]
-    r = rules.risk(rows(hw, 8), rows(30, 20), rows(30, 20), "rcc_brick_top", [], {"ac": True}, indoor_peak=34.0)
+    r = rules.risk(rows(hw, 8), rows(30, 20), rows(30, 20))
     assert r["level_index"] >= 2, r
 
 
 def test_wet_bulb_critical_is_extreme():
-    r = rules.risk(rows(36, 80), rows(36, 80), rows(36, 80), "lower_floor", [], {"ac": True}, indoor_peak=33.0)
+    r = rules.risk(rows(36, 80), rows(36, 80), rows(36, 80))
     assert r["twb_max"] >= V.value("wet_bulb.danger")["critical_humid_young_mean"]
     assert r["level"] == "extreme", r
 

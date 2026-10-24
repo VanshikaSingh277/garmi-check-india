@@ -182,7 +182,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
         <div class="node k-eng"><b>Engines</b><code>apps/api/engine/</code><small>places · districts · areas · weather · heat · <b style="display:inline;color:inherit">indoor (ML)</b> · rules · plan · solutions · verified</small></div>
       </div>
       <div class="arr">→</div>
-      <div class="col"><div class="node k-data"><b>Data files</b><code>apps/api/data/</code><small>ML model + card · gazetteer · district &amp; ward layers · verified_numbers.csv · solutions.csv</small></div></div>
+      <div class="col"><div class="node k-data"><b>Data files</b><code>apps/api/data/</code><small>ML model + card · gazetteer · district &amp; ward layers · verified_numbers.csv · fixes.json</small></div></div>
     </div>
     <div class="arch-under">
       <div><div class="down">↕</div><div class="node k-ext"><b>Outside services (runtime)</b>Open-Meteo forecast API (from engine/weather.py) · OpenStreetMap tiles at zoom ≥ 7 and the MapLibre GL library (from the browser)</div></div>
@@ -291,17 +291,15 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
 
     <h3>6.1 Heat level (rules, not ML)</h3>
     <div class="ladder">
-      <div class="step"><div class="q start">Next 24 h forecast → heat index (feels-like), air Tmax, wet-bulb</div><div class="yes">→</div><div class="out ok">Base level from the <b>IMD heat-index bands</b>: green &lt; 35 · yellow 36–45 · orange 46–55 · red &gt; 55 (gaps resolved upward)</div></div>
+      <div class="step"><div class="q start">Next 24 h forecast → heat index (feels-like), air Tmax, wet-bulb</div><div class="yes">→</div><div class="out ok">Base level from the <b>IMD heat-index bands</b> on the higher of feels-like and air temperature: green &lt; 35 · yellow 36–45 · orange 46–55 · red &gt; 55 (gaps resolved upward)</div></div>
       <div class="vline"></div>
-      <div class="step"><div class="q">Air Tmax ≥ 45 °C? (IMD heat-wave rule)</div><div class="yes">YES →</div><div class="out up">At least <b>High</b></div></div>
+      <div class="step"><div class="q">IMD heatwave today or tomorrow? Tmax ≥ 45 °C, or above the entry value (plains 40, hills 30, coast 37) and 4.5–6.4 °C above the 1991–2020 normal</div><div class="yes">YES →</div><div class="out up">At least <b>High</b>; severe (≥ 47 °C or &gt; 6.4 °C above normal) → <b>Extreme</b></div></div>
       <div class="vline"></div>
       <div class="step"><div class="q">Inside Delhi AND today's and tomorrow's daily mean &gt; 35.3 °C? (Delhi HAP 97th-percentile rule)</div><div class="yes">YES →</div><div class="out up">At least <b>High</b></div></div>
       <div class="vline"></div>
       <div class="step"><div class="q">Wet-bulb ≥ 30.55 °C? (humid heat, dangerous even for healthy people)</div><div class="yes">YES →</div><div class="out bad"><b>Extreme</b></div></div>
       <div class="vline"></div>
-      <div class="step"><div class="q">Is it actually hot? Heat index ≥ 35 °C or room peak ≥ 35 °C</div><div class="no">NO →</div><div class="out stop">Stop: home factors do <b>not</b> raise a mild day</div></div>
-      <div class="vline"><span>YES</span></div>
-      <div class="step"><div class="q">Home factors</div><div class="yes">+1 each →</div><div class="out up">tin roof on the top floor · someone needing extra care · no fan/cooler/AC (capped at <b>Extreme</b>)</div></div>
+      <div class="step"><div class="q">Home factors</div><div class="yes">listed →</div><div class="out up">tin / asbestos roof on the top floor · someone needing extra care · no fan/cooler/AC: shown beside the level as "Your home", <b>never added to it</b> (no source says by how much they raise risk)</div></div>
     </div>
     <div class="callout">⚖️ <div><b>Why rules and not ML here:</b> there is no labelled data on heat illness per home to train a "risk" model, and safety advice must be checkable. Every threshold above is a row in <code>verified_numbers.csv</code>, with its source.</div></div>
 
@@ -332,7 +330,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
 
     <h3>6.4 Which fixes you see</h3>
     <div class="funnel">
-      <div class="fstage"><div class="fbar"><b>solutions.csv</b>: 10 fixes, each with an effect key and a cost key</div><div></div></div>
+      <div class="fstage"><div class="fbar"><b>fixes.json</b>: 31 fixes, triggered by your answers and today's weather, each number through verified_numbers.csv</div><div></div></div>
       <div class="fstage"><div class="fbar">① Meant for this role? (individual / society / government)</div><div class="fside">no → not listed at all</div></div>
       <div class="fstage"><div class="fbar">② Fits your roof type?</div><div class="fside">no → "Not for your roof type"</div></div>
       <div class="fstage"><div class="fbar">③ Needs roof access, and do you have it?</div><div class="fside">no → "Needs access to the roof"</div></div>
@@ -384,7 +382,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
       <div class="node k-data"><b>wards.geojson · gov_rank.json</b> (via scripts/build_site_data.py)</div></div>
     <div class="tw" style="margin-top:12px"><table>
       <tr><th>Model / layer</th><th>Algorithm</th><th>Validation</th><th>Used for</th></tr>
-      <tr><td><b>Room temperature</b></td><td>XGBoost</td><td>Leave-home-out MAE 1.52 °C (rules 2.11 °C)</td><td>24-hour plan, fan advice, the gate for household raises to the risk level</td></tr>
+      <tr><td><b>Room temperature</b></td><td>XGBoost</td><td>Leave-home-out MAE 1.52 °C (rules 2.11 °C)</td><td>24-hour plan and fan advice (never the heat level)</td></tr>
       <tr><td><b>District heat + people index</b></td><td>Percentile ranks, equal weights</td><td>PCA vs equal weights, Spearman 0.92</td><td>Colony and Government pages, district card</td></tr>
       <tr><td><b>Delhi ward ground heat</b></td><td>LightGBM + SHAP</td><td>Spatial block CV (5 km), R² 0.82</td><td>Delhi "why it's hot here" drivers</td></tr>
       <tr><td><b>Delhi ward HVI</b></td><td>E + S − A</td><td>PCA vs equal weights, Spearman 0.63</td><td>Delhi ward ranking</td></tr>
@@ -405,7 +403,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
     <div class="grid3" style="margin-top:12px">
       <div class="node k-web"><b>State</b><code>localStorage</code>: <code>gc_state</code> (language, place, answers) · <code>gc_last</code> (last result, offline fallback) · <code>gc_theme</code></div>
       <div class="node k-web"><b>Maps</b>MapLibre GL, lazy-loaded. The India view shows only LGD district polygons; OSM tiles appear from zoom 7. Colours use a 5-stop ramp at the 10/30/50/70/90th percentiles.</div>
-      <div class="node k-web"><b>Language &amp; theme</b>Every label comes from <code>src/i18n/en.js</code> and <code>hi.js</code>; fix texts come from <code>solutions.csv</code> in both languages. Light, dark or automatic theme.</div>
+      <div class="node k-web"><b>Language &amp; theme</b>Every label comes from <code>src/i18n/en.js</code> and <code>hi.js</code>; fix texts come from <code>fixes.json</code> in both languages. Light, dark or automatic theme.</div>
     </div>
   </section>
 
@@ -436,7 +434,7 @@ td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: 
       <tr><td><code>india_districts.geojson</code>, <code>india_district_stats.csv</code>, <code>india_district_checks.json</code></td><td>All-India district heat + people layer</td><td><code>pipelines/india/district_layer.py</code></td></tr>
       <tr><td><code>wards.geojson</code>, <code>gov_rank.json</code>, <code>hvi_checks.json</code>, <code>model_a_card.json</code></td><td>Delhi ward layer, ranking, model card</td><td><code>ml/model_a</code>, <code>ml/hvi</code>, <code>scripts/build_site_data.py</code></td></tr>
       <tr><td><code>verified_numbers.csv</code></td><td><b>Single source of truth</b> for every threshold and effect (value, status, source)</td><td>hand-curated with sources (<code>docs/</code>)</td></tr>
-      <tr><td><code>solutions.csv</code></td><td>Fix catalogue (EN/HI): role, roof, needs, effect key, cost key, tier, source</td><td>hand-curated</td></tr>
+      <tr><td><code>fixes.json</code></td><td>The one fix catalogue (EN/HI): audiences, tier, triggers, conditions, effect key, cost key, steps, source</td><td>hand-curated</td></tr>
       <tr><td><code>sources.json</code></td><td>Sources table for the website</td><td><code>scripts/build_site_data.py</code> from <code>docs/sources.md</code></td></tr>
     </table></div>
   </section>

@@ -15,8 +15,10 @@ var SCHEMES = [["scheme_1", "https://ndma.gov.in/sites/default/files/PDF/Guideli
 var DATA = {};
 
 export function govView() {
+  var inDelhi = !!(S.a.where && S.a.where.in_delhi);
+  if (!inDelhi) S.gscope = "india";
   var india = S.gscope !== "delhi", key = S.lang + "|" + (india ? "india|" + S.gstate : "delhi");  // the fixes come back in the page language
-  var hero = pageHero({ id: "gm", title: t("gov_title"), sub: t("government_sub"), tip: t("gov_tip"), mood: "happy", extra: '<div class="seg lg" id="scope"><button type="button" data-scope="india" class="' + (india ? "on" : "") + '">' + I("map", "sm") + t("scope_india") + '</button><button type="button" data-scope="delhi" class="' + (!india ? "on" : "") + '">' + I("building", "sm") + t("scope_delhi") + "</button></div>" });
+  var hero = pageHero({ id: "gm", title: t("gov_title"), sub: t("government_sub"), tip: t("gov_tip"), mood: "happy", extra: inDelhi ? '<div class="seg lg" id="scope"><button type="button" data-scope="india" class="' + (india ? "on" : "") + '">' + I("map", "sm") + t("scope_india") + '</button><button type="button" data-scope="delhi" class="' + (!india ? "on" : "") + '">' + I("building", "sm") + t("scope_delhi") + "</button></div>" : "" });
   if (!DATA[key]) {
     render(skeletonCard(60) + "<br>" + skeletonCard(380), hero);
     bindScope();
@@ -34,7 +36,7 @@ export function govView() {
     '<div class="search">' + I("search") + '<input class="input" id="gf" type="search" placeholder="' + esc(t("filter_ph")) + '" aria-label="' + esc(t("filter_ph")) + '" value="' + esc(S.gfilter) + '"></div><button type="button" class="btn secondary" id="csv">' + I("download") + t("download_csv") + "</button></div>";
   render(kpis + tools + '<div class="mapbox" style="margin-bottom:20px"><div id="map" class="map"></div>' + (india ? mapTools("gt") : legend(WARD_STOPS, "", "layer_index", 2)) + "</div>" +
     '<div class="card" style="padding:0;overflow:hidden"><div style="padding:16px 20px 8px" class="row between"><h3>' + t("rank_label") + '</h3><span class="tiny muted">' + t("sort_hint") + '</span></div><div id="tbl"></div></div>' +
-    '<div class="layout" style="margin-top:20px"><div>' + card("list", t("todo"), fixesBlock(d.solutions, ["cooling", "health", "avoid"])) + '</div><div class="stack">' +
+    '<div class="layout" style="margin-top:20px"><div>' + card("list", t("todo"), fixesBlock(d.solutions)) + '</div><div class="stack">' +
     card("book", t("schemes"), '<ul class="bullets">' + SCHEMES.map(function (s) { return '<li><a target="_blank" rel="noopener" href="' + s[1] + '">' + t(s[0]) + "</a></li>"; }).join("") + "</ul>") + "</div></div>", hero);
   bindScope();
   var ctrl = null;
