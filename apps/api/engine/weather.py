@@ -19,7 +19,7 @@ def fetch(lat: float, lon: float) -> dict:
         return hit[1]
     url = (f"{API}?latitude={key[0]}&longitude={key[1]}"
            "&hourly=temperature_2m,relative_humidity_2m,shortwave_radiation,wind_speed_10m"
-           "&past_days=1&forecast_days=2&timezone=Asia%2FKolkata")
+           "&daily=temperature_2m_max&past_days=1&forecast_days=2&timezone=Asia%2FKolkata")
     with urllib.request.urlopen(url, timeout=20) as r:
         d = json.loads(r.read())
     h = d["hourly"]
@@ -30,7 +30,10 @@ def fetch(lat: float, lon: float) -> dict:
             continue
         rows.append({"time": ts, "t": t, "rh": rh, "sw": h["shortwave_radiation"][i] or 0.0, "ws": h["wind_speed_10m"][i] or 0.0,
                      "hi": round(heat_index_c(t, rh), 1), "twb": round(wet_bulb_c(t, rh), 1)})
+    daily = d.get("daily") or {}
+    daily_tmax = {t: x for t, x in zip(daily.get("time", []), daily.get("temperature_2m_max", [])) if x is not None}
     out = {"lat": key[0], "lon": key[1], "fetched_at": datetime.now().isoformat(timespec="minutes"), "hourly": rows,
+           "daily_tmax": daily_tmax, "elevation": d.get("elevation"),
            "source": "Open-Meteo forecast API (open-meteo.com)"}
     _CACHE[key] = (time.time(), out)
     return out

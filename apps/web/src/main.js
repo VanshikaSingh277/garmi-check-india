@@ -29,6 +29,7 @@ function applyStatic() {
   $("brand").setAttribute("href", inApp ? "#/app" : "#/");
   $("tabs").innerHTML = NAV.slice(1).map(function (n) { return '<a href="#/' + n.r + '" class="' + (r === n.r ? "on" : "") + '"' + (r === n.r ? ' aria-current="page"' : "") + ">" + I(n.ic, "sm") + "<span>" + t(n.k) + "</span></a>"; }).join("");
   $("bottomnav").innerHTML = NAV.map(function (n) { return '<a href="#/' + n.r + '" class="' + (r === n.r ? "on" : "") + '"' + (r === n.r ? ' aria-current="page"' : "") + ">" + I(n.ic) + "<span>" + t(n.k) + "</span></a>"; }).join("");
+  $("dlWard").parentNode.hidden = !(S.a.where && S.a.where.in_delhi);
   $("barx").innerHTML = inApp ? '<a class="about-link" href="#/"><span class="hide-sm">' + t("nav_about") + '</span><span class="show-sm">' + t("nav_about_short") + "</span></a>"
     : '<a class="btn primary sm bar-enter" href="#/app">' + t("enter") + " " + I("arrow-r", "sm") + "</a>";
   var next = curTheme() === "dark" ? "light" : "dark"; // the button shows the theme it switches to
