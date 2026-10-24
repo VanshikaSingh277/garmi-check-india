@@ -98,6 +98,9 @@ button, input, select { font: inherit; color: inherit; letter-spacing: inherit; 
 .num { font-variant-numeric: tabular-nums; }
 .credit { font-size: 11.5px; color: var(--ink-muted); } .credit a { color: inherit; }
 .credit-row { margin-top: 12px; }
+.homerisk { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); }
+.homerisk h3 { margin-bottom: 6px; }
+.homerisk .reasons { margin-top: 8px; }
 .muted { color: var(--ink-muted); } .small { font-size: 14px; } .tiny { font-size: 12.5px; }
 .warn { color: var(--mod-text); } .err { color: var(--ext-text); }
 .stack { display: flex; flex-direction: column; gap: 16px; }

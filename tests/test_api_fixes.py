@@ -6,7 +6,7 @@ from datetime import timedelta
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "apps", "api"))
 import main  # noqa: E402
-from engine import weather  # noqa: E402
+from engine import normals, weather  # noqa: E402
 from engine.heat import heat_index_c, wet_bulb_c  # noqa: E402
 
 
@@ -25,8 +25,10 @@ def fake_forecast(day_max, night_min, afternoon_rh, night_rh):
     return {"hourly": rows, "fetched_at": start.isoformat(), "source": "test"}
 
 
-def status(forecast, **answers):
+def status(forecast, normal=38.0, **answers):
+    """normal: the day's 1991-2020 normal maximum, fixed so the IMD departure rule doesn't depend on today's date."""
     weather.fetch = lambda lat, lon: forecast
+    main.normals.normal_tmax = lambda *a, **k: normal
     q = main.IndividualIn(**answers)
     return main.status_individual(q)
 
@@ -52,6 +54,15 @@ def test_jaipur_tin_roof_family_on_a_high_day():
     assert left.get("lime_whitewash") == "roof_mismatch"
     assert left.get("modroof") == "over_budget"
     assert fx["fan_profile"] == "vulnerable" and r["fan"]["group"] == "older"  # stricter fan limits in the hourly plan
+    assert r["risk"]["home"] == ["tin_roof_top_floor", "vulnerable_person"]       # beside the level, not added to it
+
+
+def test_outdoor_worker_gets_adult_fan_limits_and_work_advice():
+    r = status(fake_forecast(43, 29, 18, 35), lat=26.91, lon=75.79, roof="rcc_brick_top", vulnerable=["outdoor_worker"],
+               devices={"fan": True}, roof_access=True)
+    assert r["fan"]["group"] == "adult"
+    assert "vulnerable_person" not in r["risk"]["home"]
+    assert "fam_outdoor_work" in ids(r["fixes"], "today")
 
 
 def test_village_with_no_satellite_profile_gets_full_family_advice():

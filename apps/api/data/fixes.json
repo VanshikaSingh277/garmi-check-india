@@ -87,16 +87,16 @@
   }
  },
  "thresholds": {
-  "evaporative_max_rh_pct": {
-   "key": "evaporative.max_rh",
-   "field": "max_rh_pct"
-  },
   "afternoon_window_hours": {
    "value": [
     12,
     17
    ],
    "status": "design_choice"
+  },
+  "evaporative_max_twb_c": {
+   "key": "evaporative.max_twb",
+   "field": "max_twb_c"
   }
  },
  "climate": {
@@ -144,12 +144,12 @@
     "hi": "आपके पास खुली ज़मीन है"
    },
    "dry_afternoon": {
-    "en": "Dry afternoon ({rh}% humidity)",
-    "hi": "दोपहर में हवा सूखी रहेगी ({rh}% नमी)"
+    "en": "Dry afternoon (wet-bulb {twb} °C)",
+    "hi": "दोपहर में हवा सूखी रहेगी (वेट-बल्ब {twb} °C)"
    },
    "humid_afternoon": {
-    "en": "Humid afternoon ({rh}% humidity)",
-    "hi": "दोपहर में उमस रहेगी ({rh}% नमी)"
+    "en": "Humid afternoon (wet-bulb {twb} °C)",
+    "hi": "दोपहर में उमस रहेगी (वेट-बल्ब {twb} °C)"
    },
    "area_cause": {
     "en": "{cause} in your area (+{c} °C)",
@@ -178,8 +178,8 @@
     "hi": "आपके बजट से ज़्यादा। कूल-रूफ़ सब्सिडी या NGO की योजनाएँ देखें"
    },
    "too_humid": {
-    "en": "Too humid this afternoon ({rh}%)",
-    "hi": "आज दोपहर उमस ज़्यादा है ({rh}%)"
+    "en": "Too humid this afternoon (wet-bulb {twb} °C)",
+    "hi": "आज दोपहर उमस ज़्यादा है (वेट-बल्ब {twb} °C)"
    },
    "humidity_unknown": {
     "en": "Humidity forecast not available",
@@ -200,6 +200,10 @@
    "evidence_not_verified": {
     "en": "Evidence not checked yet",
     "hi": "इसके सबूत अभी जाँचे नहीं गए"
+   },
+   "climate_unknown": {
+    "en": "Your area's climate isn't known, so we can't tell if this suits it",
+    "hi": "आपके इलाक़े का मौसम पता नहीं, इसलिए यह नहीं कह सकते कि यह वहाँ ठीक रहेगा"
    }
   },
   "effect": {
@@ -345,6 +349,10 @@
   "vellingiri": {
    "title": "Vellingiri et al. 2020, Indian J Occup Environ Med (16 Ahmedabad slum homes, roof comparison)",
    "url": "https://doi.org/10.4103/ijoem.IJOEM_120_19"
+  },
+  "who_breastfeeding": {
+   "title": "WHO e-Library: exclusive breastfeeding for the first 6 months (no water needed, even in hot weather)",
+   "url": "https://www.who.int/tools/elena/interventions/exclusive-breastfeeding"
   }
  },
  "causes": [
@@ -441,7 +449,7 @@
    ],
    "conditions": {},
    "cost_band": "free",
-   "evidence_level": "measured",
+   "evidence_level": "guideline",
    "effect": {
     "metric": "context",
     "key": "roof.offset.rcc_top"
@@ -487,19 +495,24 @@
    },
    "steps_hi": [
     "दोपहर 12 से शाम 5 बजे तक उन्हें सबसे ठंडे कमरे में रखें — अक्सर सबसे नीचे की मंज़िल, धूप वाली दीवार से दूर",
-    "बार-बार उनका हाल पूछें और पानी पिलाते रहें, भले वे ख़ुद न माँगें",
+    "बार-बार उनका हाल पूछें। बुज़ुर्गों को बार-बार पानी दें, भले वे ख़ुद न माँगें",
+    "छोटे बच्चे को ज़्यादा बार माँ का दूध पिलाएँ। 6 महीने से छोटे बच्चे को गर्मी में भी अलग से पानी नहीं देना होता",
+    "अगर डॉक्टर ने किसी के लिए पानी की मात्रा तय की है (दिल या किडनी की बीमारी), तो गर्मी में कितना पीना है, यह उन्हीं से पूछें। बिना पूछे कोई दवा बंद न करें",
     "लू लगने के पहले लक्षण दिखते ही उन्हें ठंडा करें और मदद के लिए फ़ोन करें"
    ],
    "source_ids": [
     "thandak_ndma",
-    "thandak_ncdc"
+    "thandak_ncdc",
+    "who_breastfeeding"
    ],
    "categories": [
     "family"
    ],
    "steps_en": [
     "From noon to 5 pm keep them in the coolest room, usually the lowest floor and away from sun-facing walls",
-    "Check on them often and keep giving water, even if they don't ask",
+    "Check on them often. Give older people water often, even if they don't ask",
+    "Breastfeed babies more often. Babies under 6 months need no extra water, even in the heat",
+    "If a doctor limits someone's fluids (heart or kidney disease), ask that doctor how much to drink in the heat. Don't stop any medicine without asking",
     "At the first warning signs of heat illness, cool them down and call for help"
    ]
   },
@@ -550,8 +563,8 @@
    "rank_group": "advice",
    "order": 1,
    "variant_group": "cooler_today",
-   "title_en": "Your cooler will work well this afternoon",
-   "title_hi": "आज दोपहर कूलर अच्छा काम करेगा",
+   "title_en": "Your cooler should help this afternoon",
+   "title_hi": "आज दोपहर कूलर से राहत मिलनी चाहिए",
    "triggers": [
     {
      "household": {
@@ -564,7 +577,7 @@
    ],
    "addresses": [],
    "conditions": {
-    "max_rh_pct": "evaporative_max_rh_pct"
+    "max_twb_c": "evaporative_max_twb_c"
    },
    "cost_band": "free",
    "evidence_level": "qualitative",
@@ -602,7 +615,7 @@
    ],
    "addresses": [],
    "conditions": {
-    "min_rh_pct": "evaporative_max_rh_pct"
+    "min_twb_c": "evaporative_max_twb_c"
    },
    "cost_band": "free",
    "evidence_level": "qualitative",
@@ -735,8 +748,11 @@
    "who_en": "You",
    "who_hi": "आप",
    "source_ids": [
-    "thandak_ncdc"
-   ]
+    "thandak_ncdc",
+    "who_breastfeeding"
+   ],
+   "avoid_if_en": "Babies under 6 months: breastfeed more often instead of giving water. If a doctor limits your fluids, ask them how much to drink in the heat.",
+   "avoid_if_hi": "6 महीने से छोटे बच्चे: पानी की जगह ज़्यादा बार माँ का दूध पिलाएँ। अगर डॉक्टर ने आपके लिए पानी की मात्रा तय की है, तो गर्मी में कितना पीना है, यह उन्हीं से पूछें।"
   },
   {
    "id": "fam_wet_screen",
@@ -757,7 +773,7 @@
      "arid",
      "semi_arid"
     ],
-    "max_rh_pct": "evaporative_max_rh_pct"
+    "max_twb_c": "evaporative_max_twb_c"
    },
    "cost_band": "low",
    "evidence_level": "qualitative",
@@ -867,6 +883,15 @@
    ],
    "source_ids": [
     "vellingiri"
+   ],
+   "cautions": [
+    {
+     "roof_type": [
+      "asbestos"
+     ],
+     "en": "Asbestos sheets: never stand or walk on them (they break and people fall through), and never scrape, brush or sand them: the dust harms the lungs. Work from a ladder or hire trained workers.",
+     "hi": "एस्बेस्टस की चादर: इस पर कभी खड़े न हों, न चलें (यह टूट जाती है और लोग नीचे गिर जाते हैं), और इसे कभी न खुरचें, न रगड़ें, न घिसें: इसकी धूल फेफड़ों को नुकसान पहुँचाती है। सीढ़ी से काम करें या प्रशिक्षित कारीगर बुलाएँ।"
+    }
    ]
   },
   {
@@ -931,6 +956,15 @@
    "source_ids": [
     "vellingiri",
     "nrdc_telangana"
+   ],
+   "cautions": [
+    {
+     "roof_type": [
+      "asbestos"
+     ],
+     "en": "Asbestos sheets: never stand or walk on them (they break and people fall through), and never scrape, brush or sand them: the dust harms the lungs. Work from a ladder or hire trained workers.",
+     "hi": "एस्बेस्टस की चादर: इस पर कभी खड़े न हों, न चलें (यह टूट जाती है और लोग नीचे गिर जाते हैं), और इसे कभी न खुरचें, न रगड़ें, न घिसें: इसकी धूल फेफड़ों को नुकसान पहुँचाती है। सीढ़ी से काम करें या प्रशिक्षित कारीगर बुलाएँ।"
+    }
    ]
   },
   {
@@ -992,7 +1026,8 @@
    "source_ids": [
     "vellingiri",
     "epic_mht"
-   ]
+   ],
+   "evidence_n": 1
   },
   {
    "id": "fam_roof_insulation",
@@ -1036,7 +1071,10 @@
    "steps_hi": [
     "छत और सीलिंग के बीच हवा आने-जाने वाली खाली जगह छोड़ें",
     "सबसे अच्छे नतीजे के लिए इसे कूल-रूफ़ पेंट के साथ करें"
-   ]
+   ],
+   "avoid_if_en": "Don't use plain thermocol: it catches fire easily and gives off toxic smoke. Ask for a fire-retardant board, and keep it away from lights, wiring and the kitchen.",
+   "avoid_if_hi": "सादा थर्मोकोल न लगवाएँ: इसमें आसानी से आग लगती है और ज़हरीला धुआँ निकलता है। आग न पकड़ने वाला (फ़ायर-रिटार्डेंट) बोर्ड लगवाएँ, और इसे बल्ब, बिजली के तारों और रसोई से दूर रखें।",
+   "evidence_n": 1
   },
   {
    "id": "fam_shade_tree",
@@ -1735,7 +1773,7 @@
   }
  ],
  "ranking": {
-  "about": "Today tier: safety, then core, then advice. Other tiers: fixes with a measured or programme-reported number first, then the rest; within each group score = effect x evidence x cost x (1 + area bonus). Tune after before/after readings.",
+  "about": "Today tier: safety, then core, then advice. Other tiers: fixes with a measured or programme-reported number first, then the rest; within each group score = effect x evidence x cost x (1 + area bonus). Tune after before/after readings. A number measured in a single home counts half (single_home_factor).",
   "today_group_order": [
    "safety",
    "core",
@@ -1768,6 +1806,7 @@
    "moderate": 3,
    "long": 3,
    "avoid": 3
-  }
+  },
+  "single_home_factor": 0.5
  }
 }

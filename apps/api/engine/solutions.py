@@ -5,7 +5,7 @@ A fix appears when one of its triggers matches and its conditions hold:
   a fix's rank and add a "because" line but never trigger or block one, so a village with no satellite data gets full advice
 - colony / government fixes are also triggered by area causes; where a place has no area profile yet, those fixes are
   offered as common fixes instead of disappearing
-Everything filtered out by a condition (roof, roof access, budget, humidity, climate, unverified evidence) comes back in
+Everything filtered out by a condition (roof, roof access, budget, afternoon wet-bulb, climate, unverified evidence) comes back in
 "excluded" with a reason. Effect numbers come only from verified_numbers.csv (effect.key); nothing unverified is shown
 as a fact. Each fix carries the reasons it was chosen ("because")."""
 import json
@@ -111,7 +111,7 @@ def normalise_household(household, rules):
 
 def normalise_weather(weather):
     weather = weather or {}
-    out, warnings = {"heat_level": None, "afternoon_rh_pct": None}, []
+    out, warnings = {"heat_level": None, "afternoon_rh_pct": None, "afternoon_twb_c": None}, []
     level = _norm_str(weather.get("heat_level"))
     if level in HEAT_LEVELS:
         out["heat_level"] = level
@@ -122,11 +122,16 @@ def normalise_weather(weather):
         out["afternoon_rh_pct"] = round(float(rh), 1)
     elif rh is not None:
         warnings.append(f"weather.afternoon_rh_pct: invalid value {rh!r}; ignored")
+    twb = weather.get("afternoon_twb_c")
+    if isinstance(twb, (int, float)) and not isinstance(twb, bool) and -10 <= twb <= 40:
+        out["afternoon_twb_c"] = round(float(twb), 1)
+    elif twb is not None:
+        warnings.append(f"weather.afternoon_twb_c: invalid value {twb!r}; ignored")
     return out, warnings
 
 
-def afternoon_rh(times, rh_values, now, window=None, min_hours=3):
-    """Mean forecast humidity for the next afternoon window (12:00-16:59 local by default).
+def afternoon_mean(times, values, now, window=None, min_hours=3):
+    """Mean of a forecast variable (humidity, wet-bulb) over the next afternoon window (12:00-16:59 local by default).
 
     `times` are local ISO strings ("2026-05-20T13:00"); `now` is a local datetime (Asia/Kolkata). Uses today's window
     until it ends, then tomorrow's, so the answer doesn't change with the hour the app is opened.
@@ -134,13 +139,16 @@ def afternoon_rh(times, rh_values, now, window=None, min_hours=3):
     start, end = window or catalogue()["thresholds"]["afternoon_window_hours"]["value"]
     day = now.date() if now.hour < end else now.date() + timedelta(days=1)
     picked = []
-    for t, rh in zip(times, rh_values):
-        if rh is None:
+    for t, x in zip(times, values):
+        if x is None:
             continue
         ts = datetime.fromisoformat(t)
         if ts.date() == day and start <= ts.hour < end:
-            picked.append(rh)
+            picked.append(x)
     return round(mean(picked), 1) if len(picked) >= min_hours else None
+
+
+afternoon_rh = afternoon_mean
 
 
 def climate_of(district_heat):
@@ -235,8 +243,11 @@ def _effect_range(fix):
 def _check_conditions(fix, rules, place, household, weather):
     """(ok, exclusion_reason, extra_reasons)."""
     cond, hh, extra = fix.get("conditions", {}), household or {}, []
-    if "climate" in cond and place.get("climate") and place["climate"] not in cond["climate"]:
-        return False, {"code": "climate", "climate": place["climate"]}, []
+    if "climate" in cond:
+        if not place.get("climate"):          # unknown climate fails: dense and sparse tree advice must never show together
+            return False, {"code": "climate_unknown"}, []
+        if place["climate"] not in cond["climate"]:
+            return False, {"code": "climate", "climate": place["climate"]}, []
     if "roof_type" in cond and hh.get("roof_type") and hh["roof_type"] not in cond["roof_type"]:
         return False, {"code": "roof_mismatch", "roof": hh["roof_type"]}, []
     if cond.get("requires_roof_access"):
@@ -247,20 +258,19 @@ def _check_conditions(fix, rules, place, household, weather):
     eff = fix.get("effect") or {}
     if eff.get("key") and not V.usable(eff["key"]):
         return False, {"code": "evidence_not_verified"}, []
-    rh = weather.get("afternoon_rh_pct")
-    if "max_rh_pct" in cond or "min_rh_pct" in cond:
-        if rh is None:
+    # evaporative cooling can only reach the wet-bulb temperature, so the afternoon wet-bulb decides (not % humidity)
+    twb = weather.get("afternoon_twb_c")
+    if "max_twb_c" in cond or "min_twb_c" in cond:
+        if twb is None:
             return False, {"code": "humidity_unknown"}, []
-        if "max_rh_pct" in cond:
-            limit = _threshold(rules, cond["max_rh_pct"])
-            if rh > limit:
-                return False, {"code": "too_humid", "rh": rh}, []
-            extra.append({"code": "dry_afternoon", "rh": rh})
-        if "min_rh_pct" in cond:
-            limit = _threshold(rules, cond["min_rh_pct"])
-            if rh <= limit:
-                return False, {"code": "not_humid", "rh": rh}, []
-            extra.append({"code": "humid_afternoon", "rh": rh})
+        if "max_twb_c" in cond:
+            if twb > _threshold(rules, cond["max_twb_c"]):
+                return False, {"code": "too_humid", "twb": twb}, []
+            extra.append({"code": "dry_afternoon", "twb": twb})
+        if "min_twb_c" in cond:
+            if twb <= _threshold(rules, cond["min_twb_c"]):
+                return False, {"code": "not_humid", "twb": twb}, []
+            extra.append({"code": "humid_afternoon", "twb": twb})
     budget = hh.get("budget")
     if budget and COST_ORDER.index(fix["cost_band"]) > COST_ORDER.index(budget):
         return False, {"code": "over_budget", "cost": fix["cost_band"], "budget": budget,
@@ -282,6 +292,8 @@ def _score(fix, cfg, area_hit):
     else:
         effect_w, group = cfg["effect_weight_floor"], 1
     area_c = min(sum(area_hit.values()), cfg["area_bonus_cap_c"])
+    if fix.get("evidence_n") == 1:          # a number from one home is weak evidence: it shouldn't outrank a replicated one
+        effect_w *= cfg.get("single_home_factor", 1.0)
     score = (effect_w * cfg["evidence_weight"][fix["evidence_level"]]
              * cfg["cost_weight"][fix["cost_band"]] * (1 + cfg["area_bonus_per_c"] * area_c))
     return group, round(score, 3)
@@ -309,6 +321,8 @@ def _reason_text(reason, rules, lang):
         p["device"] = values["device"][reason["device"]].get(lang, reason["device"])
     if "rh" in reason:
         p["rh"] = _num(reason["rh"])
+    if "twb" in reason:
+        p["twb"] = _num(reason["twb"])
     if reason["code"] == "area_cause":
         p["cause"] = reason["label"]
         p["c"] = _num(reason["c"])
@@ -354,6 +368,18 @@ def _localised(fix, field, lang, missing):
         if english:
             missing.add(fix["id"])
     return english
+
+
+def _caution(fix, household, lang, missing):
+    """The fix's own caution plus any that apply to this home (e.g. asbestos sheets), as one text."""
+    parts = [_localised(fix, "avoid_if", lang, missing)]
+    roof = (household or {}).get("roof_type")
+    for c in fix.get("cautions", []):
+        if "roof_type" not in c or roof in c["roof_type"]:
+            if lang != "en" and not c.get(lang):
+                missing.add(fix["id"])
+            parts.append(c.get(lang) or c["en"])
+    return " ".join(p for p in parts if p) or None
 
 
 def _sources(fix, rules):
@@ -430,7 +456,7 @@ def recommend(category, place=None, household=None, weather=None, lang="en", rul
             "cost_status": V.table()[ck]["status"] if ck else "",
             "time": _localised(fix, "time", lang, missing), "who": _localised(fix, "who", lang, missing),
             "steps": _localised(fix, "steps", lang, missing) or [],
-            "caution": _localised(fix, "avoid_if", lang, missing),
+            "caution": _caution(fix, household, lang, missing),
             "variant_group": fix.get("variant_group"),
             "sources": _sources(fix, rules),
         })
@@ -444,7 +470,8 @@ def recommend(category, place=None, household=None, weather=None, lang="en", rul
         code = r["code"]
         if code == "over_budget" and r["subsidy_possible"]:
             code = "over_budget_subsidy"
-        e["reason"] = {**r, "text": _label(rules["labels"]["excluded"], code, lang, rh=_num(r["rh"]) if "rh" in r else "")}
+        e["reason"] = {**r, "text": _label(rules["labels"]["excluded"], code, lang, rh=_num(r["rh"]) if "rh" in r else "",
+                                           twb=_num(r["twb"]) if "twb" in r else "")}
         e.pop("variant_group")
 
     for tier in TIERS:
@@ -457,6 +484,7 @@ def recommend(category, place=None, household=None, weather=None, lang="en", rul
     result = {
         "category": category, "lang": lang,
         "inputs": {"heat_level": weather["heat_level"], "afternoon_rh_pct": weather["afternoon_rh_pct"],
+                   "afternoon_twb_c": weather["afternoon_twb_c"],
                    "climate": place.get("climate"), "has_area_profile": has_profile},
         "active_causes": causes,
         "fixes": shown,
@@ -542,7 +570,13 @@ def validate_rules(rules=None):
         for r in f.get("conditions", {}).get("roof_type", []):
             if r not in enums["roof_type"]:
                 errors.append(f"{fid}: unknown roof type {r!r}")
-        for k in ("max_rh_pct", "min_rh_pct"):
+        for c in f.get("cautions", []):
+            if not c.get("en") or not c.get("hi"):
+                errors.append(f"{fid}: caution needs en and hi")
+            for r in c.get("roof_type", []):
+                if r not in enums["roof_type"]:
+                    errors.append(f"{fid}: caution for unknown roof type {r!r}")
+        for k in ("max_twb_c", "min_twb_c"):
             v = f.get("conditions", {}).get(k)
             if v is not None and v not in rules.get("thresholds", {}):
                 errors.append(f"{fid}: unknown threshold {v!r}")

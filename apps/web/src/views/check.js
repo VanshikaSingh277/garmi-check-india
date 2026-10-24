@@ -101,7 +101,16 @@ function gaugeSVG(idx) {
   /* the needle is drawn pointing up and rotated into place, so CSS can swing it in from "low" */
   return '<svg class="gauge" viewBox="0 0 240 132" role="img" aria-label="' + esc(t("level_" + LEVELS[idx])) + '">' + out + '<g class="needle" style="--a:' + (idx * 45 + 22.5 - 90) + 'deg"><line x1="' + cx + '" y1="' + cy + '" x2="' + cx + '" y2="' + (cy - (r - 36)) + '" style="stroke:var(--ink)" stroke-width="5" stroke-linecap="round"/></g><circle cx="' + cx + '" cy="' + cy + '" r="9" style="fill:var(--ink)"/></svg>';
 }
-function reasonText(r) { return t("reason_" + r.code, { v: Array.isArray(r.value) ? r.value.join(", ") : r.value, t: r.threshold }); }
+function reasonText(r) {
+  return t("reason_" + r.code, { v: Array.isArray(r.value) ? r.value.join(", ") : r.value, t: r.threshold, dep: r.departure, n: r.normal, d: r.day ? t(r.day) : "" });
+}
+/* what in this home makes the heat more dangerous: listed beside the level, never added to it */
+function homeRisk(risk) {
+  var f = risk.home || [];
+  if (!f.length) return '<div class="homerisk"><h3>' + t("home_risk_title") + '</h3><p class="small muted">' + t("home_risk_none") + "</p></div>";
+  return '<div class="homerisk"><h3>' + t("home_risk_title") + '</h3><p class="small">' + t(risk.level_index >= 1 ? "home_risk_hot" : "home_risk_mild") + '</p><ul class="reasons">' +
+    f.map(function (c) { return '<li class="up">' + I("home", "sm") + "<span>" + esc(t("factor_" + c)) + "</span></li>"; }).join("") + "</ul></div>";
+}
 function planView(r) {
   var p = r.plan, hasIn = p.basis === "indoor", hot = {};
   (p.hottest || []).forEach(function (h) { hot[h] = 1; });
@@ -175,11 +184,11 @@ function sosCard() {
 export function resultView() {
   var r = S.result, k = r.risk.level, w = r.weather, ind = r.indoor, fan = r.fan, p = r.place, a = S.a;
   var idx = Math.max(0, LEVELS.indexOf(k)), hasIn = ind.next24 && ind.next24.length > 0;
-  var reasons = r.risk.reasons.map(function (x) { return '<li class="' + (x.raise ? "up" : "") + '">' + I(x.raise ? "arrow-up" : x.code === "no_household_raise_mild_heat" ? "info" : "thermo", "sm") + "<span>" + esc(reasonText(x)) + "</span></li>"; }).join("");
+  var reasons = r.risk.reasons.map(function (x) { return "<li>" + I("thermo", "sm") + "<span>" + esc(reasonText(x)) + "</span></li>"; }).join("");
   var offline = r._offline ? callout("alert", t("offline_note", { t: esc(new Date(r._offline).toLocaleString(S.lang === "hi" ? "hi-IN" : "en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) }), "warn", "margin-bottom:16px") : "";
   var summary = '<div class="card summary"><div class="stack">' + placeBlock(p, a, null) + '<div class="row"><span class="badge">' + I("clock", "sm") + t("updated", { t: hm(w.fetched_at) }) + "</span>" + (r._offline ? '<span class="badge moderate">' + t("offline_badge") + "</span>" : "") + '</div><div class="row"><button type="button" class="btn secondary sm" id="chgloc">' + I("pin", "sm") + t("change_place") + '</button><button type="button" class="btn secondary sm" id="chg">' + I("edit", "sm") + t("change") + "</button></div></div>" +
     "<div>" + gaugeSVG(idx) + '<div class="level ' + k + '"><div class="tiny muted">' + t("level_title") + '</div><div class="name">' + t("level_" + k) + "</div></div></div>" +
-    '<div><h3 style="margin-bottom:10px">' + t("reasons_title") + '</h3><ul class="reasons">' + reasons + "</ul></div></div>";
+    '<div><h3 style="margin-bottom:10px">' + t("reasons_title") + '</h3><ul class="reasons">' + reasons + "</ul>" + homeRisk(r.risk) + "</div></div>";
   var td = w.today || {}, tm = w.tomorrow || {};
   var kpis = '<div class="kpis" style="margin:16px 0 20px"><div class="kpi"><div class="l">' + I("sun", "sm") + t("today") + " · " + t("feels_max") + '</div><div class="v"><span data-count="' + fmt(td.hi_max, 0) + '">' + fmt(td.hi_max, 0) + '</span><small>°C</small></div><div class="s">' + t("air_max") + " " + fmt(td.tmax, 0) + "° · " + t("wetbulb") + " " + fmt(td.twb_max, 0) + "°</div></div>" +
     '<div class="kpi"><div class="l">' + I("cloud", "sm") + t("tomorrow") + " · " + t("feels_max") + '</div><div class="v"><span data-count="' + fmt(tm.hi_max, 0) + '">' + fmt(tm.hi_max, 0) + '</span><small>°C</small></div><div class="s">' + t("air_max") + " " + fmt(tm.tmax, 0) + "° · " + t("wetbulb") + " " + fmt(tm.twb_max, 0) + "°</div></div>" +

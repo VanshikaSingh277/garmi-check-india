@@ -207,20 +207,23 @@ Answers are saved in the browser (`localStorage`). If the network fails, the las
 
 ```mermaid
 flowchart TD
-  A["Next 24 h forecast<br/>heat index (HI), air Tmax, wet-bulb"] --> B["Base level from IMD heat-index bands<br/>green < 35 · yellow 36–45 · orange 46–55 · red > 55<br/>(gaps resolved upward)"]
-  B --> C{"Air Tmax ≥ 45 °C?<br/>(IMD heat-wave)"}
-  C -- yes --> C1[at least High]
+  A["Next 24 h forecast<br/>heat index (HI), air Tmax, wet-bulb"] --> B["Base level from IMD heat-index bands on max(HI, air)<br/>green < 35 · yellow 36–45 · orange 46–55 · red > 55<br/>(gaps resolved upward; the air counts in dry heat)"]
+  B --> C{"IMD heatwave, today / tomorrow?<br/>Tmax ≥ 45, or ≥ entry and 4.5–6.4 above the 1991–2020 normal<br/>entry: plains 40 · hills 30 · coast 37"}
+  C -- heatwave --> C1[at least High]
+  C -- "severe: ≥ 47, or > 6.4 above normal" --> C2[Extreme]
   C -- no --> D
   C1 --> D{"In Delhi AND today & tomorrow daily mean > 35.3 °C?<br/>(Delhi HAP p97 rule)"}
+  C2 --> D
   D -- yes --> D1[at least High]
   D -- no --> E
   D1 --> E{"Wet-bulb ≥ 30.55 °C?"}
   E -- yes --> E1[Extreme]
-  E -- no --> F
-  E1 --> F{"Is it actually hot?<br/>HI ≥ 35 or room peak ≥ 35"}
-  F -- no --> F1["Stop: home factors do not raise a mild day"]
-  F -- yes --> G["+1 each, max Extreme:<br/>tin roof on top floor · someone vulnerable · no fan/cooler/AC"]
+  E -- no --> F["Level (weather only)"]
+  E1 --> F
+  F --- G["Listed beside it, never added:<br/>tin / asbestos roof on top floor · someone needing care · no fan/cooler/AC"]
 ```
+
+Normals: `data/district_normals.json`, built by `pipelines/india/district_normals.py` from IMD's 1° gridded daily Tmax (1991–2020), bilinear to each district point and lapse-corrected for height (−6.5 °C/km). Hill = ground ≥ 1000 m, coast = within 30 km of the sea (design choices; IMD publishes no operational definition).
 
 ### 6.2 Room temperature (the ML part)
 
@@ -327,7 +330,7 @@ flowchart TB
 
 | Model / layer | Algorithm | Validation | Used for |
 |---|---|---|---|
-| Room temperature | XGBoost | Leave-home-out MAE 1.52 °C (rules 2.11 °C) | Plan, fan advice, the gate for household raises to the risk level |
+| Room temperature | XGBoost | Leave-home-out MAE 1.52 °C (rules 2.11 °C) | Plan and fan advice (never the heat level) |
 | District heat + people index | Percentile ranks, equal weights | PCA vs equal weights, Spearman 0.92 | Colony and Government pages, district card |
 | Delhi ward ground heat | LightGBM + SHAP | Spatial block CV (5 km), R² 0.82 | Delhi ward "why it's hot here" drivers |
 | Delhi ward HVI | Exposure + Sensitivity − Adaptive capacity | PCA vs equal weights, Spearman 0.63 | Delhi ward ranking |

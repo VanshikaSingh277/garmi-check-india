@@ -37,8 +37,8 @@ def test_pin_and_name_search():
 def test_delhi_p97_rule_only_applies_in_delhi():
     # two days with daily mean ~36 C (> Delhi HAP p97 35.3) but heat index below the orange band
     hot = rows(36, 25)
-    in_delhi = rules.risk(hot, hot, hot, "rcc_brick_top", [], {"ac": True}, indoor_peak=30.0, in_delhi=True)
-    elsewhere = rules.risk(hot, hot, hot, "rcc_brick_top", [], {"ac": True}, indoor_peak=30.0, in_delhi=False)
+    in_delhi = rules.risk(hot, hot, hot, in_delhi=True)
+    elsewhere = rules.risk(hot, hot, hot, in_delhi=False)
     assert any(r["code"] == "heatwave_p97" for r in in_delhi["reasons"]), in_delhi
     assert not any(r["code"] == "heatwave_p97" for r in elsewhere["reasons"]), elsewhere
 

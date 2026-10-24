@@ -4,7 +4,7 @@ Run locally:  uvicorn main:app --reload --port 8000   (from apps/api)
 """
 import json
 import os
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional, Union
 from zoneinfo import ZoneInfo
 
@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from engine import areas, districts, indoor, places, plan, rules, solutions, weather
+from engine import areas, districts, indoor, normals, places, plan, rules, solutions, weather
 from engine import verified as V
 
 HERE = os.path.dirname(__file__)
@@ -96,8 +96,11 @@ def _now_dt():
     return datetime.now(IST).replace(tzinfo=None)
 
 
-def _afternoon_rh(w):
-    return solutions.afternoon_rh([r["time"] for r in w["hourly"]], [r["rh"] for r in w["hourly"]], _now_dt())
+def _afternoon(w):
+    """This afternoon's (or, after 5 pm, tomorrow's) mean humidity and wet-bulb, for the cooler / khus advice."""
+    times = [r["time"] for r in w["hourly"]]
+    return {"afternoon_rh_pct": solutions.afternoon_mean(times, [r["rh"] for r in w["hourly"]], _now_dt()),
+            "afternoon_twb_c": solutions.afternoon_mean(times, [r["twb"] for r in w["hourly"]], _now_dt())}
 
 
 def household_of(q: "IndividualIn", vul: list) -> dict:
@@ -107,6 +110,31 @@ def household_of(q: "IndividualIn", vul: list) -> dict:
             "vulnerable": any(v in vul for v in ("elderly", "child", "pregnant", "chronic")),
             "outdoor_worker": "outdoor_worker" in vul, "devices": devices,
             "cross_ventilation": q.cross_ventilation, "budget": q.budget}
+
+
+def _heat_days(w, nxt, today, tom, district_id):
+    """Today / tomorrow, when their afternoon falls in the next 24 h, with the day's maximum and its 1991-2020 normal."""
+    out = []
+    for label, rows in (("today", today), ("tomorrow", tom)):
+        if not rows:
+            continue
+        ds = rows[0]["time"][:10]
+        if not any(r["time"][:10] == ds and 12 <= int(r["time"][11:13]) < 17 for r in nxt):
+            continue
+        tmax = w.get("daily_tmax", {}).get(ds, max(r["t"] for r in rows))
+        normal = normals.normal_tmax(district_id, date.fromisoformat(ds), w.get("elevation")) if district_id else None
+        out.append({"day": label, "date": ds, "tmax": round(tmax, 1), "normal": normal})
+    return out
+
+
+def _heat(w, lat, lon, district_id, in_delhi):
+    """(risk, next24, today, tomorrow): today's heat level from the weather and IMD's rules only."""
+    nxt, today, tom = weather.split_days(w, _now())
+    if not nxt:
+        return None, nxt, today, tom
+    days = _heat_days(w, nxt, today, tom, district_id)
+    station = normals.station_type(lat, lon, w.get("elevation"))
+    return rules.risk(nxt, today, tom, in_delhi=in_delhi, days=days, station=station), nxt, today, tom
 
 
 def _in_delhi_bbox(lat, lon):
@@ -154,8 +182,11 @@ def health():
 @app.get("/api/weather")
 def get_weather(lat: float = Query(..., **LAT), lon: float = Query(..., **LON)):
     w = weather.fetch(lat, lon)
-    nxt, today, tom = weather.split_days(w, _now())
+    d = districts.district_at(lat, lon)
+    in_delhi = bool(_in_delhi_bbox(lat, lon) and areas.ward_at(lat, lon))
+    risk, nxt, today, tom = _heat(w, lat, lon, d["id"] if d else None, in_delhi)
     return {"now": nxt[0] if nxt else None, "today": _day_summary(today), "tomorrow": _day_summary(tom),
+            "level": risk["level"] if risk else None,
             "next24": [{"time": r["time"], "t": r["t"], "hi": r["hi"], "twb": r["twb"], "rh": r["rh"]} for r in nxt],
             "fetched_at": w["fetched_at"], "source": w["source"]}
 
@@ -177,10 +208,12 @@ def status_individual(q: IndividualIn):
     if q.roof not in ROOFS:
         raise HTTPException(400, "roof must be one of " + ", ".join(sorted(ROOFS)))
     vul = [v for v in q.vulnerable if v in VULN]
+    care = [v for v in vul if v != "outdoor_worker"]   # people the home must protect; work risk goes to the work advice
     place = where_info(q.lat, q.lon)
     w = weather.fetch(q.lat, q.lon)
     now = _now()
-    nxt, today, tom = weather.split_days(w, now)
+    dh = place.get("district_heat") or {}
+    risk, nxt, today, tom = _heat(w, q.lat, q.lon, dh.get("id"), place["in_delhi"])
     if not nxt:
         raise HTTPException(503, "forecast unavailable")
     start = next(i for i, r in enumerate(w["hourly"]) if r["time"][:13] >= now[:13])
@@ -188,11 +221,11 @@ def status_individual(q: IndividualIn):
     model_roof = MODEL_ROOF.get(q.roof, q.roof)
     ind = indoor.predict(w["hourly"], start, model_roof, q.devices.fan, q.devices.cooler) if fit["ok"] else []
     peak = max(ind, key=lambda h: h["indoor"]) if ind else None
-    risk = rules.risk(nxt, today, tom, model_roof, vul, q.devices.model_dump(), peak["indoor"] if peak else None, in_delhi=place["in_delhi"])
+    risk["home"] = rules.home_factors(model_roof, care, q.devices.model_dump())   # listed beside the level, not added to it
     fixes = solutions.recommend("family", {"climate": solutions.climate_of(place.get("district_heat"))}, household_of(q, vul),
-                                {"heat_level": risk["level"], "afternoon_rh_pct": _afternoon_rh(w)}, q.lang if q.lang in ("en", "hi") else "en")
+                                {"heat_level": risk["level"], **_afternoon(w)}, q.lang if q.lang in ("en", "hi") else "en")
     # fan limits are about the air around the person: the indoor estimate when we trust it, else the outdoor air (labelled)
-    fan = rules.fan_advice(ind or [{"time": r["time"], "indoor": r["t"]} for r in nxt], vul)
+    fan = rules.fan_advice(ind or [{"time": r["time"], "indoor": r["t"]} for r in nxt], care)
     fan["basis"] = "indoor" if ind else "outdoor"
     night = [h for h in ind if h["time"][11:13] in ("02", "03", "04", "05")]
     day_plan = plan.build(ind, nxt, fan["limits_c"])
@@ -205,8 +238,9 @@ def status_individual(q: IndividualIn):
                    "outdoor24": [{"time": r["time"], "t": r["t"]} for r in nxt]},
         "risk": risk, "fan": fan, "plan": day_plan,
         "fixes": fixes,
-        "how": {"risk": "IMD heat-index bands + IMD heat-wave (Tmax >= 45 C) + wet-bulb danger limit"
-                        + (" + Delhi HAP two-day rule" if place["in_delhi"] else "") + "; home factors raise it only when it is hot",
+        "how": {"risk": "weather only: IMD heat-index bands (on the air temperature when higher) + IMD heatwave rules (45 / 47 C, or "
+                        "4.5 / 6.4 C above the 1991-2020 normal; plains, hill and coastal limits) + wet-bulb danger limit"
+                        + (" + Delhi HAP two-day rule" if place["in_delhi"] else "") + "; home factors listed separately",
                 "indoor": "XGBoost on 56 measured Delhi homes; leave-home-out MAE 1.5 C; shown as an 80 % range",
                 "fan": "published fan limits applied to the " + ("room estimate" if ind else "outdoor air"),
                 "windows": "open when outdoor air is below the low end of the room's predicted range" if ind else "not shown (no indoor estimate)",
@@ -228,8 +262,8 @@ def area(lat: float = Query(..., **LAT), lon: float = Query(..., **LON), lang: s
     ward_full = areas.ward_at(lat, lon) if info["in_delhi"] else None
     try:
         w = weather.fetch(lat, lon)
-        nxt, _, _ = weather.split_days(w, _now())
-        wx = {"heat_level": rules.LEVELS[rules.base_from_heat_index(max(r["hi"] for r in nxt))] if nxt else None, "afternoon_rh_pct": _afternoon_rh(w)}
+        risk, _, _, _ = _heat(w, lat, lon, info["district_heat"].get("id"), info["in_delhi"])
+        wx = {"heat_level": risk["level"] if risk else None, **_afternoon(w)}
     except Exception:  # no forecast: the colony list still shows everything that doesn't depend on today
         wx = None
     sol = solutions.recommend("colony", {"climate": solutions.climate_of(info["district_heat"])}, None, wx, lang if lang in ("en", "hi") else "en")

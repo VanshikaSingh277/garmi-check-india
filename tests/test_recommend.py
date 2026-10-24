@@ -12,7 +12,7 @@ from engine import solutions as S  # noqa: E402
 JAIPUR = {"climate": "semi_arid",
           "causes": {"dark_roofs": 1.2, "bare_paved_ground": 0.9, "low_tree_cover": 0.5, "night_heat": 1.3}}
 NO_PROFILE = {"climate": "semi_arid"}
-HIGH_DRY = {"heat_level": "high", "afternoon_rh_pct": 24}
+HIGH_DRY = {"heat_level": "high", "afternoon_rh_pct": 24, "afternoon_twb_c": 20}
 TIN_FAMILY = {"roof_type": "tin", "top_floor": True, "vulnerable": True, "devices": ["fan", "cooler"], "roof_access": True,
               "cross_ventilation": False, "outdoor_worker": False, "has_open_ground": False, "budget": "medium"}
 CONCRETE_FAMILY = {**TIN_FAMILY, "roof_type": "concrete"}
@@ -139,9 +139,9 @@ def test_afternoon_humidity_none_when_forecast_is_short():
     assert S.afternoon_rh(times[:13], rh[:13], datetime(2026, 5, 20, 6, 0)) is None
 
 
-def test_khus_screen_follows_afternoon_humidity():
-    dry = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 24})
-    humid = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 65})
+def test_khus_screen_follows_afternoon_wet_bulb():
+    dry = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 24, "afternoon_twb_c": 20})
+    humid = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 65, "afternoon_twb_c": 28})
     assert "fam_wet_screen" in ids(dry, "quick")
     assert excluded(humid).get("fam_wet_screen") == "too_humid"
 
@@ -152,9 +152,9 @@ def test_unknown_humidity_leaves_evaporative_fixes_out_with_reason():
     assert "fam_cooler_dry" not in ids(out) and "fam_cooler_humid" not in ids(out)
 
 
-def test_cooler_advice_switches_with_humidity():
-    dry = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 30})
-    humid = run(place={"climate": "humid"}, household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 75})
+def test_cooler_advice_switches_with_wet_bulb():
+    dry = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 30, "afternoon_twb_c": 21})
+    humid = run(place={"climate": "humid"}, household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 75, "afternoon_twb_c": 29})
     assert "fam_cooler_dry" in ids(dry, "today")
     assert "fam_cooler_humid" in ids(humid, "today")
     for out in (dry, humid):  # the other variant is not listed as "left out"
@@ -164,7 +164,7 @@ def test_cooler_advice_switches_with_humidity():
 def test_colony_checkins_follow_heat_level():
     place = {"climate": "semi_arid", "causes": {"dark_roofs": 0.8, "night_heat": 0.7}}
     assert "col_buddy_checks" in ids(run("colony", place, weather=HIGH_DRY), "today")
-    assert "col_buddy_checks" not in ids(run("colony", place, weather={"heat_level": "low", "afternoon_rh_pct": 24}))
+    assert "col_buddy_checks" not in ids(run("colony", place, weather={"heat_level": "low", "afternoon_rh_pct": 24, "afternoon_twb_c": 20}))
 
 
 def test_colony_without_satellite_profile_still_gets_common_fixes():
@@ -224,7 +224,7 @@ def test_unsourced_fixes_are_labelled_general_advice():
 # ---- input safety
 def test_messy_inputs_are_normalised():
     out = run(household={**CONCRETE_FAMILY, "budget": "Low", "devices": "Desert cooler"},
-              weather={"heat_level": "HIGH", "afternoon_rh_pct": 24})
+              weather={"heat_level": "HIGH", "afternoon_rh_pct": 24, "afternoon_twb_c": 20})
     assert out["warnings"] == []
     assert "fam_cooler_dry" in ids(out, "today")
     assert "cool_roof_coating" in excluded(out)
@@ -233,8 +233,8 @@ def test_messy_inputs_are_normalised():
 
 def test_bad_inputs_warn_but_never_blank_safety_advice():
     out = run(household={**TIN_FAMILY, "budget": "under_5000", "roof_type": "mansion", "vulnerable": "yes"},
-              weather={"heat_level": "high", "afternoon_rh_pct": 150})
-    assert len(out["warnings"]) == 4
+              weather={"heat_level": "high", "afternoon_rh_pct": 150, "afternoon_twb_c": 99})
+    assert len(out["warnings"]) == 5
     assert "night_ventilation" in ids(out)
     assert "fam_fan_limits" in ids(out)
 

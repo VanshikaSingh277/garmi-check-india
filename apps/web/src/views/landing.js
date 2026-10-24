@@ -31,7 +31,7 @@ function whoPanel(i) {
 function liveCard(w, label) {
   if (w === "pick") return '<div class="l">' + t("live_label") + '</div><p class="d" style="margin-top:6px">' + t("live_pick") + "</p>";
   if (!w) return '<div class="l">' + t("live_label") + '</div><div class="skeleton" style="height:96px;margin-top:8px"></div>';
-  var hrs = (w.next24 || []).slice(0, 24), lvl = (w.today || {}).hi_level || "low";
+  var hrs = (w.next24 || []).slice(0, 24), lvl = w.level || (w.today || {}).hi_level || "low";
   if (hrs.length < 2) return '<div class="l">' + t("live_label") + "</div>";
   var vals = []; hrs.forEach(function (h) { vals.push(h.t, h.hi); });
   var lo = Math.min.apply(null, vals) - 1, hi = Math.max.apply(null, vals) + 1, W = 240, H = 70;
