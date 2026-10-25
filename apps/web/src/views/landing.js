@@ -5,7 +5,7 @@ import { SCENE } from "../art.js";
 import { esc, fmt, $ } from "../util.js";
 import { S } from "../state.js";
 import { api } from "../api.js";
-import { render, RAW, timeline, wxCredit } from "../ui.js";
+import { render, RAW, timeline } from "../ui.js";
 import { promptBox, bindPrompt, bindGps, setLoc, refreshWhere, known } from "../place.js";
 import { route } from "../router.js";
 
@@ -20,16 +20,25 @@ var WHO = [
   { ic: "users", k: "society", d: "who_soc_d", pts: ["who_soc_1", "who_soc_2", "who_soc_3"] },
   { ic: "landmark", k: "government", d: "who_gov_d", pts: ["who_gov_1", "who_gov_2", "who_gov_3"] }
 ];
-var DATA_SRC = [["Open-Meteo", "ds_openmeteo"], ["GeoNames", "ds_geonames"], ["IMD", "ds_imd"], ["XGBoost", "ds_xgb"], ["ERA5 · WorldPop", "ds_more"]];
-var NCDC = "https://ncdc.mohfw.gov.in/uploads/pdf/4.%20Heat%20wave%20advisory%20for%20State%20Health%20department_2026.pdf";
 
 function whoPanel(i) {
   var w = WHO[i];
   return '<div><p class="lede">' + t(w.d) + '</p></div><ul>' + w.pts.map(function (k) { return "<li>" + I("check") + "<span>" + t(k) + "</span></li>"; }).join("") + "</ul>";
 }
-/* live floating card: the real next-24-hour forecast for the user's saved place (nothing until they pick one) */
+/* before a place is picked: the same card, faded, with a made-up day shape (cool night, hot afternoon) and no numbers,
+   so it never reads as real weather */
+function previewCard() {
+  var W = 240, H = 70, pts = [];
+  for (var i = 0; i < 24; i++) pts.push(0.5 - 0.5 * Math.cos(2 * Math.PI * (i - 3) / 24));
+  function line(off) { return pts.map(function (v, i) { return (i ? "L" : "M") + (W * i / 23).toFixed(1) + "," + (8 + (H - 16) * (1 - v) + off).toFixed(1); }).join(" "); }
+  return '<div class="l">' + t("live_label") + '</div><div class="preview" aria-hidden="true">' +
+    '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none"><path d="' + line(0) + '" fill="none" style="stroke:var(--aam-deep)" stroke-width="2.5" vector-effect="non-scaling-stroke"/><path d="' + line(4) + '" fill="none" style="stroke:var(--jamun-deep)" stroke-width="2.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/></svg>' +
+    '<div class="lg"><span><i style="background:var(--aam-deep)"></i>' + t("outside") + '</span><span><i style="background:var(--jamun-deep)"></i>' + t("feels") + "</span></div></div>" +
+    '<p class="d" style="margin-top:10px">' + t("live_pick") + "</p>";
+}
+/* live floating card: the real next-24-hour forecast for the user's saved place (a faded preview until they pick one) */
 function liveCard(w, label) {
-  if (w === "pick") return '<div class="l">' + t("live_label") + '</div><p class="d" style="margin-top:6px">' + t("live_pick") + "</p>";
+  if (w === "pick") return previewCard();
   if (!w) return '<div class="l">' + t("live_label") + '</div><div class="skeleton" style="height:96px;margin-top:8px"></div>';
   var hrs = (w.next24 || []).slice(0, 24), lvl = w.level || (w.today || {}).hi_level || "low";
   if (hrs.length < 2) return '<div class="l">' + t("live_label") + "</div>";
@@ -39,10 +48,11 @@ function liveCard(w, label) {
   var mx = function (k) { return Math.max.apply(null, hrs.map(function (h) { return h[k]; })); };
   return '<div class="l">' + t("live_next24", { p: esc(label) }) + '</div>' +
     '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" role="img" aria-label="' + esc(t("live_next24", { p: label })) + '"><path d="' + line("t") + '" fill="none" style="stroke:var(--aam-deep)" stroke-width="2.5" vector-effect="non-scaling-stroke"/><path d="' + line("hi") + '" fill="none" style="stroke:var(--jamun-deep)" stroke-width="2.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/></svg>' +
-    '<div class="lg"><span><i style="background:var(--aam-deep)"></i>' + t("outside") + " " + fmt(mx("t"), 0) + '°</span><span><i style="background:var(--jamun-deep)"></i>' + t("feels") + " " + fmt(mx("hi"), 0) + "°</span></div>" + wxCredit() +
+    '<div class="lg"><span><i style="background:var(--aam-deep)"></i>' + t("outside") + " " + fmt(mx("t"), 0) + '°</span><span><i style="background:var(--jamun-deep)"></i>' + t("feels") + " " + fmt(mx("hi"), 0) + "°</span></div>" +
     '<div style="margin-top:10px"><span class="badge ' + lvl + '">' + t("today_band") + ": " + t("level_" + lvl) + "</span></div>";
 }
-function mascot(id) { return SCENE.clouds(id, "back") + '<div class="mascot"><div class="bubble float" role="status" hidden></div><button class="mascot-btn" type="button" aria-label="' + esc(t("mascot_label")) + '">' + SCENE.mascot(id.charAt(0) + "m") + "</button></div>" + SCENE.clouds(id, "front"); }
+function matka(id) { return '<div class="mascot"><div class="bubble float" role="status" hidden></div><button class="mascot-btn" type="button" aria-label="' + esc(t("mascot_label")) + '">' + SCENE.mascot(id.charAt(0) + "m") + "</button></div>"; }
+function mascot(id) { return SCENE.clouds(id, "back") + matka(id) + SCENE.clouds(id, "front"); }
 
 export function landing() {
   var a = S.a, saved = known();
@@ -50,8 +60,8 @@ export function landing() {
     '<div class="cta-row"><a class="btn white lg attn" href="#/app">' + t("enter") + " " + I("arrow-r") + "</a></div>" +
     (saved ? '<p class="saved-link">' + I("pin", "sm") + "<span>" + t("lp_saved", { p: esc(a.where.label || a.where.district || "") }) + '</span><a href="#/app">' + t("go_my_heat") + " →</a></p>" : "") +
     '<div class="peek"><div class="mid">' + promptBox("lq") + '<button class="btn ghost-sky gps-btn" id="lgps" type="button">' + I("locate") + t("use_gps") + '</button><div class="statusline" id="lmsg"></div></div>' +
-    '<div class="fcard" id="livecard">' + liveCard(saved ? null : "pick") + "</div></div></div>" + mascot("hc") + "</section>" +
-    '<section class="logos"><div class="wrap"><p>' + t("logos_title") + "</p><ul>" + ["Open-Meteo", "IMD", "GeoNames", "ERA5", "WorldPop", "OpenStreetMap", "Landsat", "NASA MODIS"].map(function (x) { return "<li>" + x + "</li>"; }).join("") + "</ul></div></section>" +
+    /* the matka sits in the same row as the live card, so however tall the hero gets it is never cut off */
+    '<div class="fcard" id="livecard">' + liveCard(saved ? null : "pick") + "</div>" + matka("hc") + "</div></div>" + SCENE.clouds("hc", "back") + SCENE.clouds("hc", "front") + "</section>" +
     '<section class="lsec"><div class="wrap"><div class="head"><h2>' + t("prob_title") + "</h2><p>" + t("prob_sub") + '</p></div><div class="acards">' +
     FACTS.map(function (f) { return '<div class="acard ' + f.c + '"><div class="big">' + f.n + "</div><p>" + t(f.k + "_t") + "</p></div>"; }).join("") + "</div></div></section>" +
     '<section class="sky band"><div class="wrap"><div class="panel"><h2>' + t("who_title") + '</h2><div class="tabnav" role="tablist">' +
@@ -62,13 +72,9 @@ export function landing() {
     "</div></div></div>" + SCENE.clouds("wc", "back") + "</section>" +
     '<section class="lsec"><div class="wrap"><div class="head"><h2>' + t("how_teaser") + "</h2><p>" + t("how_lp_sub") + "</p></div>" + timeline() +
     '<div class="center"><a class="more-link" href="#/how">' + t("full_method") + " " + I("arrow-r", "sm") + "</a></div></div></section>" +
-    '<section class="lsec" style="padding-top:16px"><div class="wrap quote"><span class="mark" aria-hidden="true">“</span><blockquote>' + t("q_text") + '</blockquote><div class="who"><span class="av">' + I("shield", "sm") +
-    '</span><div><b><a href="' + NCDC + '" target="_blank" rel="noopener">' + t("q_who") + "</a></b><span>" + t("q_role") + "</span></div></div></div></section>" +
     '<section class="lsec" style="background:var(--surface-2)"><div class="wrap"><div class="head"><h2>' + t("trust_title") + '</h2></div><div class="trust3">' +
     [["t1", "shield", "trust_sourced", "trust_sourced_d"], ["t2", "lock", "trust_private", "trust_private_d"], ["t3", "check", "trust_free", "trust_free_d"]].map(function (x) { return '<div class="card ' + x[0] + '">' + I(x[1]) + "<b>" + t(x[2]) + "</b><p>" + t(x[3]) + "</p></div>"; }).join("") +
-    '</div><div class="center" style="margin-top:28px"><h3 style="margin-bottom:12px">' + t("data_title") + '</h3><div class="badges wrapping" style="justify-content:center">' +
-    DATA_SRC.map(function (x) { return '<span class="badge"><b>' + x[0] + "</b> · " + t(x[1]) + "</span>"; }).join("") +
-    '</div><a class="more-link" href="#/sources">' + t("open_sources") + " " + I("arrow-r", "sm") + "</a></div></div></section>" +
+    "</div></div></section>" +
     '<section class="sky cta"><div class="wrap"><h2>' + t("cta_title") + "</h2><p>" + t("cta_sub") + '</p><div class="cta-row"><a class="btn white lg attn" href="#/app">' + t("enter") + " " + I("arrow-r") + "</a></div></div>" + mascot("cc") + "</section>", RAW);
   bindPrompt("lq", function (it) { setLoc(it.lat, it.lon, "search", null, null).then(function () { location.hash = "#/app"; }); });
   bindGps("lgps", "lmsg", function () { return null; }, function () { location.hash = "#/app"; });
