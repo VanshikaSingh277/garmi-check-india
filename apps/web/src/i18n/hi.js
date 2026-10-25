@@ -171,6 +171,7 @@ export default {
   scope_india: "पूरा भारत",
   scope_delhi: "दिल्ली के वार्ड",
   state_all: "सभी राज्य",
+  district_all: "सभी ज़िले",
   col_district: "ज़िला",
   col_index: "इंडेक्स",
   col_tmax: "दिन",

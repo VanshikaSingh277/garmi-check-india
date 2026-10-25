@@ -171,6 +171,7 @@ export default {
   scope_india: "All of India",
   scope_delhi: "Delhi wards",
   state_all: "All states",
+  district_all: "All districts",
   col_district: "District",
   col_index: "Index",
   col_tmax: "Day high",
