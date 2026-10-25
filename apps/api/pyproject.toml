@@ -1,4 +1,32 @@
 # Lint, type and security settings for the API (spec §10.4 checks). Run from apps/api.
+
+# Vercel installs from [project] when this file exists and ignores requirements.txt, so the pins are repeated here.
+# Keep them the same as requirements.txt (the Docker image installs from requirements.lock).
+[project]
+name = "thandak-api"
+version = "0.3.0"
+requires-python = ">=3.11,<3.13"  # numpy 1.26.4 has no wheels for 3.13+
+dependencies = [
+    "fastapi==0.162.0",
+    "starlette==1.10.0",
+    "uvicorn==0.54.0",
+    "pydantic==2.14.1",
+    "httpx==0.28.1",
+    "numpy==1.26.4",
+    "xgboost-cpu==2.1.4",
+    "shapely==2.0.6",
+    "tzdata==2026.5",
+    "scikit-learn==1.5.2",
+    "sqlalchemy==2.1.6",
+    "alembic==1.20.1",
+    "apscheduler==3.11.3",
+    "cryptography==50.0.2",
+    "sentry-sdk==2.73.0",
+]
+
+[tool.vercel]
+entrypoint = "main:app"
+
 [tool.ruff]
 line-length = 200
 target-version = "py311"
