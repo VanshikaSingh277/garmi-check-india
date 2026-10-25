@@ -1,0 +1,24 @@
+{
+ "about": "SHA-256 of each data file; verified at startup (BACKEND_SPEC \u00a78.9). Rebuild: python -m app.manifest build",
+ "files": {
+  "district_normals.json": "8740b0bbbe3f077c79c66b310f79b8ae2e481d2e3df5b6db08fd42763ce9ab87",
+  "district_normals_checks.json": "3287ed18c8e5a13467b36533061dd120e0d62436424923358d071d6179b7e207",
+  "emergency_numbers.csv": "94672f0d27246e06a12838cef614d841cf7dfb9358c07c86ce76691cf0ab86a4",
+  "fixes.json": "ff7fd21bd7070f39da0e08b79dbc78099061bbdecbcefda855e741cdad7c09d9",
+  "gov_rank.json": "bbb7d318125e1c0d2bf0ff22895a0632958ba34053dcb40f68c9f05e9c1b3755",
+  "hvi_checks.json": "99890ae9fe73984bf701f88530779884c935b315c6c44516259dae75c5a5b1d9",
+  "india_admin.json": "4f3fb7f3fb21ae230f3b8b44223963023aa50e785d0e4a9a6fda4328d020c868",
+  "india_coastline.json": "5770fe878f64cf798ced5504a862a85da8711b26c73981b392239b3ede64d4b6",
+  "india_district_checks.json": "9422d7d22079b6dc1856e96ea875dea81ed21a3f1fe1960f59c7bc7ddbf18aee",
+  "india_district_stats.csv": "3f7f4ab713a378c453614684ca55d2578bb201b6bab4b2430500ad1e15fdf84f",
+  "india_districts.geojson": "6156cc2c70c54bced619272356ffa1b33946ee1f6ae72ef2d268d757d7e6bbcf",
+  "india_pins.tsv.gz": "cfa3cdd3893487b41bc6701bdbfe9769a22a2c3457c981911973ae130a9d4c77",
+  "india_places.tsv.gz": "9ac4dc0a6e11b6bf26add472100ee2630e3977885e98d3c381a6af6b6f2546e6",
+  "indoor_model_card.json": "39117d636f34291c9147046bd438d4ec1dfb2bc5b3d353ebbcef45eb876caeb3",
+  "indoor_xgb_model.json": "f5b3a63ebb05ae122dff7914886795b74c6ff3e6144a8d7982330ecd4afe0496",
+  "model_a_card.json": "27590a9b95bbf0f5bdff07c7d4d0a972063913ab342b6a7f9c535c4a1663ef58",
+  "sources.json": "66e01383ab3ff85393cf2ec0505bc477b7524c279b6787d9a2342faef520c150",
+  "verified_numbers.csv": "ab7729c592cd116e9f191a5b9e15441d7e4cc0a0181fc05c0f36eb077ec39b7c",
+  "wards.geojson": "793d1ab305891f15d6790198d0fe7461b12de34615400d12e922d6edf689da10"
+ }
+}

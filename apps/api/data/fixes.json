@@ -1,6 +1,6 @@
 {
  "version": 2,
- "updated": "2026-10-23",
+ "updated": "2026-10-25",
  "about": "Thandak's one fix catalogue. A fix appears when one of its triggers matches (household answers, today's heat level, or for colony/government the area causes) and its conditions hold; otherwise it is left out with a reason. Effect numbers come only from verified_numbers.csv (effect.key). Merged from solutions.csv and the v2 reference rules (reference/thandak_v2); existing ids and numbers won where the two overlapped.",
  "enums": {
   "category": [
@@ -204,6 +204,10 @@
    "climate_unknown": {
     "en": "Your area's climate isn't known, so we can't tell if this suits it",
     "hi": "आपके इलाक़े का मौसम पता नहीं, इसलिए यह नहीं कह सकते कि यह वहाँ ठीक रहेगा"
+   },
+   "threshold_not_verified": {
+    "en": "Not shown until its threshold is verified",
+    "hi": "इसकी सीमा पक्की होने तक नहीं दिखाया जाता"
    }
   },
   "effect": {
@@ -454,8 +458,8 @@
     "metric": "context",
     "key": "roof.offset.rcc_top"
    },
-   "effect_text_en": "Measured in 56 Delhi homes: from 2 to 6 am, rooms stayed about 2–4.5 °C warmer than outside, so night air can carry the heat out.",
-   "effect_text_hi": "दिल्ली के 56 घरों में मापा गया: रात 2 से 6 बजे तक कमरे बाहर से लगभग 2–4.5 °C ज़्यादा गर्म थे, यानी रात की हवा गर्मी बाहर निकाल सकती है।",
+   "effect_text_en": "Measured in Delhi homes: late at night rooms stayed about {n:roof.offset.lower_floor:night_02_06_median:0}–{n:roof.offset.stone_slab_top:night_02_06_median:1} °C warmer than outside, so night air can carry the heat out.",
+   "effect_text_hi": "दिल्ली के घरों में मापा गया: देर रात कमरे बाहर से लगभग {n:roof.offset.lower_floor:night_02_06_median:0}–{n:roof.offset.stone_slab_top:night_02_06_median:1} °C ज़्यादा गर्म थे, यानी रात की हवा गर्मी बाहर निकाल सकती है।",
    "steps_en": [
     "Follow the window row in your hourly plan: keep windows shut while it is hotter outside than inside",
     "Open windows on opposite sides once it is cooler outside, usually late at night to early morning"
@@ -494,9 +498,9 @@
     "metric": "exposure"
    },
    "steps_hi": [
-    "दोपहर 12 से शाम 5 बजे तक उन्हें सबसे ठंडे कमरे में रखें — अक्सर सबसे नीचे की मंज़िल, धूप वाली दीवार से दूर",
+    "सबसे गर्म घंटों में (अपना प्लान देखें) उन्हें सबसे ठंडे कमरे में रखें — अक्सर सबसे नीचे की मंज़िल, धूप वाली दीवार से दूर",
     "बार-बार उनका हाल पूछें। बुज़ुर्गों को बार-बार पानी दें, भले वे ख़ुद न माँगें",
-    "छोटे बच्चे को ज़्यादा बार माँ का दूध पिलाएँ। 6 महीने से छोटे बच्चे को गर्मी में भी अलग से पानी नहीं देना होता",
+    "{n:health.infant.exclusive_bf:months:0} महीने से छोटे बच्चे, जो सिर्फ़ माँ का दूध पीते हैं, उन्हें कोई और चीज़ पीने को नहीं चाहिए, पानी भी नहीं (WHO)। दूध पिलाते रहें और बार-बार पिलाएँ",
     "अगर डॉक्टर ने किसी के लिए पानी की मात्रा तय की है (दिल या किडनी की बीमारी), तो गर्मी में कितना पीना है, यह उन्हीं से पूछें। बिना पूछे कोई दवा बंद न करें",
     "लू लगने के पहले लक्षण दिखते ही उन्हें ठंडा करें और मदद के लिए फ़ोन करें"
    ],
@@ -509,9 +513,9 @@
     "family"
    ],
    "steps_en": [
-    "From noon to 5 pm keep them in the coolest room, usually the lowest floor and away from sun-facing walls",
+    "In the hottest hours (see your plan), keep them in the coolest room, usually the lowest floor and away from sun-facing walls",
     "Check on them often. Give older people water often, even if they don't ask",
-    "Breastfeed babies more often. Babies under 6 months need no extra water, even in the heat",
+    "Babies under {n:health.infant.exclusive_bf:months:0} months who only breastfeed need no other drinks, not even water (WHO). Keep breastfeeding and offer feeds often",
     "If a doctor limits someone's fluids (heart or kidney disease), ask that doctor how much to drink in the heat. Don't stop any medicine without asking",
     "At the first warning signs of heat illness, cool them down and call for help"
    ]
@@ -698,7 +702,7 @@
     "metric": "exposure"
    },
    "steps_hi": [
-    "जहाँ तक हो सके, दोपहर 12 से 3 बजे के बीच धूप में भारी काम न करें",
+    "जहाँ तक हो सके, {n:health.avoid_sun_hours:from_h:0}:00 से {n:health.avoid_sun_hours:to_h:0}:00 बजे के बीच धूप में भारी काम न करें",
     "प्यास न लगे तब भी बार-बार पानी पिएँ और ORS साथ रखें",
     "छाँव में आराम करें और लू के पहले लक्षण दिखते ही काम रोक दें"
    ],
@@ -709,7 +713,7 @@
     "family"
    ],
    "steps_en": [
-    "Avoid heavy work in the sun between 12 and 3 pm when possible",
+    "Avoid heavy work in the sun between {n:health.avoid_sun_hours:from_h:0}:00 and {n:health.avoid_sun_hours:to_h:0}:00 when possible",
     "Drink water often, even without feeling thirsty, and carry ORS",
     "Rest in the shade and stop work at the first signs of heat illness"
    ]
@@ -738,10 +742,10 @@
    "effect_text_en": "Protects your health (no claim that it lowers the temperature)",
    "effect_text_hi": "सेहत की हिफ़ाज़त (तापमान घटाने का दावा नहीं)",
    "steps_en": [
-    "Drink water often (ORS, lemon water, buttermilk). Stay out of the sun from 12 to 3 pm. Wear light, loose cotton clothes. Take a cool bath. Keep curtains or blinds closed."
+    "Drink water often (ORS, lemon water, buttermilk). Stay out of the sun from {n:health.avoid_sun_hours:from_h:0}:00 to {n:health.avoid_sun_hours:to_h:0}:00. Wear light, loose cotton clothes. Take a cool bath. Keep curtains or blinds closed."
    ],
    "steps_hi": [
-    "बार-बार पानी पिएँ (ORS, नींबू पानी, छाछ)। दोपहर 12 से 3 बजे तक धूप में न निकलें। हल्के, ढीले सूती कपड़े पहनें। ठंडे पानी से नहाएँ। पर्दे या चिक गिराकर रखें।"
+    "बार-बार पानी पिएँ (ORS, नींबू पानी, छाछ)। {n:health.avoid_sun_hours:from_h:0}:00 से {n:health.avoid_sun_hours:to_h:0}:00 बजे तक धूप में न निकलें। हल्के, ढीले सूती कपड़े पहनें। ठंडे पानी से नहाएँ। पर्दे या चिक गिराकर रखें।"
    ],
    "time_en": "Today",
    "time_hi": "आज",
@@ -751,8 +755,8 @@
     "thandak_ncdc",
     "who_breastfeeding"
    ],
-   "avoid_if_en": "Babies under 6 months: breastfeed more often instead of giving water. If a doctor limits your fluids, ask them how much to drink in the heat.",
-   "avoid_if_hi": "6 महीने से छोटे बच्चे: पानी की जगह ज़्यादा बार माँ का दूध पिलाएँ। अगर डॉक्टर ने आपके लिए पानी की मात्रा तय की है, तो गर्मी में कितना पीना है, यह उन्हीं से पूछें।"
+   "avoid_if_en": "Babies under {n:health.infant.exclusive_bf:months:0} months who only breastfeed: no water, keep breastfeeding often (WHO). If a doctor limits your fluids, ask them how much to drink in the heat.",
+   "avoid_if_hi": "{n:health.infant.exclusive_bf:months:0} महीने से छोटे बच्चे, जो सिर्फ़ माँ का दूध पीते हैं: पानी नहीं, बार-बार दूध पिलाते रहें (WHO)। अगर डॉक्टर ने आपके लिए पानी की मात्रा तय की है, तो गर्मी में कितना पीना है, यह उन्हीं से पूछें।"
   },
   {
    "id": "fam_wet_screen",
@@ -866,11 +870,11 @@
      "india_high"
     ]
    },
-   "effect_text_en": "White roof coatings: about 1.0–1.4 °C cooler indoors (lime itself has not been measured separately)",
-   "effect_text_hi": "सफ़ेद छत कोटिंग: अंदर लगभग 1.0–1.4 °C ठंडक (चूने को अलग से नहीं मापा गया)",
+   "effect_text_en": "White roof coatings: about {n:coolroof.indoor_drop:india_low:1}–{n:coolroof.indoor_drop:india_high:1} °C cooler indoors (lime itself has not been measured separately)",
+   "effect_text_hi": "सफ़ेद छत कोटिंग: अंदर लगभग {n:coolroof.indoor_drop:india_low:1}–{n:coolroof.indoor_drop:india_high:1} °C ठंडक (चूने को अलग से नहीं मापा गया)",
    "cost_key": "cost.lime_per_kg",
-   "cost_text_en": "₹3–8 per kg of lime (wholesale listings, not verified)",
-   "cost_text_hi": "₹3–8 प्रति किलो चूना (थोक भाव, पक्का नहीं)",
+   "cost_text_en": "Ask for local prices: we haven't verified a price yet",
+   "cost_text_hi": "स्थानीय भाव पूछें: हमने अभी कोई भाव पक्का नहीं किया है",
    "time_en": "1 day",
    "time_hi": "1 दिन",
    "who_en": "Owner / family",
@@ -889,8 +893,8 @@
      "roof_type": [
       "asbestos"
      ],
-     "en": "Asbestos sheets: never stand or walk on them (they break and people fall through), and never scrape, brush or sand them: the dust harms the lungs. Work from a ladder or hire trained workers.",
-     "hi": "एस्बेस्टस की चादर: इस पर कभी खड़े न हों, न चलें (यह टूट जाती है और लोग नीचे गिर जाते हैं), और इसे कभी न खुरचें, न रगड़ें, न घिसें: इसकी धूल फेफड़ों को नुकसान पहुँचाती है। सीढ़ी से काम करें या प्रशिक्षित कारीगर बुलाएँ।"
+     "en": "Asbestos sheets: never stand or walk on them (they break and people fall through), and never scrape, brush, sand or drill them: the dust harms the lungs. Work from a ladder or hire trained workers.",
+     "hi": "एस्बेस्टस की चादर: इस पर कभी खड़े न हों, न चलें (यह टूट जाती है और लोग नीचे गिर जाते हैं), और इसे कभी न खुरचें, न रगड़ें, न घिसें, न इसमें छेद करें: इसकी धूल फेफड़ों को नुकसान पहुँचाती है। सीढ़ी से काम करें या प्रशिक्षित कारीगर बुलाएँ।"
     }
    ]
   },
@@ -934,11 +938,11 @@
      "india_high"
     ]
    },
-   "effect_text_en": "Small Indian field studies: room air about 1.0–1.4 °C cooler (larger trials still under way)",
-   "effect_text_hi": "भारत की छोटी फ़ील्ड स्टडी: कमरे की हवा लगभग 1.0–1.4 °C ठंडी (बड़े ट्रायल अभी चल रहे हैं)",
+   "effect_text_en": "Small Indian field studies: room air about {n:coolroof.indoor_drop:india_low:1}–{n:coolroof.indoor_drop:india_high:1} °C cooler (larger trials still under way)",
+   "effect_text_hi": "भारत की छोटी फ़ील्ड स्टडी: कमरे की हवा लगभग {n:coolroof.indoor_drop:india_low:1}–{n:coolroof.indoor_drop:india_high:1} °C ठंडी (बड़े ट्रायल अभी चल रहे हैं)",
    "cost_key": "cost.coolroof_per_m2",
-   "cost_text_en": "About ₹300 per m² (figure reported in Telangana's policy)",
-   "cost_text_hi": "लगभग ₹300 प्रति वर्ग मीटर (तेलंगाना की नीति में बताया गया आंकड़ा)",
+   "cost_text_en": "Ask for local prices: we haven't verified a price yet",
+   "cost_text_hi": "स्थानीय भाव पूछें: हमने अभी कोई भाव पक्का नहीं किया है",
    "time_en": "1 day",
    "time_hi": "1 दिन",
    "who_en": "Owner / RWA",
@@ -962,8 +966,8 @@
      "roof_type": [
       "asbestos"
      ],
-     "en": "Asbestos sheets: never stand or walk on them (they break and people fall through), and never scrape, brush or sand them: the dust harms the lungs. Work from a ladder or hire trained workers.",
-     "hi": "एस्बेस्टस की चादर: इस पर कभी खड़े न हों, न चलें (यह टूट जाती है और लोग नीचे गिर जाते हैं), और इसे कभी न खुरचें, न रगड़ें, न घिसें: इसकी धूल फेफड़ों को नुकसान पहुँचाती है। सीढ़ी से काम करें या प्रशिक्षित कारीगर बुलाएँ।"
+     "en": "Asbestos sheets: never stand or walk on them (they break and people fall through), and never scrape, brush, sand or drill them: the dust harms the lungs. Work from a ladder or hire trained workers.",
+     "hi": "एस्बेस्टस की चादर: इस पर कभी खड़े न हों, न चलें (यह टूट जाती है और लोग नीचे गिर जाते हैं), और इसे कभी न खुरचें, न रगड़ें, न घिसें, न इसमें छेद करें: इसकी धूल फेफड़ों को नुकसान पहुँचाती है। सीढ़ी से काम करें या प्रशिक्षित कारीगर बुलाएँ।"
     }
    ]
   },
@@ -1004,11 +1008,11 @@
      "mean_vs_tin"
     ]
    },
-   "effect_text_en": "One home in Ahmedabad: about 2 °C cooler indoors than tin-roof homes over the day, but no cooler than a concrete roof (weak evidence, a single home)",
-   "effect_text_hi": "अहमदाबाद का एक घर: दिन भर में टिन की छत वाले घरों से अंदर लगभग 2 °C ठंडा, पर पक्की छत से ज़्यादा ठंडा नहीं (कमज़ोर सबूत, सिर्फ़ एक घर)",
+   "effect_text_en": "One home in Ahmedabad: about {n:modroof.indoor_drop:mean_vs_tin:0} °C cooler indoors than tin-roof homes over the day, but no cooler than a concrete roof (weak evidence, a single home)",
+   "effect_text_hi": "अहमदाबाद का एक घर: दिन भर में टिन की छत वाले घरों से अंदर लगभग {n:modroof.indoor_drop:mean_vs_tin:0} °C ठंडा, पर पक्की छत से ज़्यादा ठंडा नहीं (कमज़ोर सबूत, सिर्फ़ एक घर)",
    "cost_key": "cost.modroof_per_sqft",
-   "cost_text_en": "About ₹270 per sq ft (2021, reported)",
-   "cost_text_hi": "लगभग ₹270 प्रति वर्ग फ़ुट (2021, बताया गया)",
+   "cost_text_en": "Ask for local prices: we haven't verified a price yet",
+   "cost_text_hi": "स्थानीय भाव पूछें: हमने अभी कोई भाव पक्का नहीं किया है",
    "time_en": "1–2 weeks",
    "time_hi": "1–2 हफ़्ते",
    "who_en": "Owner",
@@ -1056,8 +1060,8 @@
      "mean_vs_asbestos"
     ]
    },
-   "effect_text_en": "One home in Ahmedabad with a thermocol false ceiling under an asbestos roof: about 1.9–2.4 °C cooler indoors than sheet-roof homes (weak evidence, a single home)",
-   "effect_text_hi": "अहमदाबाद का एक घर, जहाँ एस्बेस्टस की छत के नीचे थर्मोकोल की फ़ॉल्स सीलिंग थी: चादर की छत वाले घरों से अंदर लगभग 1.9–2.4 °C ठंडा (कमज़ोर सबूत, सिर्फ़ एक घर)",
+   "effect_text_en": "One home in Ahmedabad with a thermocol false ceiling under an asbestos roof: about {n:insulation.thermocol_ceiling:mean_vs_tin:1}–{n:insulation.thermocol_ceiling:mean_vs_asbestos:1} °C cooler indoors than sheet-roof homes (weak evidence, a single home)",
+   "effect_text_hi": "अहमदाबाद का एक घर, जहाँ एस्बेस्टस की छत के नीचे थर्मोकोल की फ़ॉल्स सीलिंग थी: चादर की छत वाले घरों से अंदर लगभग {n:insulation.thermocol_ceiling:mean_vs_tin:1}–{n:insulation.thermocol_ceiling:mean_vs_asbestos:1} °C ठंडा (कमज़ोर सबूत, सिर्फ़ एक घर)",
    "source_ids": [
     "vellingiri"
    ],
@@ -1141,8 +1145,8 @@
     "metric": "harm",
     "key": "coolroof.airlite_harm"
    },
-   "effect_text_en": "Measured about 3 °C HOTTER than a tin roof (Ahmedabad)",
-   "effect_text_hi": "टिन की छत से भी लगभग 3 °C ज़्यादा गर्म मापी गईं (अहमदाबाद)",
+   "effect_text_en": "Measured about {n:coolroof.airlite_harm:vs_tin:0} °C HOTTER than a tin roof (Ahmedabad)",
+   "effect_text_hi": "टिन की छत से भी लगभग {n:coolroof.airlite_harm:vs_tin:0} °C ज़्यादा गर्म मापी गईं (अहमदाबाद)",
    "steps_en": [
     "Don't put up translucent or skylight roof sheets (such as Airlite) to cool a room."
    ],
@@ -1528,8 +1532,8 @@
     "government"
    ],
    "tier": "quick",
-   "title_en": "Move outdoor work out of 12–3 pm",
-   "title_hi": "दोपहर 12–3 बजे बाहर का काम न हो",
+   "title_en": "Move outdoor work out of {n:health.avoid_sun_hours:from_h:0}:00–{n:health.avoid_sun_hours:to_h:0}:00",
+   "title_hi": "{n:health.avoid_sun_hours:from_h:0}:00–{n:health.avoid_sun_hours:to_h:0}:00 बजे बाहर का काम न हो",
    "triggers": [
     {
      "always": true
@@ -1546,18 +1550,18 @@
     "metric": "exposure",
     "key": "health.advice.ncdc_iec"
    },
-   "effect_text_en": "Health measure (NCDC: stay out of the sun from 12 to 3 pm)",
-   "effect_text_hi": "सेहत का उपाय (NCDC: 12 से 3 बजे तक धूप से बचें)",
+   "effect_text_en": "Health measure (NCDC: stay out of the sun from {n:health.avoid_sun_hours:from_h:0}:00 to {n:health.avoid_sun_hours:to_h:0}:00)",
+   "effect_text_hi": "सेहत का उपाय (NCDC: {n:health.avoid_sun_hours:from_h:0}:00 से {n:health.avoid_sun_hours:to_h:0}:00 बजे तक धूप से बचें)",
    "time_en": "Alert days",
    "time_hi": "चेतावनी वाले दिन",
    "who_en": "Govt / employers",
    "who_hi": "सरकार / मालिक-ठेकेदार",
    "steps_en": [
-    "On heat-alert days, shift outdoor work (construction, sanitation, street vending) away from 12–3 pm.",
+    "On heat-alert days, shift outdoor work (construction, sanitation, street vending) away from {n:health.avoid_sun_hours:from_h:0}:00–{n:health.avoid_sun_hours:to_h:0}:00.",
     "Start with municipal staff and construction sites"
    ],
    "steps_hi": [
-    "लू की चेतावनी वाले दिनों में बाहर का काम (निर्माण, सफ़ाई, ठेला-फेरी) दोपहर 12 से 3 बजे के बीच न रखें।",
+    "लू की चेतावनी वाले दिनों में बाहर का काम (निर्माण, सफ़ाई, ठेला-फेरी) {n:health.avoid_sun_hours:from_h:0}:00 से {n:health.avoid_sun_hours:to_h:0}:00 बजे के बीच न रखें।",
     "शुरुआत नगर निगम के कर्मचारियों और निर्माण स्थलों से करें"
    ],
    "source_ids": [
@@ -1670,11 +1674,11 @@
      "india_high"
     ]
    },
-   "effect_text_en": "About 1.0–1.4 °C cooler indoors in each treated home (Indian studies)",
-   "effect_text_hi": "हर ऐसे घर के अंदर लगभग 1.0–1.4 °C ठंडक (भारतीय स्टडी)",
+   "effect_text_en": "About {n:coolroof.indoor_drop:india_low:1}–{n:coolroof.indoor_drop:india_high:1} °C cooler indoors in each treated home (Indian studies)",
+   "effect_text_hi": "हर ऐसे घर के अंदर लगभग {n:coolroof.indoor_drop:india_low:1}–{n:coolroof.indoor_drop:india_high:1} °C ठंडक (भारतीय स्टडी)",
    "cost_key": "cost.coolroof_per_m2",
-   "cost_text_en": "About ₹300 per m² (reported)",
-   "cost_text_hi": "लगभग ₹300 प्रति वर्ग मीटर (बताया गया)",
+   "cost_text_en": "Ask for local prices: we haven't verified a price yet",
+   "cost_text_hi": "स्थानीय भाव पूछें: हमने अभी कोई भाव पक्का नहीं किया है",
    "time_en": "Months",
    "time_hi": "कुछ महीने",
    "who_en": "Municipal corporation / housing board / state govt",

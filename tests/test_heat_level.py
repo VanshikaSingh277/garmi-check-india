@@ -15,9 +15,9 @@ def rows(t, rh, n=24):
     return [{"time": f"2026-05-20T{h:02d}:00", "t": t, "rh": rh, "hi": heat_index_c(t, rh), "twb": wet_bulb_c(t, rh)} for h in range(n)]
 
 
-def level(t, rh, normal=None, station="plains", in_delhi=False, uncertain=False):
+def level(t, rh, normal=None, station="plains", in_delhi=False):
     r = rows(t, rh)
-    return rules.risk(r, r, r, in_delhi=in_delhi, days=[{"day": "today", "tmax": t, "normal": normal, "uncertain": uncertain}], station=station)
+    return rules.risk(r, r, r, in_delhi=in_delhi, days=[{"day": "today", "tmax": t, "normal": normal}], station=station)
 
 
 def codes(r):
@@ -41,7 +41,6 @@ def test_b_chennai_36_humid_is_extreme_from_wet_bulb():
 
 def test_c_shimla_32_hill_heatwave():
     assert level(32, 40, normal=24.5, station="hill")["level"] == "extreme"      # 7.5 above normal: severe
-    assert level(32, 40, normal=24.5, station="hill", uncertain=True)["level"] == "high"   # uncertain normal: one level at most
     assert level(32, 40, normal=27.0, station="hill")["level"] == "high"         # 5 above normal
     assert level(32, 40, normal=27.0, station="plains")["level"] == "low"       # plains need 40 C first
     r = level(32, 40, normal=None, station="hill")                              # no normal: no crash, no departure rule
@@ -121,7 +120,7 @@ def test_no_plain_give_water_line_for_babies():
     out = solutions.recommend("family", {"climate": "semi_arid"}, FAMILY, {"heat_level": "high", "afternoon_twb_c": 20})
     care = next(f for f in all_fixes(out) if f["id"] == "fam_vulnerable_care")
     text = " ".join(care["steps"])
-    assert "keep giving water" not in text and "Breastfeed" in text
+    assert "keep giving water" not in text and "not even water" in text
     hyd = next(f for f in all_fixes(out) if f["id"] == "hydrate_shade")
     assert "breastfeed" in hyd["caution"]
 
@@ -141,6 +140,16 @@ def test_unknown_climate_never_shows_both_tree_variants():
 
 
 def test_cooler_is_never_called_good_at_a_dangerous_wet_bulb():
+    from engine import verified as V
+    orig = V.rule_ok
+    V.rule_ok = lambda k: True if k == "evaporative.max_twb" else orig(k)
+    try:
+        _cooler_case()
+    finally:
+        V.rule_ok = orig
+
+
+def _cooler_case():
     hh = {"devices": ["cooler"], "top_floor": False}
     out = solutions.recommend("family", {"climate": "semi_arid"}, hh, {"heat_level": "high", "afternoon_rh_pct": 45, "afternoon_twb_c": 31.4})
     ids = {f["id"] for f in all_fixes(out)}

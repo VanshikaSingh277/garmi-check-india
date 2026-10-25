@@ -1,0 +1,18 @@
+# Lint, type and security settings for the API (spec §10.4 checks). Run from apps/api.
+[tool.ruff]
+line-length = 200
+target-version = "py311"
+extend-exclude = ["data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+ignore = ["E702"]   # the gazetteer loader keeps short paired statements on one line
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+check_untyped_defs = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]

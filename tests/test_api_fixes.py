@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "apps", "api"))
 import main  # noqa: E402
 from engine import normals, weather  # noqa: E402
 from engine.heat import heat_index_c, wet_bulb_c  # noqa: E402
+from pydantic import ValidationError  # noqa: E402
 
 
 def fake_forecast(day_max, night_min, afternoon_rh, night_rh):
@@ -22,7 +23,8 @@ def fake_forecast(day_max, night_min, afternoon_rh, night_rh):
         rh = afternoon_rh if 12 <= h < 17 else night_rh
         rows.append({"time": ts.strftime("%Y-%m-%dT%H:00"), "t": t, "rh": rh, "sw": 800 * frac, "ws": 2.0,
                      "hi": round(heat_index_c(t, rh), 1), "twb": round(wet_bulb_c(t, rh), 1)})
-    return {"hourly": rows, "fetched_at": start.isoformat(), "source": "test"}
+    return {"hourly": rows, "fetched_at": start.isoformat(), "source": "test", "provider": "test", "stale": False,
+            "approximate": False, "daily_tmax": {}, "elevation": None}
 
 
 def status(forecast, normal=38.0, **answers):
@@ -46,7 +48,7 @@ def test_jaipur_tin_roof_family_on_a_high_day():
     assert fx["inputs"]["climate"] == "arid"
     assert 15 <= fx["inputs"]["afternoon_rh_pct"] <= 20
     today = ids(fx, "today")
-    for fid in ("fam_vulnerable_care", "fam_fan_limits", "night_ventilation", "fam_cooler_dry", "fam_night_fan_pull"):
+    for fid in ("fam_vulnerable_care", "fam_fan_limits", "night_ventilation", "fam_night_fan_pull"):
         assert fid in today, (fid, today)
     assert today[0] == "fam_vulnerable_care"
     assert "cool_roof_coating" in ids(fx)
@@ -82,12 +84,8 @@ def test_humid_city_with_a_cooler_at_75_percent_afternoon_humidity():
     fx = r["fixes"]
     assert fx["inputs"]["climate"] == "humid"
     assert fx["inputs"]["afternoon_rh_pct"] == 75
-    if fx["inputs"]["heat_level"] != "low":                           # cooler advice needs at least a Moderate day
-        assert "fam_cooler_humid" in ids(fx, "today")
-        assert "fam_cooler_dry" not in ids(fx)
+    assert not {"fam_cooler_humid", "fam_cooler_dry"} & set(ids(fx))  # off until the wet-bulb threshold is verified
     assert "cool_roof_coating" not in ids(fx)                          # a floor above: no roof fixes
-    left = {e["id"]: e["reason"]["code"] for e in fx["excluded"]}
-    assert "fam_cooler_dry" not in left
 
 
 def test_hindi_response_has_no_english_fixes():
@@ -98,10 +96,13 @@ def test_hindi_response_has_no_english_fixes():
     assert "lime_whitewash" in ids(r["fixes"])                         # lime is fine on asbestos-cement sheets
 
 
-def test_bad_answers_never_crash_the_endpoint():
-    r = status(fake_forecast(43, 29, 18, 35), lat=26.91, lon=75.79, roof="tin_top", budget="HIGH-ish")
-    assert "night_ventilation" in ids(r["fixes"])
-    assert r["fixes"]["warnings"]
+def test_bad_answers_are_rejected_not_guessed():
+    try:
+        status(fake_forecast(43, 29, 18, 35), lat=26.91, lon=75.79, roof="tin_top", budget="HIGH-ish")
+    except ValidationError as e:
+        assert "budget" in str(e)
+    else:
+        raise AssertionError("an unknown budget must be a 422, not a guess")
 
 
 if __name__ == "__main__":

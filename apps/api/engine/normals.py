@@ -4,15 +4,17 @@ import json
 import math
 import os
 import threading
-import urllib.request
 from datetime import date
 from functools import lru_cache
 from statistics import mean
 
+import httpx
+
 from . import verified as V
 
 DATA = os.path.join(os.path.dirname(__file__), "..", "data")
-CACHE = os.path.join(os.path.dirname(__file__), "..", ".cache", "point_normals.json")
+# runtime cache: outside the read-only data/ folder (spec §8.9), on the writable state volume
+CACHE = os.path.join(os.environ.get("THANDAK_STATE_DIR", os.path.join(os.path.dirname(__file__), "..", ".cache")), "point_normals.json")
 ARCHIVE = "https://archive-api.open-meteo.com/v1/archive"
 MAY = range((date(2001, 5, 1) - date(2001, 1, 1)).days, (date(2001, 5, 31) - date(2001, 1, 1)).days + 1)
 _lock = threading.Lock()
@@ -62,11 +64,11 @@ def _era5_may_mean(lat, lon, elev_m):
     vals = []
     try:
         for y in range(2016, 2021):
-            url = (f"{ARCHIVE}?latitude={lat}&longitude={lon}&elevation={elev_m}&daily=temperature_2m_max"
-                   f"&start_date={y}-05-01&end_date={y}-05-31&timezone=Asia%2FKolkata")
-            with urllib.request.urlopen(url, timeout=20) as r:
-                vals += [x for x in json.loads(r.read())["daily"]["temperature_2m_max"] if x is not None]
-    except Exception:
+            r = httpx.get(ARCHIVE, timeout=5.0, params={"latitude": lat, "longitude": lon, "elevation": elev_m, "daily": "temperature_2m_max",
+                                                         "start_date": f"{y}-05-01", "end_date": f"{y}-05-31", "timezone": "Asia/Kolkata"})
+            r.raise_for_status()
+            vals += [x for x in r.json()["daily"]["temperature_2m_max"] if x is not None]
+    except (httpx.HTTPError, ValueError, KeyError):
         return None
     return round(mean(vals), 1) if len(vals) >= 100 else None
 

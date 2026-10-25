@@ -11,6 +11,7 @@ as a fact. Each fix carries the reasons it was chosen ("because")."""
 import json
 import math
 import os
+import re
 from datetime import datetime, timedelta
 from functools import lru_cache
 from statistics import mean, variance
@@ -26,6 +27,23 @@ BOOL_KEYS = ["top_floor", "vulnerable", "cross_ventilation", "outdoor_worker", "
 HOUSEHOLD_KEYS = BOOL_KEYS + ["roof_type", "devices", "budget"]
 TRIGGER_KEYS = {"always", "household", "min_heat_level", "area_causes"}
 NUMERIC_METRICS = {"indoor_air", "outdoor_air", "heat_index"}
+# a number inside a sentence: {n:<verified_numbers key>:<field>:<decimals>} (spec §2 rule 2)
+NUMBER = re.compile(r"\{n:([A-Za-z0-9_.]+):([A-Za-z0-9_]+):(\d)\}")
+
+
+def fill_numbers(text):
+    """Replace each {n:key:field:decimals} with the number from verified_numbers.csv (Verified or Computed rows only)."""
+    if isinstance(text, list):
+        return [fill_numbers(t) for t in text]
+    if not isinstance(text, str):
+        return text
+
+    def one(m):
+        key, field, dec = m.group(1), m.group(2), int(m.group(3))
+        if not V.shown_ok(key):
+            raise ValueError(f"{key} is {V.table()[key]['status']!r}: not shown to users as a fact")
+        return f"{float(V.value(key)[field]):.{dec}f}"
+    return NUMBER.sub(one, text)
 
 
 @lru_cache(maxsize=1)
@@ -139,7 +157,7 @@ def afternoon_mean(times, values, now, window=None, min_hours=3):
     start, end = window or catalogue()["thresholds"]["afternoon_window_hours"]["value"]
     day = now.date() if now.hour < end else now.date() + timedelta(days=1)
     picked = []
-    for t, x in zip(times, values):
+    for t, x in zip(times, values, strict=False):
         if x is None:
             continue
         ts = datetime.fromisoformat(t)
@@ -261,6 +279,9 @@ def _check_conditions(fix, rules, place, household, weather):
     # evaporative cooling can only reach the wet-bulb temperature, so the afternoon wet-bulb decides (not % humidity)
     twb = weather.get("afternoon_twb_c")
     if "max_twb_c" in cond or "min_twb_c" in cond:
+        t = rules["thresholds"][cond.get("max_twb_c") or cond.get("min_twb_c")]
+        if "key" in t and not V.rule_ok(t["key"]):     # spec §7.5: off until the threshold is verified
+            return False, {"code": "threshold_not_verified"}, []
         if twb is None:
             return False, {"code": "humidity_unknown"}, []
         if "max_twb_c" in cond:
@@ -347,7 +368,7 @@ def _effect_out(fix, rules, lang):
     eff = fix.get("effect") or {}
     kind = _effect_kind(fix, cfg)
     lo, hi = _effect_range(fix) if kind in NUMERIC_METRICS else (None, None)
-    own = fix.get(f"effect_text_{lang}") or fix.get("effect_text_en")
+    own = fill_numbers(fix.get(f"effect_text_{lang}") or fix.get("effect_text_en"))
     out = {"kind": kind, "evidence": fix["evidence_level"], "min_c": lo, "max_c": hi,
            "text": own or _label(labels, kind, lang, lo=_num(lo) if lo is not None else "", hi=_num(hi) if hi is not None else "")}
     note = eff.get(f"note_{lang}") or eff.get("note_en")
@@ -364,10 +385,10 @@ def _localised(fix, field, lang, missing):
     if lang != "en":
         value = fix.get(f"{field}_{lang}")
         if value:
-            return value
+            return fill_numbers(value)
         if english:
             missing.add(fix["id"])
-    return english
+    return fill_numbers(english)
 
 
 def _caution(fix, household, lang, missing):
@@ -378,7 +399,7 @@ def _caution(fix, household, lang, missing):
         if "roof_type" not in c or roof in c["roof_type"]:
             if lang != "en" and not c.get(lang):
                 missing.add(fix["id"])
-            parts.append(c.get(lang) or c["en"])
+            parts.append(fill_numbers(c.get(lang) or c["en"]))
     return " ".join(p for p in parts if p) or None
 
 
@@ -465,6 +486,8 @@ def recommend(category, place=None, household=None, weather=None, lang="en", rul
 
     shown_variants = {f["variant_group"] for t in TIERS for f in shown[t] if f["variant_group"]}
     excluded = [e for e in excluded if not (e["variant_group"] and e["variant_group"] in shown_variants)]
+    seen_variants = set()                       # both variants left out for one reason: list the group once
+    excluded = [e for e in excluded if not e["variant_group"] or not (e["variant_group"] in seen_variants or seen_variants.add(e["variant_group"]))]
     for e in excluded:
         r = e.pop("reason")
         code = r["code"]
@@ -524,6 +547,14 @@ def estimate_fix_effect(before, after, min_days=3, min_half_width_c=0.5):
 
 # --------------------------------------------------------------------------- catalogue check
 
+def _all_text(fix):
+    for k, v in fix.items():
+        if k.endswith(("_en", "_hi")):
+            yield from (v if isinstance(v, list) else [v])
+    for c in fix.get("cautions", []):
+        yield from (c.get("en", ""), c.get("hi", ""))
+
+
 def validate_rules(rules=None):
     """{"errors": [...must fix...], "warnings": [...track before launch...]}"""
     rules = rules or catalogue()
@@ -564,7 +595,7 @@ def validate_rules(rules=None):
             for c in t.get("area_causes", []):
                 if c not in causes:
                     errors.append(f"{fid}: unknown trigger cause {c!r}")
-            for k, v in t.get("household", {}).items():
+            for k in t.get("household", {}):
                 if k not in HOUSEHOLD_KEYS:
                     errors.append(f"{fid}: unknown household key {k!r}")
         for r in f.get("conditions", {}).get("roof_type", []):
@@ -589,6 +620,15 @@ def validate_rules(rules=None):
                 errors.append(f"{fid}: effect range {eff['range']} not in {eff['key']}")
         if f.get("cost_key") and f["cost_key"] not in table:
             errors.append(f"{fid}: cost key {f['cost_key']!r} not in verified_numbers.csv")
+        for field_text in _all_text(f):
+            for m in NUMBER.finditer(field_text):
+                key, field = m.group(1), m.group(2)
+                if key not in table:
+                    errors.append(f"{fid}: number {m.group(0)} uses unknown key {key!r}")
+                elif not isinstance(table[key]["value_parsed"], dict) or field not in table[key]["value_parsed"]:
+                    errors.append(f"{fid}: number {m.group(0)}: no field {field!r} in {key}")
+                elif not V.shown_ok(key):
+                    errors.append(f"{fid}: number {m.group(0)} comes from {key} ({table[key]['status']}), not Verified/Computed")
         if not f.get("source_ids") and not eff.get("key"):
             warnings.append(f"{fid}: no source yet (shown as general advice)")
         for field in ("title", "steps", "avoid_if", "effect_text", "cost_text", "time", "who"):

@@ -1,0 +1,6 @@
+# Test and check tools (spec §10.4). Install: pip install -r requirements.txt -r requirements-dev.txt
+pytest==9.1.1
+ruff==0.17.2
+mypy==2.4.0
+bandit==1.9.4
+pip-audit==2.10.1

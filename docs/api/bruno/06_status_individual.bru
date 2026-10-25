@@ -1,0 +1,31 @@
+meta {
+  name: Status (family)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/status/individual
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "lat": {{lat}},
+    "lon": {{lon}},
+    "roof": "tin_top",
+    "vulnerable": ["elderly"],
+    "devices": {"fan": true, "cooler": false, "ac": false},
+    "roof_access": true,
+    "cross_ventilation": false,
+    "budget": "low",
+    "lang": "en"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.health.emergency.emergency: eq "112"
+  res.body.indoor.basis: isDefined
+}

@@ -33,7 +33,7 @@ class _Grid:
 
     def __init__(self, lats, lons):
         self.lats, self.lons, self.cells = lats, lons, {}
-        for i, (la, lo) in enumerate(zip(lats, lons)):
+        for i, (la, lo) in enumerate(zip(lats, lons, strict=True)):
             self.cells.setdefault((int(la // CELL), int(lo // CELL)), []).append(i)
 
     def near(self, lat, lon, radius_km, keep=None):
@@ -207,7 +207,7 @@ def search(q: str, limit: int = 8) -> list:
         cand[("pin", i)] = ((2 if k == ql else 0) + 0.6 * math.log10(Z["town_pop"][i] + 10) + (0.5 if Z["acc"][i] >= 3 else 0), "pin")
     ranked = sorted(cand.items(), key=lambda kv: -kv[1][0])
     seen = set()
-    for key, (score, kind) in ranked:
+    for key, (_score, kind) in ranked:
         if kind == "place":
             i = key
             dt_i = "" if P["dt"][i].endswith("Division") else P["dt"][i]  # GeoNames lists some Maharashtra divisions as districts

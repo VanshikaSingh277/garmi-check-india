@@ -1,0 +1,2 @@
+# Safety data is checksummed (apps/api/data/MANIFEST.json): keep its bytes identical on every OS, no line-ending conversion
+apps/api/data/** -text

@@ -1,0 +1,17 @@
+meta {
+  name: Health
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/health
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.ok: eq true
+  res.headers["content-security-policy"]: eq "default-src 'none'; frame-ancestors 'none'"
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Status with an extra field is 422
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/status/individual
+  body: json
+  auth: none
+}
+
+body:json {
+  {"lat": {{lat}}, "lon": {{lon}}, "roof": "tin_top", "surprise": 1}
+}
+
+assert {
+  res.status: eq 422
+  res.body.error: eq invalid_input
+}

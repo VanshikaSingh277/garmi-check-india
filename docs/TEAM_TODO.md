@@ -23,6 +23,10 @@ Things only the team can supply. The build never fills these from memory (spec �
 | `wet_bulb.danger` WHO value, `mortality.india.heatwave` Delhi cut-off, `mortality.delhi.ihi` cut-offs | `verified_numbers.csv` (the parts marked UNVERIFIED inside Verified rows) | Source, or confirm none exists | Team | UNVERIFIED parts |
 | Sources for 8 fixes shown as "general advice" | `apps/api/data/fixes.json`: `fam_cooler_dry`, `fam_cooler_humid`, `fam_night_fan_pull`, `fam_wet_screen`, `col_buddy_checks`, `col_shade_structures`, `col_cool_paving`, `col_water_revival` | NDMA, NCDC or WHO page for each, or keep as general advice | Team | Open |
 | Spec §7.2–7.3 numbers: AC setpoint, outdoor work-hour and water amounts | `verified_numbers.csv` (new rows, Phase 3) | Value, unit and source for each | Team | Open |
+| Prices for lime, cool-roof paint and modular roofs | `verified_numbers.csv` rows `cost.lime_per_kg` (UNVERIFIED), `cost.coolroof_per_m2` and `cost.modroof_per_sqft` (both "Reported") | A current price with a primary source (state policy order, government rate list), so the row can be Verified. Until then the app shows no price (spec §2 rule 3) | Team | Open (prices hidden since Phase 1) |
+| Per-point ground height inside hill weather cells | `engine/weather.py` (cells are 0.1° squares at the cell centre's height) | Choose a terrain file to bundle (e.g. a 30 arc-second DEM for India, with licence), or accept cell-centre height. The free elevation API counts every point as a call, so a national grid isn't possible on it | Team | Open |
+| Infant water line: "even in heat" | `fixes.json` `fam_vulnerable_care`, `hydrate_shade`; spec §7.3 wording | A source that says exclusively breastfed babies need no water in hot weather. WHO eLENA (verified) says "not even water" but doesn't mention heat, so the app leaves "even in heat" out | Team | Open |
+| Model card date | `apps/api/data/indoor_model_card.json` (`/api/version` returns `model_card_date: null`) | The date the room model was trained and validated | Team | Open |
 
 ## Ambulance numbers by state and UT
 

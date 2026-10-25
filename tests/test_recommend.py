@@ -4,10 +4,12 @@ Run from the repo root:  python tests/test_recommend.py"""
 import json
 import os
 import sys
+from contextlib import contextmanager
 from datetime import datetime
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "apps", "api"))
 from engine import solutions as S  # noqa: E402
+from engine import verified as V  # noqa: E402
 
 JAIPUR = {"climate": "semi_arid",
           "causes": {"dark_roofs": 1.2, "bare_paved_ground": 0.9, "low_tree_cover": 0.5, "night_heat": 1.3}}
@@ -16,6 +18,17 @@ HIGH_DRY = {"heat_level": "high", "afternoon_rh_pct": 24, "afternoon_twb_c": 20}
 TIN_FAMILY = {"roof_type": "tin", "top_floor": True, "vulnerable": True, "devices": ["fan", "cooler"], "roof_access": True,
               "cross_ventilation": False, "outdoor_worker": False, "has_open_ground": False, "budget": "medium"}
 CONCRETE_FAMILY = {**TIN_FAMILY, "roof_type": "concrete"}
+
+
+@contextmanager
+def threshold_verified(key="evaporative.max_twb"):
+    """Treat one threshold as verified, to test the logic behind a feature that stays off until the team verifies it."""
+    orig = V.rule_ok
+    V.rule_ok = lambda k: True if k == key else orig(k)
+    try:
+        yield
+    finally:
+        V.rule_ok = orig
 
 
 def run(category="family", place=JAIPUR, household=None, weather=HIGH_DRY, lang="en"):
@@ -139,6 +152,15 @@ def test_afternoon_humidity_none_when_forecast_is_short():
     assert S.afternoon_rh(times[:13], rh[:13], datetime(2026, 5, 20, 6, 0)) is None
 
 
+def test_evaporative_cards_off_until_threshold_verified():
+    out = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 24, "afternoon_twb_c": 20})
+    assert not {"fam_cooler_dry", "fam_cooler_humid", "fam_wet_screen"} & set(ids(out))
+    left = [e for e in out["excluded"] if e["id"] in ("fam_cooler_dry", "fam_cooler_humid", "fam_wet_screen")]
+    assert {e["reason"]["code"] for e in left} == {"threshold_not_verified"}
+    assert len([e for e in left if e["id"].startswith("fam_cooler")]) == 1     # the cooler pair is listed once
+
+
+@threshold_verified()
 def test_khus_screen_follows_afternoon_wet_bulb():
     dry = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 24, "afternoon_twb_c": 20})
     humid = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 65, "afternoon_twb_c": 28})
@@ -146,12 +168,14 @@ def test_khus_screen_follows_afternoon_wet_bulb():
     assert excluded(humid).get("fam_wet_screen") == "too_humid"
 
 
+@threshold_verified()
 def test_unknown_humidity_leaves_evaporative_fixes_out_with_reason():
     out = run(household=TIN_FAMILY, weather={"heat_level": "high"})
     assert excluded(out).get("fam_wet_screen") == "humidity_unknown"
     assert "fam_cooler_dry" not in ids(out) and "fam_cooler_humid" not in ids(out)
 
 
+@threshold_verified()
 def test_cooler_advice_switches_with_wet_bulb():
     dry = run(household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 30, "afternoon_twb_c": 21})
     humid = run(place={"climate": "humid"}, household=TIN_FAMILY, weather={"heat_level": "high", "afternoon_rh_pct": 75, "afternoon_twb_c": 29})
@@ -185,7 +209,7 @@ def test_no_forecast_still_gives_household_advice():
 def test_today_order_is_safety_then_core_then_advice():
     out = run(household={**TIN_FAMILY, "outdoor_worker": True})
     assert ids(out, "today") == ["fam_vulnerable_care", "fam_outdoor_work", "fam_fan_limits",
-                                 "night_ventilation", "fam_cooler_dry", "fam_night_fan_pull"]
+                                 "night_ventilation", "fam_night_fan_pull"]
 
 
 def test_measured_fix_ranks_above_unmeasured():
@@ -217,11 +241,12 @@ def test_low_budget_lists_left_out_fixes_with_subsidy_hint():
 
 def test_unsourced_fixes_are_labelled_general_advice():
     out = run(household=TIN_FAMILY)
-    screen = next(f for f in out["fixes"]["quick"] if f["id"] == "fam_wet_screen")
+    screen = next(f for f in out["fixes"]["today"] if f["id"] == "fam_night_fan_pull")
     assert screen["effect"]["kind"] == "general" and screen["effect"]["min_c"] is None
 
 
 # ---- input safety
+@threshold_verified()
 def test_messy_inputs_are_normalised():
     out = run(household={**CONCRETE_FAMILY, "budget": "Low", "devices": "Desert cooler"},
               weather={"heat_level": "HIGH", "afternoon_rh_pct": 24, "afternoon_twb_c": 20})

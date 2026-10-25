@@ -30,6 +30,16 @@ def source(key: str) -> dict:
     return {"key": key, "title": r["source_title"], "url": r["doi_or_url"], "status": r["status"]}
 
 
+def shown_ok(key: str) -> bool:
+    """May this number be shown to users as a fact? (spec §2 rule 3: Verified or Computed only)"""
+    return table()[key]["status"].upper().startswith(("VERIFIED", "COMPUTED"))
+
+
+def rule_ok(key: str) -> bool:
+    """May this number drive a safety rule? (spec §2 rule 3: Verified, Computed, Standard, or a cautious Design choice)"""
+    return table()[key]["status"].upper().startswith(("VERIFIED", "COMPUTED", "STANDARD", "DESIGN CHOICE"))
+
+
 def usable(key: str) -> bool:
     """A feature may only use a row that is not UNVERIFIED/DISPUTED-blocking."""
     st = table()[key]["status"].upper()
