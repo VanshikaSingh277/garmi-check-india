@@ -20,3 +20,4 @@ jobs:
       - run: mypy app
       - run: bandit -q -c pyproject.toml -r app engine main.py
       - run: pip-audit -r requirements.txt
+      - run: pip-audit --no-deps --disable-pip -r requirements.lock      # everything the image installs, pinned with hashes

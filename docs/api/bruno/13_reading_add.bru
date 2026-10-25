@@ -1,0 +1,23 @@
+meta {
+  name: Add a room reading (saved home; HOUSEHOLDS_ENABLED=true)
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/api/v1/households/me/readings
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{householdToken}}
+}
+
+body:json {
+  {"room": "bedroom", "indoor_c": 31.5}
+}
+
+assert {
+  res.status: eq 201
+}

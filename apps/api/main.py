@@ -22,8 +22,9 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from app import config, http, manifest
-from engine import areas, districts, indoor, normals, places, plan, rules, solutions, weather
+from app import api_v1, calibrate, config, db, gov, households, http, imd, learn, levels, manifest, notify, observe, workers
+from app.schemas import Person
+from engine import areas, districts, indoor, normals, people, places, plan, rules, solutions, today, weather
 from engine import verified as V
 
 API_VERSION = "0.3.0"
@@ -55,6 +56,8 @@ class ApiError(Exception):
 @asynccontextmanager
 async def lifespan(_app):
     manifest.verify(config.PROD)    # prod refuses to start when a data file doesn't match data/MANIFEST.json
+    observe.init_sentry()
+    db.migrate()                    # alembic upgrade head (safe to repeat)
     places.warm()                   # ~2 s: load the offline gazetteer once, not on the first user's request
     yield
 
@@ -91,6 +94,16 @@ async def _api_error(_req: Request, e: ApiError):
     return JSONResponse({"error": e.code, "message": e.message}, status_code=e.status)
 
 
+@api.exception_handler(api_v1.Problem)
+async def _problem(_req: Request, e: api_v1.Problem):
+    return JSONResponse({"error": e.code, "message": e.message}, status_code=e.status, headers=e.headers)
+
+
+@api.exception_handler(api_v1.secure.NotConfigured)
+async def _not_configured(_req: Request, _e: Exception):
+    return JSONResponse({"error": "not_configured", "message": "This feature isn't set up on this server"}, status_code=503)
+
+
 @api.exception_handler(RequestValidationError)
 async def _invalid(_req: Request, e: RequestValidationError):
     fields = sorted({".".join(str(x) for x in err["loc"][1:]) or "body" for err in e.errors()})
@@ -99,7 +112,9 @@ async def _invalid(_req: Request, e: RequestValidationError):
 
 @api.exception_handler(StarletteHTTPException)
 async def _http(_req: Request, e: StarletteHTTPException):
-    code = {404: "not_found", 405: "method_not_allowed"}.get(e.status_code, "http_error")
+    if e.status_code == 400 and "parsing the body" in str(e.detail):     # e.g. JSON nested too deep to parse: same as broken JSON
+        return JSONResponse({"error": "invalid_input", "message": "Check these fields: body"}, status_code=422)
+    code ={404: "not_found", 405: "method_not_allowed"}.get(e.status_code, "http_error")
     return JSONResponse({"error": code, "message": code.replace("_", " ").capitalize()}, status_code=e.status_code)
 
 
@@ -122,20 +137,6 @@ class Devices(Strict):
     fan: bool = False
     cooler: bool = False
     ac: bool = False
-
-
-class Person(Strict):
-    """One person at home. Self-managed homes keep these on the phone and send them with each request (spec §5.3);
-    used for per-person advice from Phase 3."""
-    age_band: Literal["infant_0_1", "child_1_5", "child_6_14", "adult_15_64", "older_65_74", "older_75_plus"]
-    pregnant: bool = False
-    conditions: List[Literal["heart", "kidney", "diabetes", "respiratory", "mental_health", "bedridden", "unspecified"]] = Field(default=[], max_length=6)
-    medicine_classes: List[Literal["water_pill", "bp_ace_arb", "anticholinergic", "psychiatric", "other"]] = Field(default=[], max_length=5)
-    lives_alone: bool = False
-    outdoor_work: bool = False
-    work_start: Optional[Clock] = None
-    work_end: Optional[Clock] = None
-    work_type: Optional[Literal["construction", "vendor", "delivery", "farm", "traffic", "other"]] = None
 
 
 class IndividualIn(Strict):
@@ -193,26 +194,26 @@ def _afternoon(w):
             "afternoon_twb_c": solutions.afternoon_mean(times, [r["twb"] for r in w["hourly"]], _now_dt())}
 
 
-def household_of(q: IndividualIn, vul: list) -> dict:
+def household_of(q: IndividualIn, persons: list) -> dict:
     """The questionnaire answers in the fix catalogue's terms."""
     devices = [d for d in ("fan", "cooler", "ac") if getattr(q.devices, d)]
     budget = q.budget if not isinstance(q.budget, int) or q.budget >= 0 else None
+    reasons = {r for p in persons for r in people.care_reasons(p)}
     return {"roof_type": ROOF_TYPE.get(q.roof), "top_floor": q.roof != "lower_floor", "roof_access": q.roof_access,
-            "vulnerable": any(v in vul for v in ("elderly", "child", "pregnant", "chronic")),
-            "outdoor_worker": "outdoor_worker" in vul, "devices": devices,
+            "vulnerable": bool(reasons & today.CARE), "outdoor_worker": "outdoor_work" in reasons, "devices": devices,
             "cross_ventilation": q.cross_ventilation, "budget": budget}
 
 
-def _headline(today, tom):
+def _headline(td, tom):
     """(label, rows) of the headline day: today before 18:00 IST, tomorrow after (spec §7.1)."""
-    if _now_dt().hour < HEADLINE_SWITCH_H and today:
-        return "today", today
-    return ("tomorrow", tom) if tom else ("today", today)
+    if _now_dt().hour < HEADLINE_SWITCH_H and td:
+        return "today", td
+    return ("tomorrow", tom) if tom else ("today", td)
 
 
-def _heat_days(w, today, tom, district_id, lat, lon):
+def _heat_days(w, td, tom, district_id, lat, lon):
     """The headline day's maximum and its 1991-2020 normal, for IMD's heatwave rules."""
-    label, rows = _headline(today, tom)
+    label, rows = _headline(td, tom)
     if not rows:
         return []
     ds = rows[0]["time"][:10]
@@ -221,16 +222,24 @@ def _heat_days(w, today, tom, district_id, lat, lon):
     return [{"day": label, "date": ds, "tmax": round(tmax, 1), "normal": normal}]
 
 
+def _imd(district_id, day):
+    """IMD's district warning colour for that day (stored by the imd_warnings job; none until IMD onboarding)."""
+    if not district_id or not day:
+        return None
+    with db.session() as s:
+        return notify.imd_color(s, district_id, date.fromisoformat(day))
+
+
 def _heat(w, lat, lon, district_id, in_delhi):
-    """(risk, next24, today, tomorrow): the heat level from the weather and IMD's rules only."""
-    nxt, today, tom = weather.split_days(w, _now())
+    """(risk, next24, today, tomorrow): the heat level from the weather, IMD's rules and IMD's district warning only."""
+    nxt, td, tom = weather.split_days(w, _now())
     if not nxt:
-        return None, nxt, today, tom
-    days = _heat_days(w, today, tom, district_id, lat, lon)
+        return None, nxt, td, tom
+    days = _heat_days(w, td, tom, district_id, lat, lon)
     station = normals.station_type(lat, lon, w.get("elevation"))
-    r = rules.risk(nxt, today, tom, in_delhi=in_delhi, days=days, station=station)
+    r = rules.risk(nxt, td, tom, in_delhi=in_delhi, days=days, station=station, imd_color=_imd(district_id, days[0]["date"] if days else None))
     r["headline_day"] = days[0]["day"] if days else None
-    return r, nxt, today, tom
+    return r, nxt, td, tom
 
 
 def _in_delhi_bbox(lat, lon):
@@ -299,8 +308,9 @@ def _sha256(path: str) -> str:
 # ------------------------------------------------------------------ routes
 @api.get("/api/health")
 def health():
-    return {"ok": True, "time": _now(), "db_ok": None, "model_loaded": indoor._model.cache_info().currsize > 0,
-            "gazetteer_loaded": places._places.cache_info().currsize > 0, **weather.status(), "imd_last_ok_at": None}
+    return {"ok": True, "time": _now(), "db_ok": db.ok(), "model_loaded": indoor._model.cache_info().currsize > 0,
+            "gazetteer_loaded": places._places.cache_info().currsize > 0, **weather.status(),
+            "imd_last_ok_at": (lambda t: t.isoformat(timespec="seconds") if t else None)(imd.latest_fetch())}
 
 
 @api.get("/api/version")
@@ -315,8 +325,8 @@ def get_weather(p: tuple = Depends(india_point)):
     lat, lon, d = p
     w = weather.fetch(lat, lon)
     in_delhi = bool(_in_delhi_bbox(lat, lon) and areas.ward_at(lat, lon))
-    risk, nxt, today, tom = _heat(w, lat, lon, d["id"], in_delhi)
-    return {"now": nxt[0] if nxt else None, "today": _day_summary(today), "tomorrow": _day_summary(tom),
+    risk, nxt, td, tom = _heat(w, lat, lon, d["id"], in_delhi)
+    return {"now": nxt[0] if nxt else None, "today": _day_summary(td), "tomorrow": _day_summary(tom),
             "level": risk["level"] if risk else None, "headline_day": risk["headline_day"] if risk else None,
             "next24": [{"time": r["time"], "t": r["t"], "hi": r["hi"], "twb": r["twb"], "rh": r["rh"]} for r in nxt],
             "fetched_at": w["fetched_at"], "source": w["source"], "provider": w["provider"], "stale": w["stale"],
@@ -336,40 +346,57 @@ def search(q: str = Query(..., min_length=2, max_length=60), limit: int = Query(
     return {"results": places.search(q, limit)}
 
 
-def _room(q: IndividualIn, place: dict, w: dict, nxt: list, model_roof: str):
+def _room(q: IndividualIn, place: dict, w: dict, nxt: list, model_roof: str, home=None):
     """(hours, fit, basis, show_numbers). Model inside its training range, else the measured roof offset (spec §7.4).
-    With ROOM_MODEL_MODE=validated_only the numbers are shown only in Delhi NCT; the plan still uses them."""
+    With ROOM_MODEL_MODE=validated_only the numbers are shown only in Delhi NCT; the plan still uses them.
+    During power-cut hours the room is estimated with the fan and cooler off (spec §7.2)."""
     fit = indoor.applicability(nxt, place["in_delhi"])
     start = next((i for i, r in enumerate(w["hourly"]) if r["time"][:13] >= nxt[0]["time"][:13]), None)
     if fit["ok"] and start is not None:
         hours, basis = indoor.predict(w["hourly"], start, model_roof, q.devices.fan, q.devices.cooler), "model"
+        if q.power_cut_hours and (q.devices.fan or q.devices.cooler):
+            off = {h["time"]: h for h in indoor.predict(w["hourly"], start, model_roof, False, False)}
+            hours = [off[h["time"]] if any(today.in_window(h["time"][11:16], c) for c in q.power_cut_hours) else h for h in hours]
     else:
         hours, basis = indoor.offset_estimate(nxt, model_roof), "offset"
-    show = place["in_delhi"] or config.ROOM_MODEL_MODE == "rough_guide"
+    calibrated = basis == "model" and home is not None and calibrate.summary(home)["applied"]
+    if calibrated:
+        hours = calibrate.apply(hours, home)
+    # numbers only where validated: Delhi NCT, or a home whose own readings calibrate it (n >= 5, spec §7.4)
+    show = place["in_delhi"] or config.ROOM_MODEL_MODE == "rough_guide" or (calibrated and home.calib_n_day + home.calib_n_night >= 5)
     return hours, fit, basis, show
 
 
 @api.post("/api/status/individual")
 def status_individual(q: IndividualIn):
+    return _status(q)
+
+
+def _status(q: IndividualIn, home=None):
     d = in_india(q.lat, q.lon)
-    vul = list(dict.fromkeys(q.vulnerable))
-    care = [v for v in vul if v != "outdoor_worker"]   # people the home must protect; work risk goes to the work advice
+    persons = [p.model_dump(exclude_none=True) for p in q.people] or people.from_vulnerable(q.vulnerable)
+    care = [p for p in persons if today.CARE & set(people.care_reasons(p))]   # work risk goes to the work advice
     place = where_info(q.lat, q.lon)
     w = weather.fetch(q.lat, q.lon)
     now = _now()
-    risk, nxt, today, tom = _heat(w, q.lat, q.lon, d["id"], place["in_delhi"])
+    risk, nxt, day_today, tom = _heat(w, q.lat, q.lon, d["id"], place["in_delhi"])
     if not nxt:
         raise ApiError(503, "weather_unavailable", "Forecast not available right now")
     model_roof = MODEL_ROOF.get(q.roof, q.roof)
-    hours, fit, basis, show = _room(q, place, w, nxt, model_roof)
+    hours, fit, basis, show = _room(q, place, w, nxt, model_roof, home)
     risk["home"] = rules.home_factors(model_roof, care, q.devices.model_dump())   # listed beside the level, not added to it
-    fixes = solutions.recommend("family", {"climate": solutions.climate_of(place.get("district_heat"))}, household_of(q, vul),
+    fixes = solutions.recommend("family", {"climate": solutions.climate_of(place.get("district_heat"))}, household_of(q, persons),
                                 {"heat_level": risk["level"], **_afternoon(w)}, q.lang)
-    # fan limits use the cautious (high) end of the room range (spec §2 rule 4), else the outdoor air
-    fan = rules.fan_advice([{"time": h["time"], "indoor": h["high"]} for h in hours] or [{"time": r["time"], "indoor": r["t"]} for r in nxt], care)
+    # fan limits: the strictest person's group, on the cautious (high) end of the room range (spec §2 rule 4, §7.2)
+    groups = [people.fan_group(p) for p in persons]
+    group = rules.strictest([g for g, _ in groups])
+    precautionary = bool(groups) and all(pc for g, pc in groups if g == group)
+    fan = rules.fan_advice([{"time": h["time"], "indoor": h["high"]} for h in hours] or [{"time": r["time"], "indoor": r["t"]} for r in nxt],
+                           [], group=group, precautionary=precautionary)
     fan["basis"] = "indoor" if hours else "outdoor"
     day_plan = plan.build(hours, nxt, fan["limits_c"])
     day_plan["estimate"] = basis
+    advice = today.build(persons, hours, nxt, day_plan, risk["level_index"], q.devices.model_dump(), q.power_cut_hours, q.lang)
     night = [h for h in hours if h["time"][11:13] in ("02", "03", "04", "05")]
     peak = max(hours, key=lambda h: h["high"]) if hours else None
     if not show:                                       # numbers stay hidden outside Delhi; windows and fan states still work
@@ -378,13 +405,14 @@ def status_individual(q: IndividualIn):
     note = ("not_validated_here" if not show else "offset_estimate" if basis == "offset" else "validated_delhi")
     return {
         "time": now, "place": place, "in_delhi": place["in_delhi"], "in_india": True,
-        "weather": {"now": nxt[0], "today": _day_summary(today), "tomorrow": _day_summary(tom), "fetched_at": w["fetched_at"],
+        "weather": {"now": nxt[0], "today": _day_summary(day_today), "tomorrow": _day_summary(tom), "fetched_at": w["fetched_at"],
                     "stale": w["stale"], "approximate": w["approximate"], "provider": w["provider"]},
         "indoor": {"next24": hours if show else [], "peak": peak if show else None,
                    "night_min": (min(night, key=lambda h: h["indoor"]) if night else None) if show else None,
                    "basis": basis, "numbers_shown": show, "applicability": fit, "note_code": note, "model": indoor.model_info(),
                    "roof_proxy": MODEL_ROOF.get(q.roof), "outdoor24": [{"time": r["time"], "t": r["t"]} for r in nxt]},
         "risk": risk, "fan": fan, "plan": day_plan,
+        "per_person": advice["per_person"], "today_actions": advice["today_actions"],
         "fixes": fixes,
         "how": {"risk": "weather only: IMD heat-index bands (on the air temperature when higher) + IMD heatwave rules (45 / 47 C, or "
                         "4.5 / 6.4 C above the 1991-2020 normal; plains, hill and coastal limits) for the headline day + wet-bulb danger limit"
@@ -401,6 +429,68 @@ def status_individual(q: IndividualIn):
                    "sources": [V.source("health.signs.ncdc_public_2026"), V.source("health.advice.ncdc_iec"), V.source("health.cool_first_transport_second")]},
         "disclaimer": "Guidance, not a diagnosis. In an emergency call 112.",
     }
+
+
+class MeStatusIn(Strict):
+    day: Literal["today", "tomorrow"] = "today"
+    people: List[Person] = Field(default=[], max_length=20)
+
+
+class OutlookIn(Strict):
+    days: int = Field(default=5, ge=1, le=7)
+    people: List[Person] = Field(default=[], max_length=20)
+
+
+@api.post("/api/v1/households/me/status", dependencies=[Depends(households.enabled)])
+def me_status(q: MeStatusIn, hid: str = Depends(api_v1.household)):
+    """The saved home's status; the people come from the phone (spec §6.3). Calibration and fix progress: Phase 6."""
+    with db.session() as s:
+        h = s.get(households.Household, hid)
+        answers = households.stored_answers(h)
+        calib = calibrate.summary(h)
+        fixes_done = learn.progress(s, hid)
+    out = _status(IndividualIn(**answers, people=q.people), home=h)
+    dh = out["place"].get("district_heat") or {}
+    out.update({"day": q.day, "calibration": calib, "fix_progress": fixes_done,
+                "imd_warning": _imd(dh.get("id"), (datetime.now(IST).date()).isoformat())})
+    if q.day == "tomorrow":
+        out["tomorrow_outlook"] = _outlook(answers, [p.model_dump(exclude_none=True) for p in q.people], 2)[1:]
+    return out
+
+
+def _outlook(answers: dict, persons: list, days: int) -> list:
+    lat, lon = answers["lat"], answers["lon"]
+    d = in_india(lat, lon)
+    in_delhi = bool(_in_delhi_bbox(lat, lon) and areas.ward_at(lat, lon))
+    w = weather.fetch(lat, lon)
+    first = datetime.now(IST).date().isoformat()
+    dates = sorted({r["time"][:10] for r in w["hourly"] if r["time"][:10] >= first})[:days]
+    persons = persons or people.from_vulnerable([])
+    out = []
+    for i, ds in enumerate(dates):
+        imd = _imd(d["id"], ds)
+        lv = levels.day_level(w, ds, lat, lon, d["id"], in_delhi, "today" if i == 0 else "tomorrow", imd_color=imd)
+        rows = levels.day_rows(w, ds)
+        tmax = w.get("daily_tmax", {}).get(ds, max(r["t"] for r in rows))
+        at_risk = [k for k, p in enumerate(persons) if (lv["level_index"] >= 1 and today.CARE & set(people.care_reasons(p)))
+                   or (p.get("outdoor_work") and levels.window_level(w, ds, p.get("work_start") or today.WORK_DEFAULT[0],
+                                                                       p.get("work_end") or today.WORK_DEFAULT[1]) >= 2)]
+        row = {"date": ds, "level": lv["level"], "reasons": lv["reasons"], "hi_max": max(r["hi"] for r in rows), "tmax": round(tmax, 1),
+               "tmin": min(r["t"] for r in rows), "twb_max": max(r["twb"] for r in rows), "persons_at_risk": at_risk}
+        if imd:
+            row["imd_color"] = imd
+        if in_delhi or config.ROOM_MODEL_MODE == "rough_guide":   # room numbers only where they were validated (spec §7.4)
+            o = V.value(indoor.OFFSET_KEY[MODEL_ROOF.get(answers["roof"], answers["roof"])])["afternoon_iqr"]
+            row["room_peak_range"] = [round(tmax + o[0], 1), round(tmax + o[1], 1)]
+        out.append(row)
+    return out
+
+
+@api.post("/api/v1/households/me/outlook", dependencies=[Depends(households.enabled)])
+def me_outlook(q: OutlookIn, hid: str = Depends(api_v1.household)):
+    with db.session() as s:
+        answers = households.stored_answers(s.get(households.Household, hid))
+    return {"days": _outlook(answers, [p.model_dump(exclude_none=True) for p in q.people], q.days)}
 
 
 @api.get("/api/area")
@@ -498,6 +588,13 @@ def sources():
     return {"sources": _json("sources.json"),
             "verified_numbers": [{"key": k, "status": r["status"], "source": r["source_title"], "url": r["doi_or_url"]} for k, r in V.table().items()]}
 
+
+api.include_router(api_v1.router)
+api.include_router(households.router)
+api.include_router(workers.router)
+api.include_router(learn.router)
+api.include_router(gov.router)
+api.include_router(api_v1.internal)
 
 if WEB:
     api.mount("/", StaticFiles(directory=WEB, html=True), name="web")

@@ -29,10 +29,13 @@ def fake_forecast(day_max, night_min, afternoon_rh, night_rh):
 
 def status(forecast, normal=38.0, **answers):
     """normal: the day's 1991-2020 normal maximum, fixed so the IMD departure rule doesn't depend on today's date."""
+    real_fetch, real_normal = weather.fetch, main.normals.point_normal_tmax
     weather.fetch = lambda lat, lon: forecast
     main.normals.point_normal_tmax = lambda *a, **k: (normal, False)
-    q = main.IndividualIn(**answers)
-    return main.status_individual(q)
+    try:
+        return main.status_individual(main.IndividualIn(**answers))
+    finally:                                   # other test files use the real weather module
+        weather.fetch, main.normals.point_normal_tmax = real_fetch, real_normal
 
 
 def ids(fixes, tier=None):

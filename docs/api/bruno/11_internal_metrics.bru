@@ -1,0 +1,19 @@
+meta {
+  name: Internal metrics (needs the job secret)
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/internal/metrics
+  body: none
+  auth: none
+}
+
+headers {
+  x-job-secret: {{jobSecret}}
+}
+
+assert {
+  res.status: eq 200
+}

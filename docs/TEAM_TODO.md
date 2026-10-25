@@ -27,6 +27,24 @@ Things only the team can supply. The build never fills these from memory (spec �
 | Per-point ground height inside hill weather cells | `engine/weather.py` (cells are 0.1° squares at the cell centre's height) | Choose a terrain file to bundle (e.g. a 30 arc-second DEM for India, with licence), or accept cell-centre height. The free elevation API counts every point as a call, so a national grid isn't possible on it | Team | Open |
 | Infant water line: "even in heat" | `fixes.json` `fam_vulnerable_care`, `hydrate_shade`; spec §7.3 wording | A source that says exclusively breastfed babies need no water in hot weather. WHO eLENA (verified) says "not even water" but doesn't mention heat, so the app leaves "even in heat" out | Team | Open |
 | Model card date | `apps/api/data/indoor_model_card.json` (`/api/version` returns `model_card_date: null`) | The date the room model was trained and validated | Team | Open |
+| WhatsApp and SMS provider choice | `apps/api/app/messaging.py` (only the fake sender exists) | Provider name, API docs, how it signs webhooks; then a real adapter is built behind `messaging.Provider` | Team | Open (blocks real alerts) |
+| Approve the message texts | `apps/api/data/message_templates.json` (`"status": "DRAFT"` → `"approved"`) | Approved English and Hindi wording; WhatsApp template names; DLT template IDs | Team | Draft ready |
+| Production secrets | Your environment or secret store (names in `env.example`) | `TOKEN_PEPPER`, `PHONE_ENC_KEYS` (32-byte keys, base64), `PHONE_HMAC_KEY`, `PERSON_ENC_KEYS`, `INTERNAL_JOB_SECRET`, `WHATSAPP_WEBHOOK_SECRET`, `SMS_WEBHOOK_SECRET`, `BACKUP_ENC_KEY`, `LOG_HASH_SECRET` | Team | Open |
+| `OTP_DAILY_CAP` | Environment | A daily limit for codes sent (default 500, a guess) that fits the SMS budget | Team | Open |
+| Default outdoor work window | `apps/api/engine/today.py` `WORK_DEFAULT` (06:00–19:00) | Confirm, or give the hours to use when a worker doesn't say | Team | Design choice |
+| Frontend prerequisite for saved homes | Website and app code; then `HOUSEHOLDS_ENABLED=true` | Escape-by-default templating on the website; the household token in Keychain/Keystore in the app (spec §6.3) | Frontend | Open (blocks saved homes) |
+| Firebase and APNs for app push | Environment: `FCM_CREDENTIALS_JSON` | A Firebase project, its service-account JSON, and an APNs key uploaded to Firebase for iOS | Team | Open |
+| Web push keys | Environment: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | A P-256 key pair (base64url) and a contact (mailto: or https:) | Team | Open |
+| Doctor / public-health review of the per-person texts | `docs/launch/GATE_P3_safety.md`, `apps/api/data/actions.json` | Signed decision in the gate file | Team + reviewer | Open |
+| IMD district warnings feed | `apps/api/app/imd.py`; environment `IMD_ENABLED`, `IMD_API_BASE`, `IMD_API_KEY` | API access from IMD (letter in `docs/launch/imd_access_request.md`), its format, and how its district names map to ours | Team | Open (IMD warnings off) |
+| Smallest count shown in government numbers | Environment `AGG_MIN_COUNT` (default 10) | Confirm 10, or the number the team or legal chooses | Team + legal | Design choice |
+| Who may see government numbers | `/api/v1/gov/today`, `/api/v1/gov/trend` (public now) | Keep public, or require a login for officials | Team | Open |
+| Hosting, HTTPS/CDN and object storage for backups | `docs/DEPLOY.md` §3, §6 | Provider, region (India), bucket with 14-day retention, and the two people who can read backups | Team | Open (blocks deploy) |
+| Incident roles, contacts and legal timelines | `docs/INCIDENT.md` (DRAFT; timelines TO VERIFY) | Names and phones per role; legal's confirmation of the DPDP Board, affected-people and CERT-In timelines with rule references | Team + legal | Open (blocks launch) |
+| Expected users at launch | `scripts/peak_load.py` target, `RATE_STATELESS_PER_MIN` | Homes and peak-evening requests expected, to size the load test and the server | Team | Open |
+| "Alerts paused" message | `apps/api/data/message_templates.json` (new template) | Approved English and Hindi text for telling pilot users alerts are paused | Team | Open |
+| Pilot targets | `docs/launch/PILOT_PLAN.md` success measures | Targets for delivery rate, opt-out rate, opens and errors per day | Team | Open |
+| p99 delay of about 2 s in the load test | `docs/launch/GATE_P7_launch.md` | Decide whether to investigate before the pilot (about 1 request in 100) | Team | Open |
 
 ## Ambulance numbers by state and UT
 

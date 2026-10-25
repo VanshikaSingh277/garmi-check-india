@@ -14,6 +14,7 @@ import threading
 import time
 from collections import OrderedDict
 from datetime import datetime
+from typing import Any
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -100,7 +101,7 @@ def _km(a, b):
 _CACHE: "OrderedDict[tuple, tuple[float, dict]]" = OrderedDict()
 _LOCK = threading.Lock()
 _CELL_LOCKS: dict = {}
-_STATE = {"provider": None, "last_ok_at": None, "day": None, "calls": 0}
+_STATE: dict[str, Any] = {"provider": None, "last_ok_at": None, "day": None, "calls": 0}
 
 
 def provider() -> WeatherProvider:

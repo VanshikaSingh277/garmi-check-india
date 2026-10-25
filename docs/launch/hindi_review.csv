@@ -44,3 +44,31 @@ fixes:outdoor_work_hours.effect_text,Health measure (NCDC: stay out of the sun f
 fixes:outdoor_work_hours.steps[0],"On heat-alert days, shift outdoor work (construction, sanitation, street vending) away from 12:00–15:00.","लू की चेतावनी वाले दिनों में बाहर का काम (निर्माण, सफ़ाई, ठेला-फेरी) 12:00 से 15:00 बजे के बीच न रखें।",,to review
 fixes:cost_text (no verified price),Ask for local prices: we haven't verified a price yet,स्थानीय भाव पूछें: हमने अभी कोई भाव पक्का नहीं किया है,,to review
 fixes:labels.excluded.threshold_not_verified,Not shown until its threshold is verified,इसकी सीमा पक्की होने तक नहीं दिखाया जाता,,to review
+actions:roles.baby,The baby,छोटा बच्चा,,to review
+actions:roles.child,The child,बच्चा,,to review
+actions:roles.older,The older person,बुज़ुर्ग,,to review
+actions:roles.pregnant,The pregnant woman,गर्भवती महिला,,to review
+actions:roles.worker,The outdoor worker,बाहर काम करने वाले,,to review
+actions:roles.member,Your family member,परिवार के सदस्य,,to review
+actions:medicine_classes.water_pill,water-pill (diuretic),पेशाब बढ़ाने वाली (ड्यूरेटिक),,to review
+actions:medicine_classes.bp_ace_arb,blood-pressure,BP की,,to review
+actions:medicine_classes.anticholinergic,anticholinergic,एंटीकोलिनर्जिक,,to review
+actions:medicine_classes.psychiatric,mental-health,मानसिक स्वास्थ्य की,,to review
+actions:medicine_classes.other,regular,रोज़ की,,to review
+actions:fallback.with_cooling,"Use the cooler or AC, or move them to the coolest room.","कूलर या AC चलाएँ, या उन्हें सबसे ठंडे कमरे में ले जाएँ।",,to review
+actions:fallback.no_cooling,"Keep their skin and clothes wet and use the fan, or move them somewhere cooler.","उनकी त्वचा और कपड़े गीले रखें और पंखा चलाएँ, या उन्हें किसी ठंडी जगह ले जाएँ।",,to review
+actions:actions.fan_not_safe_for_person,{label}: during {H} a fan alone isn't safe. {fallback},{label}: {H} के बीच सिर्फ़ पंखा सुरक्षित नहीं है। {fallback},,to review
+actions:actions.fan_not_enough_for_person,{label}: during {H} a fan alone isn't enough. {fallback},{label}: {H} के बीच सिर्फ़ पंखा काफ़ी नहीं है। {fallback},,to review
+actions:actions.use_ac_hours,Run the AC during {H}.,{H} के बीच AC चलाएँ।,,to review
+actions:actions.close_windows,Close windows and curtains during {H}.,{H} के बीच खिड़कियाँ और पर्दे बंद रखें।,,to review
+actions:actions.open_windows,"Open windows during {H}, when it's cooler outside.","{H} के बीच खिड़कियाँ खोलें, जब बाहर ठंडक हो।",,to review
+actions:actions.work_hours_hot,"{label}: the hottest work hours are {H}. Rest in the shade, drink water often, and avoid working in the sun from {n:health.avoid_sun_hours:from_h:0}:00 to {n:health.avoid_sun_hours:to_h:0}:00 (NCDC).","{label}: काम के सबसे गर्म घंटे {H} हैं। छाँव में आराम करें, बार-बार पानी पिएँ, और {n:health.avoid_sun_hours:from_h:0}:00 से {n:health.avoid_sun_hours:to_h:0}:00 बजे तक धूप में काम न करें (NCDC)।",,to review
+actions:actions.power_cut_hot,"Power cut expected during {H}, in the hottest hours. Cool the room before it, and keep water and a wet cloth ready.","{H} के बीच, सबसे गर्म घंटों में, बिजली कटने की उम्मीद है। उससे पहले कमरा ठंडा कर लें, और पानी और गीला कपड़ा तैयार रखें।",,to review
+actions:actions.check_on_alone,{label} lives alone: call or visit more than once today.,{label} अकेले रहते हैं: आज एक से ज़्यादा बार फ़ोन करें या मिलने जाएँ।,,to review
+actions:actions.infant_care,"{label}: babies under {n:health.infant.exclusive_bf:months:0} months who only breastfeed need no other drinks, not even water (WHO). Breastfeed often, and never leave a child in a parked vehicle.","{label}: {n:health.infant.exclusive_bf:months:0} महीने से छोटे बच्चे, जो सिर्फ़ माँ का दूध पीते हैं, उन्हें कोई और चीज़ पीने को नहीं चाहिए, पानी भी नहीं (WHO)। बार-बार दूध पिलाएँ, और बच्चे को कभी खड़ी गाड़ी में अकेला न छोड़ें।",,to review
+actions:actions.medicine_doctor,{label} takes {classes} medicines: don't stop them. Ask a doctor about the heat and how much to drink.,"{label} {classes} दवाएँ लेते हैं: इन्हें बंद न करें। गर्मी और कितना पानी पीना है, इस बारे में डॉक्टर से पूछें।",,to review
+actions:actions.fluid_limit,"{label}: if a doctor limits their fluids, ask that doctor how much to drink in the heat.","{label}: अगर डॉक्टर ने पानी की मात्रा तय की है, तो गर्मी में कितना पीना है, यह उन्हीं से पूछें।",,to review
+actions:actions.go_cooler,"{label}: in the hottest hours ({H}), move them to the coolest place you can, such as a lower floor, a neighbour's home or a cooling centre.","{label}: सबसे गर्म घंटों ({H}) में उन्हें जितनी ठंडी जगह हो सके, वहाँ ले जाएँ, जैसे नीचे की मंज़िल, पड़ोसी का घर या कूलिंग सेंटर।",,to review
+actions:actions.extra_care,{label} needs extra care in the heat today: check on them often and watch for the warning signs.,{label} को आज गर्मी में ख़ास ध्यान चाहिए: बार-बार हाल पूछें और खतरे के लक्षणों पर नज़र रखें।,,to review
+templates:message_templates.json (all),see apps/api/data/message_templates.json,see apps/api/data/message_templates.json,,to review
+templates:worker_brief_head,"Thandak brief: {day}, {count} homes to check.",ठंडक: {day} {count} घरों का हाल लेना है।,,to review

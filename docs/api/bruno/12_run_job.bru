@@ -1,0 +1,19 @@
+meta {
+  name: Run a job (needs the job secret)
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/internal/jobs/send_queue
+  body: none
+  auth: none
+}
+
+headers {
+  x-job-secret: {{jobSecret}}
+}
+
+assert {
+  res.status: eq 200
+}

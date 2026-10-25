@@ -1,10 +1,16 @@
 # Build progress
-Current step: 5          Current phase: 1 (STOP: review, QA pack and merge)
-Next action: User reviews `backend/p1-solid-api`, runs the tests and `docs/qa/P1_test_cases.md`, merges (and sends a bug list if any). Then Phase 2 needs a plan OK and its dependencies (SQLAlchemy, alembic, APScheduler, cryptography, sentry-sdk).
+Current step: 5          Current phase: 6
+Next action: all phases built; one commit after the user approves the message. Gates P2, P3, P5, P7 and the pilot plan wait for sign-off.
 Baseline tests: 77 passed, 0 failed (2026-10-24; `python tests/test_*.py` for each file). Includes the uncommitted district-normals work that was carried onto `backend/setup`.
 User choices: test-case format = default ID | Title | Preconditions | Steps | Expected | Priority | Type (not answered yet); API collection tool = Bruno (`docs/api/bruno/`, chosen by default; Postman can import it); PRs = leave branches (not answered yet)
 
 Decisions:
+- 2026-10-25: Phase 7: requests with a token skip the per-IP limit (CGNAT, spec §8.7), with a 30/min per-IP limit on bad tokens. The load script is `scripts/peak_load.py` because pytest collects `*_test.py`. Docker isn't on this machine, so the container runs are left for staging.
+- 2026-10-25: Phase 6: room numbers stay hidden on the offset fallback even for a calibrated home (calibration is validated against the model only). IMD stays off until onboarding; the adapter reads a normalised format.
+- 2026-10-25: Phase 4: the frontend prerequisite (spec §6.3) isn't done, so saved homes are built and tested but behind HOUSEHOLDS_ENABLED (off). Push senders use `cryptography` + httpx only (no new packages); Web Push matches the RFC 8291 test vector.
+- 2026-10-25: No per-phase commits (user's instruction), so phases 2 onwards live uncommitted in one working tree (branch name `backend/p4-households` at the time of writing) and go into one commit at the end.
+- 2026-10-25: The user asked for every phase to be built, tested with its QA pack, and continued without stopping, with one step-by-step list at the end, and no commits until the whole build is done. Gate sign-offs are prepared and left for the user.
+- 2026-10-25: Phase 2: the 3-a-day test-alert limit is a per-home rate limit, because notice_log's unique key (spec §5.9) allows one test row per channel per day. Webhooks use a provider-neutral signature (HMAC over "timestamp.body") until a provider is chosen.
 - 2026-10-25: Phase 1 changes of approach: (a) weather cells are 0.1° squares at Open-Meteo's cell-centre height; the per-point 100 m bucket needs a bundled terrain file, because the free elevation API counts every point (a 0.1° grid is ~32,000 calls; one attempt used up the hourly limit and was stopped); (b) sync httpx in FastAPI's threadpool instead of async (sync, CPU-bound routes; same timeout and retries); (c) `/api/where` keeps answering `in_india: false` so the current app can show "outside India", every other location route returns 422.
 - 2026-10-25: FastAPI 0.115.6 → 0.162.0 and Starlette 0.41.3 → 1.10.0, because pip-audit found 14 known vulnerabilities in Starlette 0.41.3. All tests pass on the new versions.
 - 2026-10-25: C3 done: the cap on uncertain hill normals is removed (stricter). C4/C5: `heat.station_type`, `heat.normal_point`, `cost.band_limits_inr` relabelled `Design choice`.
@@ -26,6 +32,14 @@ Open questions for the user:
 - The spec was written against `heat-india` at `a4f574e`; this repo is `garmi-check-india`. Phase 0 maps the differences.
 
 Done:
+- 2026-10-25: Step 8: docs/launch/PILOT_PLAN.md (DRAFT).
+- 2026-10-25: Phase 7 built (uncommitted): 212 tests, QA 10/10, attack 41/41, load pass; GATE_P7_launch.md prepared.
+- 2026-10-25: Phase 6 built (uncommitted): 208 tests, QA 12/12; calibration validated ("ship") before use.
+- 2026-10-25: Phase 5 built (uncommitted): 170 tests, QA 15/15; GATE_P5_privacy.md prepared.
+- 2026-10-25: Phase 4 built (uncommitted): 164 tests, QA 14/14.
+- 2026-10-25: Phase 3 built (uncommitted): 153 tests, golden cases 12/12, QA 11/11; GATE_P3_safety.md generated.
+- 2026-10-25: Phase 2 built (uncommitted): 132 tests and 19/19 QA cases pass; gate file prepared.
+- 2026-10-25: Phase 1 QA pack run: 28/28 (`docs/qa/P1_results.md`).
 - 2026-10-25: Phase 1 built on `backend/p1-solid-api` (report in `docs/backend/REPORTS.md`, QA pack `docs/qa/P1_test_cases.md`, Bruno collection `docs/api/bruno/`).
 - 2026-10-24: Phase 0. `docs/backend/PHASE0_PLAN.md` (map, §3 checks, conflicts, Phase 1 plan); commands filled in.
 - 2026-10-24: Step 3. `docs/TEAM_TODO.md` filled; `docs/launch/consent_DRAFT.md` and `docs/launch/hindi_review.csv` drafted.

@@ -39,7 +39,7 @@ def available() -> bool:
     return _normals() is not None
 
 
-def normal_tmax(district_id: str, day: date, elev_m: float = None):
+def normal_tmax(district_id: str, day: date, elev_m: float | None = None):
     """Normal maximum temperature for that calendar day in the district, moved to the point's height when known."""
     n = _normals()
     d = n and n["districts"].get(district_id)
@@ -73,7 +73,7 @@ def _era5_may_mean(lat, lon, elev_m):
     return round(mean(vals), 1) if len(vals) >= 100 else None
 
 
-def point_normal_tmax(district_id: str, day: date, lat: float, lon: float, elev_m: float = None):
+def point_normal_tmax(district_id: str, day: date, lat: float, lon: float, elev_m: float | None = None):
     """(normal, uncertain). On raised ground the district value can't stand for a hill town and the plains below it,
     so from heat.normal_point.min_elev_m up the district's seasonal curve is shifted to ERA5's May mean at the point
     itself (fetched once per ~5 km cell, then cached on disk). Normals there are less certain (uncertain=True)."""
@@ -113,7 +113,7 @@ def coast_km(lat: float, lon: float) -> float:
     return 6371.0 * 2 * math.asin(math.sqrt(h))
 
 
-def station_type(lat: float, lon: float, elev_m: float = None) -> str:
+def station_type(lat: float, lon: float, elev_m: float | None = None) -> str:
     """IMD applies different heatwave rules to plains, hill and coastal stations but publishes no operational
     definition; the limits here are a labelled design choice (verified_numbers heat.station_type)."""
     st = V.value("heat.station_type")

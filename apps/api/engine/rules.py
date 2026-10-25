@@ -18,7 +18,8 @@ def base_from_heat_index(hi_max: float) -> int:
     return 0
 
 
-def risk(next24: list, today: list, tomorrow: list, in_delhi: bool = False, days: list = None, station: str = "plains") -> dict:
+def risk(next24: list, today: list, tomorrow: list, in_delhi: bool = False, days: list | None = None, station: str = "plains",
+         imd_color: str | None = None) -> dict:
     """Today's heat level from the weather and official rules only (no household factors, no model output):
     - IMD heat-index bands, banded on the air temperature instead when it is higher (dry heat: the heat index reads
       below the air there, design choice) - verified_numbers heat_index.bands.imd / heat.band_on_air
@@ -28,7 +29,8 @@ def risk(next24: list, today: list, tomorrow: list, in_delhi: bool = False, days
     - Delhi only: the Delhi HAP two-day 97th-percentile rule; everywhere: the wet-bulb danger limit -> Extreme
     days: [{"day": "today"|"tomorrow", "tmax": C, "normal": C or None}] for the headline day (today before 18:00 IST,
       tomorrow after; spec §7.1);
-    station: "plains" | "hill" | "coastal" (engine/normals.station_type)."""
+    station: "plains" | "hill" | "coastal" (engine/normals.station_type);
+    imd_color: IMD's district warning for the headline day; our level is never below it (spec §7.1)."""
     reasons = []
     hi_max = max(r["hi"] for r in next24)
     twb_max = max(r["twb"] for r in next24)
@@ -66,6 +68,10 @@ def risk(next24: list, today: list, tomorrow: list, in_delhi: bool = False, days
     if twb_max >= wb["critical_humid_young_mean"]:
         lvl = 3
         reasons.append({"code": "wet_bulb_critical", "value": round(twb_max, 1), "source": V.source("wet_bulb.danger")})
+    floor = V.value("imd.district_warning_floor").get(imd_color or "")
+    if floor and LEVELS.index(floor) > lvl:
+        lvl = LEVELS.index(floor)
+        reasons.append({"code": "imd_district_warning", "value": imd_color, "source": V.source("imd.district_warning_floor")})
     return {"level": LEVELS[lvl], "level_index": lvl, "reasons": reasons, "hi_max": round(hi_max, 1), "twb_max": round(twb_max, 1),
             "tmax": round(tmax, 1), "station": station}
 
@@ -83,7 +89,13 @@ def home_factors(roof: str, care: list, devices: dict) -> list:
     return out
 
 
+FAN_GROUPS = ["anticholinergic", "older", "adult"]       # strictest first
+
+
 def fan_limits(group: str) -> dict:
+    if group == "anticholinergic":                       # Morris 2021: older adults on anticholinergic medicines
+        return {"not_enough_from": V.value("fan.limit.older")["fan_alone_not_enough_above"],
+                "avoid_from": V.value("fan.limit.anticholinergic")["fan_detrimental_above"], "key": "fan.limit.anticholinergic"}
     if group == "older":
         o = V.value("fan.limit.older")
         return {"not_enough_from": o["fan_alone_not_enough_above"], "avoid_from": o["fan_detrimental_above"], "key": "fan.limit.older"}
@@ -101,13 +113,19 @@ def fan_state(temp_c: float, group: str) -> str:
     return "fan_helps"
 
 
-def fan_advice(indoor_hours: list, vulnerable: list) -> dict:
+def strictest(groups: list) -> str:
+    return min(groups or ["adult"], key=FAN_GROUPS.index)
+
+
+def fan_advice(indoor_hours: list, vulnerable: list, group: str | None = None, precautionary: bool | None = None) -> dict:
     # infants / pregnant / chronic illness: no fan-specific verified limit -> precautionary use of the stricter older-adult limit
-    group = "older" if vulnerable else "adult"
+    group = group or ("older" if vulnerable else "adult")
     states = [{"time": h["time"], "state": fan_state(h["indoor"], group), "indoor": h["indoor"]} for h in indoor_hours]
     worst = max(states, key=lambda s: ["fan_helps", "fan_not_enough_alone", "avoid_fan_alone"].index(s["state"])) if states else None
     lim = fan_limits(group)
-    return {"group": group, "precautionary": bool(vulnerable and not any(v == "elderly" for v in vulnerable)),
+    if precautionary is None:
+        precautionary = bool(vulnerable and not any(v == "elderly" for v in vulnerable))
+    return {"group": group, "precautionary": precautionary,
             "now": states[0]["state"] if states else None, "worst_next24": worst,
             "hours_avoid": [s["time"][11:16] for s in states if s["state"] == "avoid_fan_alone"],
             "hours_not_enough": [s["time"][11:16] for s in states if s["state"] == "fan_not_enough_alone"],

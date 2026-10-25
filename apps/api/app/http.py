@@ -13,7 +13,7 @@ import time
 from collections import OrderedDict, deque
 from datetime import datetime, timezone
 
-from . import config
+from . import config, observe
 
 log = logging.getLogger("thandak.access")
 if not log.handlers:
@@ -94,6 +94,21 @@ class RateLimiter:
             retry = 0 if ok else max(1, int(self.window - (now - q[0])) + 1)
         return ok, retry
 
+    def blocked(self, key: str) -> bool:
+        """True when the key is at its limit, without counting a hit."""
+        now = time.monotonic()
+        with self._lock:
+            q = self._hits.get(key) or deque()
+            return sum(1 for t in q if now - t < self.window) >= self.limit
+
+
+BAD_TOKENS = RateLimiter(config.RATE_BAD_TOKEN_PER_MIN)
+
+
+def token_failed(request) -> None:
+    """Count an unknown or expired token against the caller's IP, so made-up tokens can't dodge the IP limit."""
+    BAD_TOKENS.check("ip:" + client_ip(request.scope))
+
 
 def _json(status: int, code: str, message: str, extra_headers=()) -> tuple[dict, dict]:
     body = json.dumps({"error": code, "message": message}).encode()
@@ -129,11 +144,17 @@ class Guard:
 
         try:
             if api:
-                ok, retry = self.limiter.check("ip:" + client_ip(scope))
+                hdr = {k.decode("latin-1").lower(): v.decode("latin-1") for k, v in scope.get("headers", [])}
+                ip = "ip:" + client_ip(scope)
+                # requests with a token are limited per token in the route (120/min), not per IP: many homes share one
+                # carrier IP behind CGNAT. Too many bad tokens from one IP puts it back under a limit.
+                if hdr.get("authorization", "").startswith("Bearer "):
+                    ok, retry = not BAD_TOKENS.blocked(ip), 60
+                else:
+                    ok, retry = self.limiter.check(ip)
                 if not ok:
                     return await reply(*_json(429, "rate_limited", "Too many requests", [(b"retry-after", str(retry).encode())]))
                 if method in ("POST", "PUT", "PATCH"):
-                    hdr = {k.decode("latin-1").lower(): v.decode("latin-1") for k, v in scope.get("headers", [])}
                     ctype = hdr.get("content-type", "").split(";")[0].strip().lower()
                     if ctype not in JSON_TYPES:
                         return await reply(*_json(415, "unsupported_media_type", "Send JSON"))
@@ -158,6 +179,7 @@ class Guard:
         finally:
             route = scope.get("route")
             template = getattr(route, "path", None) or ("unmatched" if api else "static")
+            observe.count(status["code"], (time.perf_counter() - t0) * 1000)
             log.info(json.dumps({"t": datetime.now(timezone.utc).isoformat(timespec="seconds"), "m": method, "route": template,
                                  "s": status["code"], "ms": round((time.perf_counter() - t0) * 1000, 1),
                                  "ip": ip_tag(client_ip(scope))}, separators=(",", ":")))

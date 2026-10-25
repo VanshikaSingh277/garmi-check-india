@@ -1,6 +1,7 @@
 {
  "about": "SHA-256 of each data file; verified at startup (BACKEND_SPEC \u00a78.9). Rebuild: python -m app.manifest build",
  "files": {
+  "actions.json": "f4285d0f028dc4e48e819778964b064038c10c625f2702d58ea45beff2fae70e",
   "district_normals.json": "8740b0bbbe3f077c79c66b310f79b8ae2e481d2e3df5b6db08fd42763ce9ab87",
   "district_normals_checks.json": "3287ed18c8e5a13467b36533061dd120e0d62436424923358d071d6179b7e207",
   "emergency_numbers.csv": "94672f0d27246e06a12838cef614d841cf7dfb9358c07c86ce76691cf0ab86a4",
@@ -14,11 +15,12 @@
   "india_districts.geojson": "6156cc2c70c54bced619272356ffa1b33946ee1f6ae72ef2d268d757d7e6bbcf",
   "india_pins.tsv.gz": "cfa3cdd3893487b41bc6701bdbfe9769a22a2c3457c981911973ae130a9d4c77",
   "india_places.tsv.gz": "9ac4dc0a6e11b6bf26add472100ee2630e3977885e98d3c381a6af6b6f2546e6",
-  "indoor_model_card.json": "39117d636f34291c9147046bd438d4ec1dfb2bc5b3d353ebbcef45eb876caeb3",
+  "indoor_model_card.json": "0a1ea3701036edb781fdc0e10d8965f4f2b778d9d0a60e488c04a27932d900c3",
   "indoor_xgb_model.json": "f5b3a63ebb05ae122dff7914886795b74c6ff3e6144a8d7982330ecd4afe0496",
+  "message_templates.json": "36cefa3b108ab9cf759c2d558ff096c2b033811b1b9ebf84e9922990896965aa",
   "model_a_card.json": "27590a9b95bbf0f5bdff07c7d4d0a972063913ab342b6a7f9c535c4a1663ef58",
   "sources.json": "66e01383ab3ff85393cf2ec0505bc477b7524c279b6787d9a2342faef520c150",
-  "verified_numbers.csv": "ab7729c592cd116e9f191a5b9e15441d7e4cc0a0181fc05c0f36eb077ec39b7c",
+  "verified_numbers.csv": "11aec90cb881e5b88a38c59d0f03bf8cce9e53563a90a8b501f95050f4466b55",
   "wards.geojson": "793d1ab305891f15d6790198d0fe7461b12de34615400d12e922d6edf689da10"
  }
 }
