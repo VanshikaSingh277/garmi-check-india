@@ -1,4 +1,4 @@
-/* #/gov - government / ward office: all-India district ranking (or Delhi wards), map, sortable table, CSV, schemes */
+/* #/gov - government / ward office: all-India district ranking (or Delhi wards), map, sortable table, CSV */
 import { t } from "../i18n/index.js";
 import { I } from "../icons.js";
 import { esc, fmt, pct, inr, title, classBadge, classKey, HEAT_VAR, $ } from "../util.js";
@@ -9,9 +9,6 @@ import { makeMap, mapTools, bindTools, mapFail, legend, popup, WARD_STOPS, DELHI
 import { districtCsv, wardCsv } from "../export.js";
 import { fixesBlock } from "./parts.js";
 
-var SCHEMES = [["scheme_1", "https://ndma.gov.in/sites/default/files/PDF/Guidelines/Heatwaveguidelines.pdf"],
-  ["scheme_2", "https://ncdc.mohfw.gov.in/uploads/pdf/4.%20Heat%20wave%20advisory%20for%20State%20Health%20department_2026.pdf"],
-  ["scheme_3", "https://www.downtoearth.org.in/climate-change/india-updates-disaster-list-to-include-heatwaves-and-lightning-after-finance-commission-push"]];
 var DATA = {};
 
 export function govView() {
@@ -36,8 +33,7 @@ export function govView() {
     '<div class="search">' + I("search") + '<input class="input" id="gf" type="search" placeholder="' + esc(t("filter_ph")) + '" aria-label="' + esc(t("filter_ph")) + '" value="' + esc(S.gfilter) + '"></div><button type="button" class="btn secondary" id="csv">' + I("download") + t("download_csv") + "</button></div>";
   render(kpis + tools + '<div class="mapbox" style="margin-bottom:20px"><div id="map" class="map"></div>' + (india ? mapTools("gt") : legend(WARD_STOPS, "", "layer_index", 2)) + "</div>" +
     '<div class="card" style="padding:0;overflow:hidden"><div style="padding:16px 20px 8px" class="row between"><h3>' + t("rank_label") + '</h3><span class="tiny muted">' + t("sort_hint") + '</span></div><div id="tbl"></div></div>' +
-    '<div class="layout" style="margin-top:20px"><div>' + card("list", t("todo"), fixesBlock(d.solutions)) + '</div><div class="stack">' +
-    card("book", t("schemes"), '<ul class="bullets">' + SCHEMES.map(function (s) { return '<li><a target="_blank" rel="noopener" href="' + s[1] + '">' + t(s[0]) + "</a></li>"; }).join("") + "</ul>") + "</div></div>", hero);
+    '<div style="margin-top:20px">' + card("list", t("todo"), fixesBlock(d.solutions)) + "</div>", hero);
   bindScope();
   var ctrl = null;
   function table() {

@@ -25,7 +25,7 @@ if not log.handlers:
 
 JSON_TYPES = ("application/json",)
 API_CSP = "default-src 'none'; frame-ancestors 'none'"
-COMMON = [(b"x-content-type-options", b"nosniff"), (b"referrer-policy", b"no-referrer"),
+COMMON = [(b"x-content-type-options", b"nosniff"),
           (b"permissions-policy", b"geolocation=(self), camera=(), microphone=(), payment=(), usb=()"),
           (b"x-frame-options", b"DENY")]
 if config.PROD:
@@ -135,6 +135,10 @@ class Guard:
                 status["code"] = message["status"]
                 headers = [(k, v) for k, v in message.get("headers", []) if k.lower() != b"server"]
                 headers += COMMON + [(b"content-security-policy", API_CSP.encode() if api else self.site_csp)]
+                # the site sends its origin (never the path or the #fragment that holds the place) because
+                # OpenStreetMap blocks tile requests without a Referer; API answers send nothing
+                headers.append((b"referrer-policy", b"no-referrer" if api else b"strict-origin-when-cross-origin"))
+                headers.append((b"cross-origin-opener-policy", b"same-origin"))
                 message = {**message, "headers": headers}
             await send(message)
 

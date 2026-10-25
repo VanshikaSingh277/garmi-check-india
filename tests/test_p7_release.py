@@ -92,3 +92,36 @@ def test_no_secret_shaped_strings_in_tracked_or_committable_files():
 def test_json_nested_too_deep_is_422_not_400_or_500():
     r = TestClient(main.app).post("/api/status/individual", content="[" * 5000 + "]" * 5000, headers={"content-type": "application/json"})
     assert r.status_code == 422 and r.json()["error"] == "invalid_input"
+
+
+def test_prod_refuses_missing_short_reused_or_malformed_secrets(monkeypatch):
+    import base64
+    k = lambda b: base64.b64encode(bytes([b]) * 32).decode()        # noqa: E731
+    good = {"TOKEN_PEPPER": "p" * 40, "PHONE_HMAC_KEY": "h" * 40, "LOG_HASH_SECRET": "l" * 40, "INTERNAL_JOB_SECRET": "j" * 40,
+            "PHONE_ENC_KEYS": "k1:" + k(1), "PERSON_ENC_KEYS": "p1:" + k(2), "BACKUP_ENC_KEY": k(3),
+            "WHATSAPP_WEBHOOK_SECRET": "", "SMS_WEBHOOK_SECRET": "", "ALLOWED_HOSTS": ["thandak.example"]}
+    for n, v in good.items():
+        monkeypatch.setattr(config, n, v)
+    assert secure.prod_problems() == []
+    monkeypatch.setattr(config, "INTERNAL_JOB_SECRET", "short")
+    monkeypatch.setattr(config, "LOG_HASH_SECRET", "p" * 40)                 # same as TOKEN_PEPPER
+    monkeypatch.setattr(config, "PERSON_ENC_KEYS", "p1:" + k(1))            # same key as PHONE_ENC_KEYS
+    monkeypatch.setattr(config, "BACKUP_ENC_KEY", "not base64!")
+    monkeypatch.setattr(config, "PHONE_HMAC_KEY", "")
+    monkeypatch.setattr(config, "ALLOWED_HOSTS", [])
+    bad = " | ".join(secure.prod_problems())
+    for want in ("PHONE_HMAC_KEY is not set", "INTERNAL_JOB_SECRET is shorter", "LOG_HASH_SECRET reuses", "PERSON_ENC_KEYS[0] reuses",
+                 "BACKUP_ENC_KEY is not base64", "ALLOWED_HOSTS is not set"):
+        assert want in bad, (want, bad)
+    assert "p" * 40 not in bad                                               # names only, never values
+
+
+def test_site_pages_get_opener_isolation_and_api_gets_no_referrer():
+    c = TestClient(main.app)
+    assert c.get("/api/health").headers["referrer-policy"] == "no-referrer"
+    assert c.get("/api/health").headers["cross-origin-opener-policy"] == "same-origin"
+
+
+def test_csv_cells_that_look_like_formulas_are_neutralised():
+    src = open(os.path.join(ROOT, "apps", "web", "src", "export.js"), encoding="utf-8").read()
+    assert r"/^[=+\-@\t\r]/" in src and 'typeof x === "string"' in src

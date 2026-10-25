@@ -8,7 +8,7 @@ import { api } from "./api.js";
 import { GEO, TILE_URL } from "./config.js";
 
 /* India-wide view draws only our district polygons (official LGD outline); OpenStreetMap tiles appear from BASE_MINZOOM. */
-var INDIA_FIT = [[68.1, 6.7], [97.4, 37.1]], BOUNDS = [[60, 2], [104, 40]], BASE_MINZOOM = 7;
+var INDIA_FIT = [[68.1, 6.7], [97.4, 37.1]], BOUNDS = [[20, -15], [145, 55]], BASE_MINZOOM = 7;
 export var DELHI = { center: [77.12, 28.62], zoom: 9.6 };
 /* colour stops = 10/30/50/70/90th percentile across Indian districts (data/india_district_stats.csv) */
 export var LAYERS = {

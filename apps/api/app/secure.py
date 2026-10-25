@@ -99,3 +99,43 @@ def ip_hash(ip: str) -> str:
 
 def sign(payload: str, secret: str) -> str:
     return hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
+
+
+REQUIRED_IN_PROD = ("TOKEN_PEPPER", "PHONE_HMAC_KEY", "PHONE_ENC_KEYS", "PERSON_ENC_KEYS", "LOG_HASH_SECRET",
+                    "INTERNAL_JOB_SECRET", "BACKUP_ENC_KEY")
+PLAIN_SECRETS = ("TOKEN_PEPPER", "PHONE_HMAC_KEY", "LOG_HASH_SECRET", "INTERNAL_JOB_SECRET", "WHATSAPP_WEBHOOK_SECRET",
+                 "SMS_WEBHOOK_SECRET")
+
+
+def prod_problems() -> list[str]:
+    """What stops a production start: missing, short, reused or malformed secrets, or no ALLOWED_HOSTS.
+    Names only, never values."""
+    out = [f"{n} is not set" for n in config.missing(*REQUIRED_IN_PROD)]
+    out += [f"{n} is shorter than 32 characters" for n in PLAIN_SECRETS if getattr(config, n) and len(getattr(config, n)) < 32]
+    for ring in ("PHONE_ENC_KEYS", "PERSON_ENC_KEYS"):
+        if getattr(config, ring):
+            try:
+                _keys(ring)
+            except (NotConfigured, ValueError) as e:
+                out.append(f"{ring} is malformed ({type(e).__name__})")
+    if config.BACKUP_ENC_KEY:
+        try:
+            if len(base64.b64decode(config.BACKUP_ENC_KEY, validate=True)) != 32:
+                out.append("BACKUP_ENC_KEY is not 32 bytes")
+        except ValueError:
+            out.append("BACKUP_ENC_KEY is not base64")
+    values: dict[str, str] = {}
+    for n in PLAIN_SECRETS + ("BACKUP_ENC_KEY",):
+        if getattr(config, n):
+            values[n] = getattr(config, n)
+    for ring in ("PHONE_ENC_KEYS", "PERSON_ENC_KEYS"):
+        for i, part in enumerate(p for p in getattr(config, ring).split(",") if p.strip()):
+            values[f"{ring}[{i}]"] = part.strip().partition(":")[2]
+    seen: dict[str, str] = {}
+    for n, v in values.items():
+        if v in seen:
+            out.append(f"{n} reuses the value of {seen[v]}")
+        seen.setdefault(v, n)
+    if not config.ALLOWED_HOSTS:
+        out.append("ALLOWED_HOSTS is not set")
+    return out

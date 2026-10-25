@@ -500,7 +500,7 @@
    "steps_hi": [
     "सबसे गर्म घंटों में (अपना प्लान देखें) उन्हें सबसे ठंडे कमरे में रखें — अक्सर सबसे नीचे की मंज़िल, धूप वाली दीवार से दूर",
     "बार-बार उनका हाल पूछें। बुज़ुर्गों को बार-बार पानी दें, भले वे ख़ुद न माँगें",
-    "{n:health.infant.exclusive_bf:months:0} महीने से छोटे बच्चे, जो सिर्फ़ माँ का दूध पीते हैं, उन्हें कोई और चीज़ पीने को नहीं चाहिए, पानी भी नहीं (WHO)। दूध पिलाते रहें और बार-बार पिलाएँ",
+    "{n:health.infant.exclusive_bf:months:0} महीने से छोटे बच्चे, जो सिर्फ़ माँ का दूध पीते हैं, उन्हें कोई और चीज़ पीने को नहीं चाहिए, पानी भी नहीं। दूध पिलाते रहें और बार-बार पिलाएँ",
     "अगर डॉक्टर ने किसी के लिए पानी की मात्रा तय की है (दिल या किडनी की बीमारी), तो गर्मी में कितना पीना है, यह उन्हीं से पूछें। बिना पूछे कोई दवा बंद न करें",
     "लू लगने के पहले लक्षण दिखते ही उन्हें ठंडा करें और मदद के लिए फ़ोन करें"
    ],
@@ -515,7 +515,7 @@
    "steps_en": [
     "In the hottest hours (see your plan), keep them in the coolest room, usually the lowest floor and away from sun-facing walls",
     "Check on them often. Give older people water often, even if they don't ask",
-    "Babies under {n:health.infant.exclusive_bf:months:0} months who only breastfeed need no other drinks, not even water (WHO). Keep breastfeeding and offer feeds often",
+    "Babies under {n:health.infant.exclusive_bf:months:0} months who only breastfeed need no other drinks, not even water. Keep breastfeeding and offer feeds often",
     "If a doctor limits someone's fluids (heart or kidney disease), ask that doctor how much to drink in the heat. Don't stop any medicine without asking",
     "At the first warning signs of heat illness, cool them down and call for help"
    ]
@@ -755,8 +755,8 @@
     "thandak_ncdc",
     "who_breastfeeding"
    ],
-   "avoid_if_en": "Babies under {n:health.infant.exclusive_bf:months:0} months who only breastfeed: no water, keep breastfeeding often (WHO). If a doctor limits your fluids, ask them how much to drink in the heat.",
-   "avoid_if_hi": "{n:health.infant.exclusive_bf:months:0} महीने से छोटे बच्चे, जो सिर्फ़ माँ का दूध पीते हैं: पानी नहीं, बार-बार दूध पिलाते रहें (WHO)। अगर डॉक्टर ने आपके लिए पानी की मात्रा तय की है, तो गर्मी में कितना पीना है, यह उन्हीं से पूछें।"
+   "avoid_if_en": "Babies under {n:health.infant.exclusive_bf:months:0} months who only breastfeed: no water, keep breastfeeding often. If a doctor limits your fluids, ask them how much to drink in the heat.",
+   "avoid_if_hi": "{n:health.infant.exclusive_bf:months:0} महीने से छोटे बच्चे, जो सिर्फ़ माँ का दूध पीते हैं: पानी नहीं, बार-बार दूध पिलाते रहें। अगर डॉक्टर ने आपके लिए पानी की मात्रा तय की है, तो गर्मी में कितना पीना है, यह उन्हीं से पूछें।"
   },
   {
    "id": "fam_wet_screen",

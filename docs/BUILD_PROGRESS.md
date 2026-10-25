@@ -5,6 +5,16 @@ Baseline tests: 77 passed, 0 failed (2026-10-24; `python tests/test_*.py` for ea
 User choices: test-case format = default ID | Title | Preconditions | Steps | Expected | Priority | Type (not answered yet); API collection tool = Bruno (`docs/api/bruno/`, chosen by default; Postman can import it); PRs = leave branches (not answered yet)
 
 Decisions:
+- 2026-10-25: Security audit:
+  - Git history and the built site have no secrets.
+  - Every route's guard and ownership check was reviewed.
+  - Frontend escaping gaps are closed: a missing translation key is escaped, and API values are escaped in class attributes and placeholders.
+  - CSV cells that look like formulas are neutralised.
+  - Production refuses to start with missing, short, reused or malformed secrets, or with no ALLOWED_HOSTS.
+  - COOP header added.
+  - The 7 npm advisories are in build-only tools (`@capacitor/cli`, `@capacitor/assets`) with no upstream fix; shipped code has 0.
+  - The ML packages (numpy, scikit-learn, xgboost, shapely) are not upgraded before submission: no known vulnerabilities, and a major upgrade needs the room model re-validated. scikit-learn stays (XGBRegressor needs it).
+- 2026-10-25: Website pages send `Referrer-Policy: strict-origin-when-cross-origin` instead of spec §8.5's `no-referrer`, because OpenStreetMap blocks tile requests without a Referer (the maps showed "Access blocked"). Only the origin is sent; the path and the #fragment holding the place never are. API answers keep `no-referrer`. The map bounds were widened so all of India fits when zoomed out.
 - 2026-10-25: Phase 7: requests with a token skip the per-IP limit (CGNAT, spec §8.7), with a 30/min per-IP limit on bad tokens. The load script is `scripts/peak_load.py` because pytest collects `*_test.py`. Docker isn't on this machine, so the container runs are left for staging.
 - 2026-10-25: Phase 6: room numbers stay hidden on the offset fallback even for a calibrated home (calibration is validated against the model only). IMD stays off until onboarding; the adapter reads a normalised format.
 - 2026-10-25: Phase 4: the frontend prerequisite (spec §6.3) isn't done, so saved homes are built and tested but behind HOUSEHOLDS_ENABLED (off). Push senders use `cryptography` + httpx only (no new packages); Web Push matches the RFC 8291 test vector.

@@ -1,6 +1,6 @@
 # Phase 4 test results
 
-Run 2026-10-25 15:44 against http://localhost:8000 with test secrets, a throwaway database and HOUSEHOLDS_ENABLED=true.
+Run 2026-10-25 16:39 against http://localhost:8000 with test secrets, a throwaway database and HOUSEHOLDS_ENABLED=true.
 
 | ID | Title | Result | Notes |
 |---|---|---|---|
@@ -17,6 +17,6 @@ Run 2026-10-25 15:44 against http://localhost:8000 with test secrets, a throwawa
 | P4-11 | Browser push only to real push services | PASS | evil 422, google 201 |
 | P4-12 | Web push key when not set up | PASS | 503 {"error":"not_configured","message":"Web push isn't set up on this server"} |
 | P4-13 | Tokens never in logs | PASS | tokens checked: 2 |
-| P4-14 | Push crypto and FCM | PASS | 11 passed, 1 warning in 5.31s |
+| P4-14 | Push crypto and FCM | PASS | 11 passed, 1 warning in 5.06s |
 
 **14 of 14 passed.**

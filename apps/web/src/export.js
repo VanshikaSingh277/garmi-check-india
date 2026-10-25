@@ -2,7 +2,7 @@
 import { saveCsv } from "./native.js";
 
 function csv(name, rows) {
-  saveCsv(name, "﻿" + rows.map(function (r) { return r.map(function (x) { return '"' + String(x == null ? "" : x).replace(/"/g, '""') + '"'; }).join(","); }).join("\n")).catch(function () {});
+  saveCsv(name, "﻿" + rows.map(function (r) { return r.map(function (x) { var v = String(x == null ? "" : x); if (typeof x === "string" && /^[=+\-@\t\r]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }).join(","); }).join("\n")).catch(function () {});
 }
 export function districtCsv(rows) {
   csv("india_district_heat_priorities.csv", [["rank", "district", "state", "index", "class", "summer_tmax_c", "summer_tmin_c", "wetbulb_max_c", "days_ge40", "share_65plus", "share_under5", "population_2025"]]

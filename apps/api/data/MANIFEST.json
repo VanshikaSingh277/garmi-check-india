@@ -1,11 +1,11 @@
 {
  "about": "SHA-256 of each data file; verified at startup (BACKEND_SPEC \u00a78.9). Rebuild: python -m app.manifest build",
  "files": {
-  "actions.json": "f4285d0f028dc4e48e819778964b064038c10c625f2702d58ea45beff2fae70e",
+  "actions.json": "f1b640748305e2cdde87c1a0a29e04442baa401d9400d7c6c35ca85f90ac6cfc",
   "district_normals.json": "8740b0bbbe3f077c79c66b310f79b8ae2e481d2e3df5b6db08fd42763ce9ab87",
   "district_normals_checks.json": "3287ed18c8e5a13467b36533061dd120e0d62436424923358d071d6179b7e207",
   "emergency_numbers.csv": "94672f0d27246e06a12838cef614d841cf7dfb9358c07c86ce76691cf0ab86a4",
-  "fixes.json": "ff7fd21bd7070f39da0e08b79dbc78099061bbdecbcefda855e741cdad7c09d9",
+  "fixes.json": "ade5693c3bdda57e6947e086ea26319a205cd34f7eab5f69b7598453aeb62dbf",
   "gov_rank.json": "bbb7d318125e1c0d2bf0ff22895a0632958ba34053dcb40f68c9f05e9c1b3755",
   "hvi_checks.json": "99890ae9fe73984bf701f88530779884c935b315c6c44516259dae75c5a5b1d9",
   "india_admin.json": "4f3fb7f3fb21ae230f3b8b44223963023aa50e785d0e4a9a6fda4328d020c868",

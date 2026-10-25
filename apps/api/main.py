@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from app import api_v1, calibrate, config, db, gov, households, http, imd, learn, levels, manifest, notify, observe, workers
+from app import api_v1, calibrate, config, db, gov, households, http, imd, learn, levels, manifest, notify, observe, secure, workers
 from app.schemas import Person
 from engine import areas, districts, indoor, normals, people, places, plan, rules, solutions, today, weather
 from engine import verified as V
@@ -56,6 +56,8 @@ class ApiError(Exception):
 @asynccontextmanager
 async def lifespan(_app):
     manifest.verify(config.PROD)    # prod refuses to start when a data file doesn't match data/MANIFEST.json
+    if config.PROD and (bad := secure.prod_problems()):
+        raise RuntimeError("refusing to start: " + "; ".join(bad))
     observe.init_sentry()
     db.migrate()                    # alembic upgrade head (safe to repeat)
     places.warm()                   # ~2 s: load the offline gazetteer once, not on the first user's request
