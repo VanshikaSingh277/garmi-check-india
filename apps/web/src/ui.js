@@ -68,7 +68,7 @@ export function fx() {
   app.querySelectorAll(".mascot-btn").forEach(function (b) { b.onclick = function () { tipFrom(b); }; });
   if (!MOTION) return;
   app.querySelectorAll("[data-count]").forEach(countUp);
-  if (revealer) app.querySelectorAll(".lsec .head, .logos, .acard, .panel, .timeline li, .quote, .trust3 .card, .entry").forEach(function (el) {
+  if (revealer) app.querySelectorAll(".lsec .head, .acard, .panel, .timeline li, .trust3 .card, .entry").forEach(function (el) {
     el.classList.add("rv"); if (el.matches(".timeline li, .acard, .trust3 .card, .entry")) el.style.transitionDelay = (Array.prototype.indexOf.call(el.parentNode.children, el) * 70) + "ms";
     revealer.observe(el);
   });

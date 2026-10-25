@@ -1,0 +1,114 @@
+{
+ "about": "WhatsApp and SMS texts (spec §6.5, §7.6). DRAFT until the team approves them (docs/launch/templates/). No health details and no typed numbers: every value is a variable. A real provider refuses a template whose status isn't 'approved'.",
+ "consent_version": "draft-1",
+ "templates": {
+  "evening_alert": {
+   "status": "DRAFT",
+   "kind": "business",
+   "en": "Thandak: {day}, {level} heat in {district}. {action} Reply HELP for tips, STOP to stop alerts.",
+   "hi": "ठंडक: {day} {district} में {level} गर्मी रहेगी। {action} सलाह के लिए HELP, अलर्ट बंद करने के लिए STOP लिखें।"
+  },
+  "morning_work_alert": {
+   "status": "DRAFT",
+   "kind": "business",
+   "en": "Thandak: Today, {level} heat in {district} from {from} to {to}. {action} Reply STOP to stop alerts.",
+   "hi": "ठंडक: आज {district} में {from} से {to} बजे तक {level} गर्मी रहेगी। {action} अलर्ट बंद करने के लिए STOP लिखें।"
+  },
+  "retention_keep": {
+   "status": "DRAFT",
+   "kind": "business",
+   "en": "Thandak: you haven't used Thandak for a while. Reply YES to keep getting heat alerts for {district}. If we don't hear from you, your details will be deleted.",
+   "hi": "ठंडक: आपने काफ़ी समय से ठंडक इस्तेमाल नहीं किया है। {district} के लिए गर्मी के अलर्ट पाते रहने के लिए YES लिखें। जवाब न आने पर आपकी जानकारी मिटा दी जाएगी।"
+  },
+  "otp": {
+   "status": "DRAFT",
+   "kind": "business",
+   "en": "{code} is your Thandak code. It expires in {minutes} minutes. Don't share it with anyone.",
+   "hi": "{code} आपका ठंडक कोड है। यह {minutes} मिनट में ख़त्म हो जाएगा। इसे किसी को न बताएँ।"
+  },
+  "test_alert": {
+   "status": "DRAFT",
+   "kind": "business",
+   "en": "Thandak: this is a test alert. Your heat alerts are working.",
+   "hi": "ठंडक: यह एक टेस्ट अलर्ट है। आपके गर्मी के अलर्ट काम कर रहे हैं।"
+  },
+  "ask_pin": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Namaste! Thandak sends one heat alert the evening before a hot day. Send your 6-digit PIN code to start.",
+   "hi": "नमस्ते! ठंडक गर्म दिन से एक शाम पहले गर्मी का अलर्ट भेजता है। शुरू करने के लिए अपना 6 अंकों का PIN कोड भेजें।"
+  },
+  "bad_pin": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "We couldn't find that PIN code in India. Please send your 6-digit PIN code.",
+   "hi": "यह PIN कोड भारत में नहीं मिला। कृपया अपना 6 अंकों का PIN कोड भेजें।"
+  },
+  "consent": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Thandak keeps only your area ({district}), language, alert choice and your number (locked). Never your exact location or anyone's health. Reply STOP any time to stop and delete your details. Reply YES to agree.",
+   "hi": "ठंडक सिर्फ़ आपका इलाक़ा ({district}), भाषा, अलर्ट की पसंद और आपका नंबर (ताले में) रखता है। आपकी सही जगह या किसी की सेहत की जानकारी कभी नहीं। कभी भी STOP लिखकर अलर्ट बंद करें और जानकारी मिटाएँ। मंज़ूर हो तो YES लिखें।"
+  },
+  "ask_lang": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Which language? Reply 1 for English, 2 for हिंदी.",
+   "hi": "कौन-सी भाषा? English के लिए 1, हिंदी के लिए 2 लिखें।"
+  },
+  "ask_level": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "When should we alert you? Reply 1 for High and Extreme heat, 2 for Extreme heat only.",
+   "hi": "आपको कब अलर्ट भेजें? ज़्यादा और बहुत ज़्यादा गर्मी के लिए 1, सिर्फ़ बहुत ज़्यादा गर्मी के लिए 2 लिखें।"
+  },
+  "signed_up": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Done. You'll get a heat alert for {district} the evening before a hot day. Reply HELP for commands.",
+   "hi": "हो गया। {district} में गर्म दिन से एक शाम पहले आपको गर्मी का अलर्ट मिलेगा। कमांड जानने के लिए HELP लिखें।"
+  },
+  "help": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Thandak sends one heat alert the evening before a hot day in your area.\nALERT: today's heat level now\nPIN: change your area\nSTOP: stop alerts and delete your details\nIn an emergency, call {emergency}.",
+   "hi": "ठंडक आपके इलाक़े में गर्म दिन से एक शाम पहले गर्मी का अलर्ट भेजता है।\nALERT: अभी आज की गर्मी का स्तर\nPIN: अपना इलाक़ा बदलें\nSTOP: अलर्ट बंद करें और अपनी जानकारी मिटाएँ\nइमरजेंसी में {emergency} पर कॉल करें।"
+  },
+  "alert_now": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Thandak: today, {level} heat in {district}.",
+   "hi": "ठंडक: आज {district} में {level} गर्मी है।"
+  },
+  "stop_deleted": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Done. Thandak alerts are off and your saved details have been deleted. To start again, send HI.",
+   "hi": "हो गया। ठंडक के अलर्ट बंद हो गए हैं और आपकी जानकारी मिटा दी गई है। फिर से शुरू करने के लिए HI भेजें।"
+  },
+  "stop_kept": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Done. Thandak WhatsApp alerts are off. Your other alert settings stay as they are. To start again, send HI.",
+   "hi": "हो गया। ठंडक के WhatsApp अलर्ट बंद हो गए हैं। बाक़ी अलर्ट पहले जैसे रहेंगे। फिर से शुरू करने के लिए HI भेजें।"
+  },
+  "kept": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Thanks. Your heat alerts for {district} stay on.",
+   "hi": "धन्यवाद। {district} के लिए आपके गर्मी के अलर्ट चालू रहेंगे।"
+  },
+  "pin_changed": {
+   "status": "DRAFT",
+   "kind": "session",
+   "en": "Done. Your area is now {district}.",
+   "hi": "हो गया। अब आपका इलाक़ा {district} है।"
+  },
+  "worker_brief_head": {
+   "status": "DRAFT",
+   "kind": "business",
+   "en": "Thandak brief: {day}, {count} homes to check.",
+   "hi": "ठंडक: {day} {count} घरों का हाल लेना है।"
+  }
+ }
+}

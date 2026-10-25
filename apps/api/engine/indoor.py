@@ -47,6 +47,27 @@ def predict(hourly: list, start_index: int, roof: str, fan: bool, cooler: bool, 
     return out
 
 
+OFFSET_KEY = {"tin_top": "roof.offset.tin_top", "stone_slab_top": "roof.offset.stone_slab_top",
+              "rcc_brick_top": "roof.offset.rcc_top", "lower_floor": "roof.offset.lower_floor"}
+
+
+def offset_estimate(next24: list, roof: str) -> list:
+    """Fallback when the forecast is outside the model's training range (spec §7.4): outdoor air plus the measured
+    indoor-minus-outdoor offset for this roof (Delhi 2016 homes, verified_numbers roof.offset.*). Afternoon (14-17 h) and
+    night (02-06 h) use their own measured interquartile range; other hours span both ranges, so they are wider."""
+    from . import verified as V
+    o = V.value(OFFSET_KEY[roof])
+    day, night = o["afternoon_iqr"], o["night_iqr"]
+    both = [min(day[0], night[0]), max(day[1], night[1])]
+    out = []
+    for r in next24:
+        h = int(r["time"][11:13])
+        lo, hi = day if 14 <= h <= 17 else night if 2 <= h <= 6 else both
+        out.append({"time": r["time"], "indoor": round(r["t"] + (lo + hi) / 2, 1), "low": round(r["t"] + lo, 1),
+                    "high": round(r["t"] + hi, 1), "outdoor": r["t"], "rh": r["rh"]})
+    return out
+
+
 def applicability(next24: list, in_delhi: bool) -> dict:
     """Is the forecast inside the conditions the model learned from? (training-range check from the model card)"""
     _, card = _model()

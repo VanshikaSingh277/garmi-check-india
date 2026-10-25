@@ -1,0 +1,16 @@
+meta {
+  name: Where (outside India answers in_india=false)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/where?lat=10.0&lon=70.0
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.in_india: eq false
+}

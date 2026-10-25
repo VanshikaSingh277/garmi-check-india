@@ -1,0 +1,16 @@
+meta {
+  name: Outdoor outside India is 422
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/outdoor?lat=10.0&lon=70.0
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 422
+  res.body.error: eq outside_india
+}

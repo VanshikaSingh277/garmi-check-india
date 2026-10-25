@@ -34,9 +34,9 @@ function showArea(lat, lon) {
     box.innerHTML = '<div class="card">' + placeBlock(wh, null, null) + "</div>" + districtCard(dh) + wardCard(wh.ward) +
       card("rupee", t("calc_title"), '<div class="stack"><label class="field"><span>' + t("roof_area") + ' <b id="rav" class="num"></b></span><input type="range" id="ra" min="20" max="5000" step="10" value="500"></label>' +
         '<label class="field"><span>' + t("households") + ' <b id="hhv" class="num"></b></span><input type="range" id="hh" min="1" max="500" step="1" value="20"></label>' +
-        '<div class="kpis"><div class="kpi"><div class="l">' + t("total_cost") + '</div><div class="v" id="ct"></div></div><div class="kpi"><div class="l">' + t("per_hh") + '</div><div class="v" id="cp"></div></div><div class="kpi"><div class="l">' + t("cooler_by") + '</div><div class="v">' + e.india_low + "–" + e.india_high + "<small>°C</small></div></div></div>" +
+        '<div class="kpis"><div class="kpi"><div class="l">' + t("total_cost") + '</div><div class="v" id="ct"></div></div><div class="kpi"><div class="l">' + t("per_hh") + '</div><div class="v" id="cp"></div></div><div class="kpi"><div class="l">' + t("cooler_by") + '</div><div class="v">' + esc(e.india_low) + "–" + esc(e.india_high) + "<small>°C</small></div></div></div>" +
         "</div>") +
-      card("list", t("fixes_title"), fixesBlock(d.solutions, ["free", "cooling", "health", "avoid"]));
+      card("list", t("fixes_title"), fixesBlock(d.solutions));
     function calc() { var ra = +$("ra").value, hh = +$("hh").value, cst = ra * d.coolroof_cost_inr_per_m2; $("rav").textContent = inr(ra) + " m²"; $("hhv").textContent = hh; $("ct").textContent = "₹" + inr(cst); $("cp").textContent = "₹" + inr(cst / hh); }
     $("ra").oninput = calc; $("hh").oninput = calc; calc();
   }).catch(function (err) {

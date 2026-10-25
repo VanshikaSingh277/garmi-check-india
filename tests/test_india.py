@@ -37,8 +37,8 @@ def test_pin_and_name_search():
 def test_delhi_p97_rule_only_applies_in_delhi():
     # two days with daily mean ~36 C (> Delhi HAP p97 35.3) but heat index below the orange band
     hot = rows(36, 25)
-    in_delhi = rules.risk(hot, hot, hot, "rcc_brick_top", [], {"ac": True}, indoor_peak=30.0, in_delhi=True)
-    elsewhere = rules.risk(hot, hot, hot, "rcc_brick_top", [], {"ac": True}, indoor_peak=30.0, in_delhi=False)
+    in_delhi = rules.risk(hot, hot, hot, in_delhi=True)
+    elsewhere = rules.risk(hot, hot, hot, in_delhi=False)
     assert any(r["code"] == "heatwave_p97" for r in in_delhi["reasons"]), in_delhi
     assert not any(r["code"] == "heatwave_p97" for r in elsewhere["reasons"]), elsewhere
 
@@ -64,12 +64,14 @@ def test_window_plan_uses_the_model_range_only():
 
 def test_fixes_explain_why_and_what_was_hidden():
     from engine import solutions
-    r = solutions.pick("individual", "tin_top", False, "en")
-    assert {x["id"]: x["reason"] for x in r["skipped"]}["cool_roof_coating"] == "no_roof_access"
-    r = solutions.pick("individual", "rcc_brick_top", True, "en")
-    assert [x["id"] for x in r["cooling"]] == ["lime_whitewash", "cool_roof_coating"]  # cheapest first
-    assert "roof:rcc_brick_top" in r["cooling"][0]["why"] and "roof_access" in r["cooling"][0]["why"]
-    assert {x["id"]: x["reason"] for x in r["skipped"]}["modroof"] == "roof_mismatch"
+    tin = {"roof_type": "tin", "top_floor": True, "roof_access": False}
+    r = solutions.recommend("family", {}, tin, {"heat_level": "high"})
+    assert {x["id"]: x["reason"]["code"] for x in r["excluded"]}["cool_roof_coating"] == "no_roof_access"
+    r = solutions.recommend("family", {}, {**tin, "roof_type": "concrete", "roof_access": True}, {"heat_level": "high"})
+    assert [x["id"] for x in r["fixes"]["quick"]][0] == "lime_whitewash"      # measured fix first
+    lime = r["fixes"]["quick"][0]
+    assert {"household.top_floor", "household.roof_access"} <= {b["code"] for b in lime["because"]}
+    assert {x["id"]: x["reason"]["code"] for x in r["excluded"]}["modroof"] == "roof_mismatch"
 
 
 if __name__ == "__main__":

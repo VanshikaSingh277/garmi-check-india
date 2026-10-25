@@ -1,0 +1,23 @@
+meta {
+  name: Impossible reading is rejected
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/api/v1/households/me/readings
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{householdToken}}
+}
+
+body:json {
+  {"room": "bedroom", "indoor_c": 56}
+}
+
+assert {
+  res.status: eq 422
+}

@@ -1,6 +1,7 @@
 /* t(key, {x}) looks up the current language and falls back to English, then to the key itself.
    English ships in the main bundle; Hindi is a separate chunk loaded only when someone picks it. */
 import en from "./en.js";
+import { esc } from "../util.js";
 
 var DICT = { en: en }, lang = "en";
 export function getLang() { return lang; }
@@ -12,7 +13,7 @@ export function setLang(l) {
 export function t(k, v) {
   var s = DICT[lang] && DICT[lang][k];
   if (s == null) s = en[k];
-  if (s == null) s = k;
+  if (s == null) s = esc(k);
   if (v) Object.keys(v).forEach(function (x) { s = s.split("{" + x + "}").join(v[x]); });
   return s;
 }

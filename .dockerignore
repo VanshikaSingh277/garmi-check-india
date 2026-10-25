@@ -6,3 +6,11 @@ apps/web/dist
 apps/web/android
 apps/web/ios
 apps/web/dist-app
+# secrets and local state never enter the image (spec §8.10; a file deleted in a later layer would still be in the image)
+**/.env
+apps/api/.env*
+apps/api/.cache
+**/*.db
+**/*.db-wal
+**/*.db-shm
+**/backups

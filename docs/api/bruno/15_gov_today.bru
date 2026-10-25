@@ -1,0 +1,15 @@
+meta {
+  name: Government numbers today (among Thandak users)
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/api/v1/gov/today
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+}

@@ -1,0 +1,110 @@
+{
+ "n_districts": 734,
+ "interpolation": {
+  "bilinear": 730,
+  "nearest": 4
+ },
+ "valid_cells": 345,
+ "may_checks": [
+  {
+   "place": "New Delhi (Safdarjung)",
+   "elev_m": 215,
+   "may_normal_c": 40.3,
+   "imd_station_approx_c": 39.5,
+   "diff_c": 0.8
+  },
+  {
+   "place": "Jaipur",
+   "elev_m": 384,
+   "may_normal_c": 41.0,
+   "imd_station_approx_c": 40.5,
+   "diff_c": 0.5
+  },
+  {
+   "place": "Chennai",
+   "elev_m": 14,
+   "may_normal_c": 39.0,
+   "imd_station_approx_c": 37.5,
+   "diff_c": 1.5
+  },
+  {
+   "place": "Nagpur",
+   "elev_m": 309,
+   "may_normal_c": 41.9,
+   "imd_station_approx_c": 42.6,
+   "diff_c": -0.7
+  },
+  {
+   "place": "Shimla",
+   "elev_m": 1940,
+   "may_normal_c": 22.7,
+   "imd_station_approx_c": 24.5,
+   "diff_c": -1.8
+  },
+  {
+   "place": "Ahmedabad",
+   "elev_m": 56,
+   "may_normal_c": 39.7,
+   "imd_station_approx_c": 41.5,
+   "diff_c": -1.8
+  }
+ ],
+ "note": "IMD station values are approximate reference figures for a sanity check, not inputs.",
+ "hill_anchor": {
+  "min_elev_m": 600,
+  "n_districts": 137,
+  "years": "2016-2020 (May)",
+  "offset_c_min_median_max": [
+   -30.1,
+   -3.3,
+   2.8
+  ],
+  "largest": [
+   {
+    "district": "Lahul & Spiti",
+    "state": "Himachal Pradesh",
+    "elev_m": 4648,
+    "offset_c": -30.1
+   },
+   {
+    "district": "Kinnaur",
+    "state": "Himachal Pradesh",
+    "elev_m": 3093,
+    "offset_c": -25.9
+   },
+   {
+    "district": "Kargil",
+    "state": "Ladakh",
+    "elev_m": 4113,
+    "offset_c": -25.0
+   },
+   {
+    "district": "Leh(Ladakh)",
+    "state": "Ladakh",
+    "elev_m": 3566,
+    "offset_c": -24.7
+   },
+   {
+    "district": "North District",
+    "state": "Sikkim",
+    "elev_m": 1515,
+    "offset_c": -20.1
+   }
+  ]
+ },
+ "town_checks_era5_point": {
+  "note": "ERA5 May 2016-2020 mean at the town point (as used from 600 m up) vs approximate IMD station May normal",
+  "diff_c": {
+   "Shimla": -0.6,
+   "Darjeeling": 0.1,
+   "Ooty": -0.1,
+   "Gangtok": 0.4,
+   "Bengaluru": -0.8,
+   "Shillong": -1.6,
+   "Mussoorie": -2.0,
+   "Srinagar": -2.3,
+   "Dehradun": -2.7,
+   "Leh": -5.0
+  }
+ }
+}

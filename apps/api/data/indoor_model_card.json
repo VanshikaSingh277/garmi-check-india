@@ -1,81 +1,134 @@
 {
-  "best_params": {
-    "max_depth": 6,
-    "learning_rate": 0.06,
-    "n_estimators": 600,
-    "min_child_weight": 20
-  },
-  "cv_mae_all": 1.521,
-  "cv_rmse_all": 1.986,
-  "cv_mae_afternoon": 1.668,
-  "cv_mae_night": 1.625,
-  "residual_p10": -2.68,
-  "residual_p90": 2.21,
-  "interval_note": "show predicted indoor temp with range [pred - p90, pred - p10] (80% empirical interval)",
-  "n_homes": 56,
-  "n_rows": 94955,
-  "features": [
-    "t",
-    "rh",
-    "sw",
-    "ws",
-    "t_lag1",
-    "t_lag2",
-    "t_lag3",
-    "t_lag6",
-    "t_lag12",
-    "t_lag24",
-    "t_mean24",
-    "t_max24",
-    "sw_sum6",
-    "hs",
-    "hc",
-    "cooler",
-    "fan",
-    "roof_tin_top",
-    "roof_stone_slab_top",
-    "roof_rcc_brick_top",
-    "roof_lower_floor"
+ "best_params": {
+  "max_depth": 6,
+  "learning_rate": 0.06,
+  "n_estimators": 600,
+  "min_child_weight": 20
+ },
+ "cv_mae_all": 1.521,
+ "cv_rmse_all": 1.986,
+ "cv_mae_afternoon": 1.668,
+ "cv_mae_night": 1.625,
+ "residual_p10": -2.68,
+ "residual_p90": 2.21,
+ "interval_note": "show predicted indoor temp with range [pred - p90, pred - p10] (80% empirical interval)",
+ "n_homes": 56,
+ "n_rows": 94955,
+ "features": [
+  "t",
+  "rh",
+  "sw",
+  "ws",
+  "t_lag1",
+  "t_lag2",
+  "t_lag3",
+  "t_lag6",
+  "t_lag12",
+  "t_lag24",
+  "t_mean24",
+  "t_max24",
+  "sw_sum6",
+  "hs",
+  "hc",
+  "cooler",
+  "fan",
+  "roof_tin_top",
+  "roof_stone_slab_top",
+  "roof_rcc_brick_top",
+  "roof_lower_floor"
+ ],
+ "training_data": "S1 Tasgaonkar 2022 (CC0) Delhi 12 Apr-30 Jun 2016; outdoor = ERA5-Land t/rh + ERA5 sw/ws (Open-Meteo)",
+ "validation": "GroupKFold(5) by home",
+ "shap_mean_abs_top": {
+  "cooler": 0.9419999718666077,
+  "t_lag2": 0.5849999785423279,
+  "roof_tin_top": 0.48500001430511475,
+  "roof_lower_floor": 0.3569999933242798,
+  "t_mean24": 0.3529999852180481,
+  "t_lag3": 0.328000009059906,
+  "t_max24": 0.24199999868869781,
+  "t_lag24": 0.19300000369548798,
+  "t": 0.1889999955892563,
+  "fan": 0.17499999701976776,
+  "t_lag1": 0.16500000655651093,
+  "roof_stone_slab_top": 0.15800000727176666
+ },
+ "shap_roof_contribution_degC": {
+  "tin_top@15h": 2.67,
+  "tin_top@03h": 0.54,
+  "stone_slab_top@15h": 0.47,
+  "stone_slab_top@03h": 0.61,
+  "rcc_brick_top@15h": -0.57,
+  "rcc_brick_top@03h": 0.08,
+  "lower_floor@15h": -2.02,
+  "lower_floor@03h": -1.16
+ },
+ "applicability": {
+  "t_c": [
+   22.2,
+   42.1
   ],
-  "training_data": "S1 Tasgaonkar 2022 (CC0) Delhi 12 Apr-30 Jun 2016; outdoor = ERA5-Land t/rh + ERA5 sw/ws (Open-Meteo)",
-  "validation": "GroupKFold(5) by home",
-  "shap_mean_abs_top": {
-    "cooler": 0.9419999718666077,
-    "t_lag2": 0.5849999785423279,
-    "roof_tin_top": 0.48500001430511475,
-    "roof_lower_floor": 0.3569999933242798,
-    "t_mean24": 0.3529999852180481,
-    "t_lag3": 0.328000009059906,
-    "t_max24": 0.24199999868869781,
-    "t_lag24": 0.19300000369548798,
-    "t": 0.1889999955892563,
-    "fan": 0.17499999701976776,
-    "t_lag1": 0.16500000655651093,
-    "roof_stone_slab_top": 0.15800000727176666
-  },
-  "shap_roof_contribution_degC": {
-    "tin_top@15h": 2.67,
-    "tin_top@03h": 0.54,
-    "stone_slab_top@15h": 0.47,
-    "stone_slab_top@03h": 0.61,
-    "rcc_brick_top@15h": -0.57,
-    "rcc_brick_top@03h": 0.08,
-    "lower_floor@15h": -2.02,
-    "lower_floor@03h": -1.16
-  },
-  "applicability": {
-    "t_c": [
-      22.2,
-      42.1
-    ],
-    "rh_pct": [
-      9,
-      89
-    ],
-    "min_share_in_range": 0.8,
-    "basis": "1st-99th percentile of the hourly outdoor inputs the model was trained on (ERA5-Land, Delhi 28.6N 77.2E, 12 Apr-30 Jun 2016)",
-    "outside_delhi": "Not validated outside Delhi (no measured indoor data elsewhere); shown as a rough guide only."
-  },
-  "baseline_rule_mae": 2.105,
-  "baseline_rule_note": "Rule baseline (outdoor + roof x hour median offset), forecast-type inputs, same leave-home-out CV - ml/indoor/indoor_model_comparison.csv"
+  "rh_pct": [
+   9,
+   89
+  ],
+  "min_share_in_range": 0.8,
+  "basis": "1st-99th percentile of the hourly outdoor inputs the model was trained on (ERA5-Land, Delhi 28.6N 77.2E, 12 Apr-30 Jun 2016)",
+  "outside_delhi": "Not validated outside Delhi (no measured indoor data elsewhere); shown as a rough guide only."
+ },
+ "baseline_rule_mae": 2.105,
+ "baseline_rule_note": "Rule baseline (outdoor + roof x hour median offset), forecast-type inputs, same leave-home-out CV - ml/indoor/indoor_model_comparison.csv",
+ "calibration": {
+  "method": "per-home day and night bias, shrunk with k, residuals clipped at +/-3 MAD, applied from n >= 2, no kitchen readings (BACKEND_SPEC \u00a77.4)",
+  "k_day": 0.713,
+  "k_night": 0.636,
+  "oof_mae_c": 1.519,
+  "replay": [
+   {
+    "days_of_readings": 2,
+    "homes": 44,
+    "mae_model_c": 1.52,
+    "mae_calibrated_c": 1.313,
+    "change_c": -0.207
+   },
+   {
+    "days_of_readings": 3,
+    "homes": 44,
+    "mae_model_c": 1.52,
+    "mae_calibrated_c": 1.302,
+    "change_c": -0.218
+   },
+   {
+    "days_of_readings": 5,
+    "homes": 44,
+    "mae_model_c": 1.516,
+    "mae_calibrated_c": 1.335,
+    "change_c": -0.181
+   },
+   {
+    "days_of_readings": 7,
+    "homes": 44,
+    "mae_model_c": 1.514,
+    "mae_calibrated_c": 1.347,
+    "change_c": -0.167
+   },
+   {
+    "days_of_readings": 10,
+    "homes": 44,
+    "mae_model_c": 1.51,
+    "mae_calibrated_c": 1.274,
+    "change_c": -0.236
+   },
+   {
+    "days_of_readings": 14,
+    "homes": 43,
+    "mae_model_c": 1.505,
+    "mae_calibrated_c": 1.226,
+    "change_c": -0.28
+   }
+  ],
+  "readings_simulated": "one at 15:00 and one at 03:00 per day for the first N days; error on every hour of later days",
+  "decision": "ship (MAE improves at every N)",
+  "validated_on": "S1 Tasgaonkar 2022 (CC0) Delhi 2016, GroupKFold(5) by home, outdoor = ERA5 (Open-Meteo archive)"
+ }
 }

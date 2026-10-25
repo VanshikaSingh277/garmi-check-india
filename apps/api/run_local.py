@@ -10,4 +10,6 @@ sys.path.insert(0, HERE)
 os.chdir(HERE)
 import uvicorn  # noqa: E402
 
-uvicorn.run("main:app", host="127.0.0.1", port=int(sys.argv[2]) if len(sys.argv) > 2 else 8765, loop="asyncio", http="h11")
+# no uvicorn access log (it records query strings, i.e. coordinates) and no Server header: spec §8.5-8.6
+uvicorn.run("main:app", host="127.0.0.1", port=int(sys.argv[2]) if len(sys.argv) > 2 else 8765, loop="asyncio", http="h11",
+            access_log=False, server_header=False)

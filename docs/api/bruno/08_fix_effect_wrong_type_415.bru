@@ -1,0 +1,19 @@
+meta {
+  name: Fix effect with a non-JSON body is 415
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/fix_effect
+  body: text
+  auth: none
+}
+
+body:text {
+  before=1
+}
+
+assert {
+  res.status: eq 415
+}

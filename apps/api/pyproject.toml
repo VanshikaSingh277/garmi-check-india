@@ -1,0 +1,27 @@
+# Lint, type and security settings for the API (spec §10.4 checks). Run from apps/api.
+[tool.ruff]
+line-length = 200
+target-version = "py311"
+extend-exclude = ["data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B"]
+ignore = ["E702"]   # the gazetteer loader keeps short paired statements on one line
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI declares dependencies and parameters as argument defaults on purpose
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Header", "fastapi.Path", "fastapi.Body"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+check_untyped_defs = true
+
+# gazetteer, fix catalogue and district modules predate the backend spec; typing them is outside the build
+[[tool.mypy.overrides]]
+module = ["engine.places", "engine.solutions", "engine.districts"]
+ignore_errors = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]

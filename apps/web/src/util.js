@@ -6,7 +6,7 @@ var INR = typeof Intl !== "undefined" ? new Intl.NumberFormat("en-IN", { maximum
 export function inr(x) { return INR ? INR.format(x) : String(Math.round(x)); }
 export function title(s) { return String(s || "").toLowerCase().replace(/\b\w/g, function (c) { return c.toUpperCase(); }); }
 export function accTxt(a) { return a == null ? "" : a < 1000 ? "±" + Math.round(a) + " m" : "±" + (a / 1000).toFixed(a < 10000 ? 1 : 0) + " km"; }
-export function hm(iso) { return String(iso || "").slice(11, 16); }
+export function hm(iso) { return esc(String(iso || "").slice(11, 16)); }
 export function $(id) { return document.getElementById(id); }
 export function classKey(c) { return "cls_" + String(c || "").toLowerCase().replace(/\s+/g, "_"); }
 export function classBadge(c) { return { "Very high": "vhigh", "High": "high", "Medium": "moderate", "Low": "low", "Very low": "low" }[c] || ""; }
@@ -22,5 +22,5 @@ export function cssVar(n) {
   var p = ctx2d.getImageData(0, 0, 1, 1).data;
   return "rgba(" + p[0] + "," + p[1] + "," + p[2] + "," + (p[3] / 255).toFixed(3) + ")";
 }
-export function ranges(rs) { return (rs || []).map(function (r) { return r[0] + "–" + r[1]; }).join(", "); }
+export function ranges(rs) { return (rs || []).map(function (r) { return esc(r[0]) + "–" + esc(r[1]); }).join(", "); }
 export function store(k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } }

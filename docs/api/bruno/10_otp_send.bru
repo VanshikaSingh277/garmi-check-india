@@ -1,0 +1,19 @@
+meta {
+  name: OTP send (test number)
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/v1/otp/send
+  body: json
+  auth: none
+}
+
+body:json {
+  {"phone": "{{testPhone}}", "purpose": "household_sms"}
+}
+
+assert {
+  res.status: eq 200
+}

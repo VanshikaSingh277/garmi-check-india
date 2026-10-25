@@ -1,0 +1,15 @@
+meta {
+  name: Docs are off by default
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/docs
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 404
+}

@@ -14,3 +14,10 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Runtime caches
+apps/api/.cache/
+
+# Secrets and backups (backend kit)
+secrets/
+backups/
