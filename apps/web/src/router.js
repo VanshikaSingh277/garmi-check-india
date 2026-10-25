@@ -1,4 +1,4 @@
-/* hash routes: #/ landing · #/app home · #/me personal check · #/area colony · #/gov government · #/how method · #/sources
+/* hash routes: #/ landing · #/app home · #/me personal check · #/area colony · #/gov government · #/how method
    Each view lives in its own module and is loaded on first visit, so opening the app downloads only the screen shown. */
 import { S } from "./state.js";
 
@@ -8,8 +8,7 @@ var VIEWS = {
   me: [function () { return import("./views/check.js"); }, function (m) { if (S.result && S.step === 9) m.resultView(); else m.flowStep(); }],
   area: [function () { return import("./views/area.js"); }, function (m) { m.areaView(); }],
   gov: [function () { return import("./views/gov.js"); }, function (m) { m.govView(); }],
-  how: [function () { return import("./views/info.js"); }, function (m) { m.howView(); }],
-  sources: [function () { return import("./views/info.js"); }, function (m) { m.sourcesView(); }]
+  how: [function () { return import("./views/info.js"); }, function (m) { m.howView(); }]
 };
 export function route() { return location.hash.replace(/^#\/?/, "").split("/")[0]; }
 var seq = 0, last = null;
