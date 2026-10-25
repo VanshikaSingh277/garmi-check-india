@@ -1,6 +1,6 @@
 # Phase 5 test results
 
-Run 2026-10-25 15:45 against http://localhost:8000 with test secrets and a throwaway database.
+Run 2026-10-25 16:40 against http://localhost:8001 with test secrets and a throwaway database.
 
 | ID | Title | Result | Notes |
 |---|---|---|---|
@@ -18,6 +18,6 @@ Run 2026-10-25 15:45 against http://localhost:8000 with test secrets and a throw
 | P5-12 | Brief has no health details | PASS | 'Thandak brief: Today, 0 homes to check.\n'; health words: [] |
 | P5-13 | Delete on the family's request | PASS | 204; people left 0; events ['deleted', 'given'] |
 | P5-14 | Logs hold no names or numbers | PASS | leaks: 0 |
-| P5-15 | Automated isolation tests | PASS | 6 passed, 1 warning in 2.47s |
+| P5-15 | Automated isolation tests | PASS | 6 passed, 1 warning in 2.70s |
 
 **15 of 15 passed.**

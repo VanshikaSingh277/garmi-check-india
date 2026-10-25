@@ -31,7 +31,7 @@ export function mountMeasure(el, r) {
   var m = load(), fixes = candidates(r);
   function paint(msg) {
     var s = split(m), fix = fixes.filter(function (f) { return f.id === m.fix; })[0];
-    var opts = '<option value="">' + t("measure_pick") + "</option>" + fixes.map(function (f) { return "<option value=\"" + f.id + "\"" + (f.id === m.fix ? " selected" : "") + ">" + esc(f.title) + "</option>"; }).join("");
+    var opts = '<option value="">' + t("measure_pick") + "</option>" + fixes.map(function (f) { return "<option value=\"" + esc(f.id) + "\"" + (f.id === m.fix ? " selected" : "") + ">" + esc(f.title) + "</option>"; }).join("");
     el.innerHTML = '<p class="small muted">' + t("measure_intro") + "</p>" +
       '<label class="field" style="margin-top:12px"><span>' + t("measure_which") + '</span><select class="input" id="mfix">' + opts + "</select></label>" +
       '<div class="row" style="margin-top:12px;gap:8px;align-items:flex-end"><label class="field grow"><span>' + t("measure_reading") + '</span><input class="input" id="mtemp" type="number" inputmode="decimal" step="0.1" min="10" max="55" placeholder="°C"></label>' +
@@ -63,7 +63,7 @@ export function mountMeasure(el, r) {
     api("/api/fix_effect", { before: s.before, after: s.after }).then(function (res) {
       if (!$("mresult")) return;
       $("mresult").innerHTML = res.status === "ok"
-        ? callout("thermo", "<b>" + t("measure_result_title") + "</b><br>" + t(res.effect_c >= 0 ? "measure_result_cooler" : "measure_result_warmer", { e: fmt(Math.abs(res.effect_c), 1), lo: fmt(res.range_c[0], 1), hi: fmt(res.range_c[1], 1), b: res.days.before, a: res.days.after }), "info")
+        ? callout("thermo", "<b>" + t("measure_result_title") + "</b><br>" + t(res.effect_c >= 0 ? "measure_result_cooler" : "measure_result_warmer", { e: fmt(Math.abs(res.effect_c), 1), lo: fmt(res.range_c[0], 1), hi: fmt(res.range_c[1], 1), b: esc(res.days.before), a: esc(res.days.after) }), "info")
         : "";
     }).catch(function () {});
   }

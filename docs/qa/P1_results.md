@@ -1,6 +1,6 @@
 # Phase 1 test results
 
-Run 2026-10-25 15:48 against http://localhost:8000. Cases from `docs/qa/P1_test_cases.md`.
+Run 2026-10-25 16:42 against http://localhost:8000. Cases from `docs/qa/P1_test_cases.md`.
 
 | ID | Title | Result | Notes |
 |---|---|---|---|
@@ -28,7 +28,7 @@ Run 2026-10-25 15:48 against http://localhost:8000. Cases from `docs/qa/P1_test_
 | P1-18 | Site works under the CSP (browser) | PASS | CSP violations: none; map canvases on last page: 0 |
 | P1-19 | Docs routes off | PASS | [404, 404, 404] |
 | P1-20 | Tampered data stops prod | PASS | prod start refused: True; RuntimeError: data/ does not match MANIFEST.json: verified_numbers.csv: changed |
-| P1-21 | Logs hold no coordinates | PASS | 5 /api/where lines; coordinates or query strings in log: False |
+| P1-21 | Logs hold no coordinates | PASS | 11 /api/where lines; coordinates or query strings in log: False |
 | P1-22 | Weather stale flag | PASS | network cut not simulated live; covered by tests/test_weather_provider.py::test_stale_fallback_up_to_six_hours |
 | P1-23 | Hindi parity (browser) | PASS | fixes=6; long English-only lines: none |
 | P1-24 | Health and version | PASS | health keys ok=True; version=0.3.0 |

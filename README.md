@@ -74,23 +74,45 @@ Places are found by GPS, PIN code or place name using an offline gazetteer, so n
 | Tests and QA | `tests/`, `docs/qa/` | 183 automated tests (offline, recorded forecasts; 212 with the reference code's tests); QA packs per phase with results |
 | Launch docs | `docs/launch/`, `docs/DEPLOY.md`, `docs/INCIDENT.md` | Review gates, pilot plan, draft templates and consent, deploy and incident plans |
 
-## Run locally
+## Start the project
+
+You need **Python 3.11** and **Node.js 22** (with npm). No `.env` or keys are needed: the heat check, advice, maps, colony and government pages all work with the built-in defaults.
+
+**First time only** (from the repo root):
+
+Windows (Git Bash):
 ```bash
 python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r apps/api/requirements.txt -r apps/api/requirements-dev.txt   # macOS/Linux: .venv/bin/python
-cd apps/web && npm ci && npm run build && cd ../..      # builds the website into apps/web/dist (the API serves it)
-cd apps/api && ../../.venv/Scripts/python.exe run_local.py "" 8000
+.venv/Scripts/python.exe -m pip install -r apps/api/requirements.txt -r apps/api/requirements-dev.txt
+cd apps/web && npm ci && npm run build && cd ../..
 ```
-Then open http://localhost:8000.
+macOS / Linux:
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r apps/api/requirements.txt -r apps/api/requirements-dev.txt
+cd apps/web && npm ci && npm run build && cd ../..
+```
+On macOS, XGBoost also needs OpenMP: `brew install libomp`.
 
-For local runs, saved homes, OTP and alerts need test secrets. The names are in `env.example`; never commit real values. The jobs process runs separately: `cd apps/api && python -m app.jobs`.
+**Every time** (keep this terminal open while you use the app):
+```bash
+cd apps/api
+../../.venv/Scripts/python.exe run_local.py "" 8000      # macOS/Linux: ../../.venv/bin/python run_local.py "" 8000
+```
+Then open **http://localhost:8000**. To stop the server, press Ctrl+C.
 
-While changing the frontend, keep the API running and use `npm run dev` in `apps/web` (http://localhost:5173; `/api` is proxied to port 8000).
+**After pulling new code:** run `cd apps/web && npm run build` again (and the `pip install` line if `requirements.txt` changed), then restart the server. If the browser still shows the old site, press Ctrl+Shift+R.
+
+**Changing the frontend:** keep the server running and use `cd apps/web && npm run dev` (http://localhost:5173, reloads on save; `/api` is passed to port 8000).
+
+**Optional:** saved homes, OTP login, alerts and worker mode need secret keys (names in `env.example`). The server reads real environment variables, not a `.env` file. In Git Bash, load one with `set -a; . ./.env; set +a` before starting the server. The jobs process (alerts, backups) runs separately: `cd apps/api && python -m app.jobs`.
 
 ## Android and iOS apps (Capacitor)
-The apps are the same frontend inside a native shell (`apps/web/android`, `apps/web/ios`).
-1. Deploy the API somewhere the phone can reach over HTTPS, and put its address in `apps/web/.env.app` (`VITE_API_BASE`). For a USB-connected Android phone against your PC: `sh apps/web/scripts/install-android.sh`.
-2. `cd apps/web && npm run android` (Android Studio) or `npm run ios` (Xcode on a Mac).
+The apps are the same frontend inside a native shell (`apps/web/android`, `apps/web/ios`). The app needs to reach the API server: it uses the address in `VITE_API_BASE`.
+
+To build the apps, deploy the API over HTTPS ([docs/DEPLOY.md](docs/DEPLOY.md)), put its address in `apps/web/.env.app` (`VITE_API_BASE=https://…`), then run `cd apps/web && npm run android` (Android Studio) or `npm run ios` (Xcode on a Mac).
+
+The API accepts requests from the apps' origins (`capacitor://localhost`, `https://localhost`). Add other web origins with `THANDAK_ORIGINS` (comma-separated).
 
 ## Tests and checks
 ```bash

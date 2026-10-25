@@ -11,9 +11,9 @@ import { route } from "../router.js";
 
 /* each fact is a row of docs/verified_numbers.csv (mortality.india.heatwave, roof.offset.tin_top, fan.limit.older) */
 var FACTS = [
-  { n: "14.7%", k: "f1", c: "c-rooh", url: "https://doi.org/10.1016/j.envint.2024.108461", src: "de Bont et al., Environment International, 2024" },
-  { n: "+3.5 °C", k: "f2", c: "c-aam", url: "https://doi.org/10.6084/m9.figshare.12546368.v1", src: "Tasgaonkar et al., Scientific Data, 2022 (13 Delhi homes, 2016)" },
-  { n: "35 °C", k: "f3", c: "c-nimbu", url: "https://doi.org/10.1016/S2542-5196(24)00030-5", src: "Meade et al., Lancet Planetary Health, 2024" }
+  { n: "14.7%", k: "f1", c: "c-rooh" },
+  { n: "+3.5 °C", k: "f2", c: "c-aam" },
+  { n: "35 °C", k: "f3", c: "c-nimbu" }
 ];
 var WHO = [
   { ic: "thermo", k: "individual", d: "who_me_d", pts: ["who_me_1", "who_me_2", "who_me_3"] },
@@ -49,7 +49,7 @@ function liveCard(w, label) {
   return '<div class="l">' + t("live_next24", { p: esc(label) }) + '</div>' +
     '<svg class="spark" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none" role="img" aria-label="' + esc(t("live_next24", { p: label })) + '"><path d="' + line("t") + '" fill="none" style="stroke:var(--aam-deep)" stroke-width="2.5" vector-effect="non-scaling-stroke"/><path d="' + line("hi") + '" fill="none" style="stroke:var(--jamun-deep)" stroke-width="2.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/></svg>' +
     '<div class="lg"><span><i style="background:var(--aam-deep)"></i>' + t("outside") + " " + fmt(mx("t"), 0) + '°</span><span><i style="background:var(--jamun-deep)"></i>' + t("feels") + " " + fmt(mx("hi"), 0) + "°</span></div>" +
-    '<div style="margin-top:10px"><span class="badge ' + lvl + '">' + t("today_band") + ": " + t("level_" + lvl) + "</span></div>";
+    '<div style="margin-top:10px"><span class="badge ' + esc(lvl) + '">' + t("today_band") + ": " + t("level_" + lvl) + "</span></div>";
 }
 function matka(id) { return '<div class="mascot"><div class="bubble float" role="status" hidden></div><button class="mascot-btn" type="button" aria-label="' + esc(t("mascot_label")) + '">' + SCENE.mascot(id.charAt(0) + "m") + "</button></div>"; }
 function mascot(id) { return SCENE.clouds(id, "back") + matka(id) + SCENE.clouds(id, "front"); }

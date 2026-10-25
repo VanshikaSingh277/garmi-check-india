@@ -28,6 +28,7 @@ def test_api_and_site_security_headers():
     if main.WEB:
         site = CLIENT.get("/")
         csp = site.headers["content-security-policy"]
+        assert site.headers["referrer-policy"] == "strict-origin-when-cross-origin"   # OSM tiles need a Referer
         assert "script-src 'self' 'sha256-" in csp and "'unsafe-inline'" not in csp.split("script-src")[1].split(";")[0]
 
 

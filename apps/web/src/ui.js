@@ -42,8 +42,6 @@ export function failBox(msgKey) { return callout("alert", t(msgKey || "load_fail
 export function timeline() {
   return '<ol class="timeline">' + ["p1", "p2", "p3", "p4", "p5"].map(function (k, i) { return '<li><span class="n" aria-hidden="true">' + (i + 1) + "</span><b>" + t(k + "_t") + "</b><p>" + t(k + "_d") + "</p></li>"; }).join("") + "</ol>";
 }
-/* Open-Meteo data is CC BY 4.0: the credit sits next to the numbers it covers (a licence term, not a source line) */
-export function wxCredit() { return '<span class="credit">' + t("credit_wx") + ' <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a> (<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>)</span>'; }
 export function bindRetry(fn) { app.querySelectorAll("[data-retry]").forEach(function (b) { b.onclick = fn; }); }
 
 /* ---------- interaction: matka tips, eyes, count-ups, scroll reveal ---------- */

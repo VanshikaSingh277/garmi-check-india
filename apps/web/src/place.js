@@ -20,7 +20,7 @@ export function placeBlock(w, a, headKey) {
 function districtKpis(dh) {
   if (!dh) return "";
   return '<div class="kpis" style="margin-top:14px"><div class="kpi"><div class="l">' + I("sun", "sm") + t("summer_tmax") + '</div><div class="v">' + fmt(dh.tmax_mean_c) + "<small>°C</small></div><div class=\"s\">" + t("hotter_than_india", { p: Math.round(((dh.pct || {}).tmax_mean_c || 0) * 100) }) + "</div></div>" +
-    '<div class="kpi"><div class="l">' + I("gauge", "sm") + t("index_label") + '</div><div class="v"><span class="badge ' + classBadge(dh.hx_class) + '" style="font-size:15px">' + t(classKey(dh.hx_class)) + '</span></div><div class="s">' + t("index_rank", { r: Math.round(dh.hx_rank), n: dh.n_india || "" }) + "</div></div></div>";
+    '<div class="kpi"><div class="l">' + I("gauge", "sm") + t("index_label") + '</div><div class="v"><span class="badge ' + classBadge(dh.hx_class) + '" style="font-size:15px">' + t(classKey(dh.hx_class)) + '</span></div><div class="s">' + t("index_rank", { r: Math.round(dh.hx_rank), n: esc(dh.n_india) || "" }) + "</div></div></div>";
 }
 export function locCard() {
   var a = S.a;

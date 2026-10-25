@@ -1,6 +1,6 @@
 # Phase 3 test results
 
-Run 2026-10-25 15:44 against http://localhost:8000 (live forecast).
+Run 2026-10-25 16:38 against http://localhost:8000 (live forecast).
 
 | ID | Title | Result | Notes |
 |---|---|---|---|
@@ -13,7 +13,7 @@ Run 2026-10-25 15:44 against http://localhost:8000 (live forecast).
 | P3-07 | Unknown person fields rejected | PASS | [422, 422, 422, 422] |
 | P3-08 | Hindi actions | PASS | 1 actions (level low); all Hindi=True; placeholders left=False |
 | P3-09 | Power cut and AC inputs | PASS | AC hours inside the cut=False; bad time -> 422 |
-| P3-10 | Golden cases G1-G12 | PASS | 12 passed in 5.44s |
-| P3-11 | Per-person rules | PASS | 9 passed in 5.52s |
+| P3-10 | Golden cases G1-G12 | PASS | 12 passed in 4.88s |
+| P3-11 | Per-person rules | PASS | 9 passed in 4.85s |
 
 **11 of 11 passed.**

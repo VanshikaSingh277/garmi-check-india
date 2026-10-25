@@ -2,7 +2,7 @@
 import { t } from "../i18n/index.js";
 import { I } from "../icons.js";
 import { esc, fmt, pct, inr, classBadge, classKey } from "../util.js";
-import { card, wxCredit } from "../ui.js";
+import { card } from "../ui.js";
 
 var SOL_IC = { night_ventilation: "window", hydrate_shade: "droplet", cool_roof_coating: "roller", lime_whitewash: "brush", modroof: "layers",
   avoid_translucent_sheets: "ban", cooling_room: "snow", water_points: "tap", outdoor_work_hours: "clock", cool_roof_program: "building",
@@ -53,8 +53,7 @@ export function districtCard(dh, mapId) {
     (mapId ? '<div class="mapbox" style="margin-bottom:14px;box-shadow:none"><div class="map mini" id="' + mapId + '"></div></div>' : "") +
     '<div class="kpis"><div class="kpi"><div class="l">' + t("summer_tmax") + '</div><div class="v">' + fmt(dh.tmax_mean_c) + '<small>°C</small></div></div><div class="kpi"><div class="l">' + t("summer_tmin") + '</div><div class="v">' + fmt(dh.tmin_mean_c) + "<small>°C</small></div></div>" +
     '<div class="kpi"><div class="l">' + t("summer_twb") + '</div><div class="v">' + fmt(dh.twb_max_mean_c) + '<small>°C</small></div></div><div class="kpi"><div class="l">' + t("hot_days40") + '</div><div class="v">' + fmt(dh.days_tmax_ge40, 0) + "</div></div></div>" +
-    '<div style="margin-top:10px"><div class="kv"><span>' + t("share65") + "</span><b>" + pct(dh.share_65plus) + '</b></div><div class="kv"><span>' + t("share_u5") + "</span><b>" + pct(dh.share_under5) + '</b></div><div class="kv"><span>' + t("pop_label") + "</span><b>" + inr(dh.pop_total) + '</b></div><div class="kv"><span>' + t("index_label") + "</span><b>" + t("index_rank", { r: Math.round(dh.hx_rank), n: dh.n_india || "" }) + "</b></div></div>" +
-    '<p class="credit-row">' + wxCredit() + "</p>" +
+    '<div style="margin-top:10px"><div class="kv"><span>' + t("share65") + "</span><b>" + pct(dh.share_65plus) + '</b></div><div class="kv"><span>' + t("share_u5") + "</span><b>" + pct(dh.share_under5) + '</b></div><div class="kv"><span>' + t("pop_label") + "</span><b>" + inr(dh.pop_total) + '</b></div><div class="kv"><span>' + t("index_label") + "</span><b>" + t("index_rank", { r: Math.round(dh.hx_rank), n: esc(dh.n_india) || "" }) + "</b></div></div>" +
     "</div>";
 }
 export function wardCard(w) {
