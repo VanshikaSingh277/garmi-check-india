@@ -1,6 +1,6 @@
 # Phase 2 test results
 
-Run 2026-10-25 11:08 against http://localhost:8002 with test secrets and a throwaway database.
+Run 2026-10-25 15:45 against http://localhost:8000 with test secrets and a throwaway database.
 
 | ID | Title | Result | Notes |
 |---|---|---|---|
@@ -17,11 +17,11 @@ Run 2026-10-25 11:08 against http://localhost:8002 with test secrets and a throw
 | P2-11 | Internal routes need the secret | PASS | [403, 403, 200] |
 | P2-12 | Kill switch | PASS | {"ran": true, "sent": 0, "failed": 0, "held": 0, "expired": 0, "reason": "ALERTS_ENABLED_GLOBAL is off"} |
 | P2-13 | Jobs run once at a time | PASS | ran=[True, True] (True,True means they ran one after the other) |
-| P2-14 | Backup and restore | PASS | backup thandak-20261025-053832.db.enc; restored households: 3 |
+| P2-14 | Backup and restore | PASS | backup thandak-20261025-101513.db.enc; restored households: 60 |
 | P2-15 | Outbox and logs hold no phone numbers | PASS | numbers found: 0; server log checked: True |
 | P2-16 | Health shows the database | PASS | db_ok=True |
 | P2-17 | Migrations up and down | PASS | exit codes [0, 0, 0] |
-| P2-18 | No health words in messages | PASS | 1 passed, 1 warning in 1.65s |
-| P2-19 | Alert rules | PASS | 9 passed, 1 warning in 2.16s |
+| P2-18 | No health words in messages | PASS | 1 passed, 1 warning in 1.51s |
+| P2-19 | Alert rules | PASS | 9 passed, 1 warning in 2.13s |
 
 **19 of 19 passed.**
