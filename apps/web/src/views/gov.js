@@ -25,11 +25,15 @@ export function govView() {
     return;
   }
   var d = DATA[key], rows = india ? d.districts : d.wards;
+  /* the district picker only exists inside a state, and its choice must be one of that state's districts */
+  var dist = india && S.gstate ? rows.filter(function (x) { return x.id === S.gdist; })[0] || null : null;
+  if (!dist) S.gdist = "";
   var cols = india ? [["hx_rank", "#", 1], ["district", t("col_district")], ["hx_index", t("col_index"), 1], ["tmax_mean_c", t("col_tmax"), 1], ["tmin_mean_c", t("col_tmin"), 1], ["twb_max_mean_c", t("col_twb"), 1], ["days_tmax_ge40", t("col_hot40"), 1], ["share_65plus", t("col_65"), 1], ["pop_total", t("col_pop"), 1]]
     : [["hvi_rank", "#", 1], ["ward_name", t("ward")], ["hvi", "HVI", 1], ["lst_day_mean_c", t("day"), 1], ["lst_night_mean_c", t("night"), 1], ["frac_tree", t("trees"), 1], ["pop_65plus", t("elderly65"), 1], ["drivers", t("drivers")]];
   var vh = india ? rows.filter(function (x) { return x.hx_class === "Very high"; }) : [];
   var kpis = india ? '<div class="kpis" style="margin-bottom:16px"><div class="kpi"><div class="l">' + I("map", "sm") + t("kpi_shown") + '</div><div class="v"><span data-count="' + rows.length + '">' + rows.length + '</span></div></div><div class="kpi"><div class="l">' + I("flame", "sm") + t("kpi_vh") + '</div><div class="v"><span data-count="' + vh.length + '">' + vh.length + '</span></div></div><div class="kpi"><div class="l">' + I("users", "sm") + t("kpi_people_vh") + '</div><div class="v">' + inr(vh.reduce(function (s, x) { return s + (x.pop_total || 0); }, 0)) + '</div></div><div class="kpi"><div class="l">' + I("sun", "sm") + t("kpi_mean_tmax") + '</div><div class="v">' + fmt(rows.reduce(function (s, x) { return s + x.tmax_mean_c; }, 0) / Math.max(rows.length, 1)) + "<small>°C</small></div></div></div>" : "";
   var tools = '<div class="toolbar">' + (india ? '<select class="input" id="st" style="max-width:260px" aria-label="' + esc(t("state_all")) + '"><option value="">' + t("state_all") + "</option>" + d.states.map(function (x) { return "<option" + (x === S.gstate ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("") + "</select>" : "") +
+    (india && S.gstate ? '<select class="input" id="ds" style="max-width:260px" aria-label="' + esc(t("district_all")) + '"><option value="">' + t("district_all") + "</option>" + rows.slice().sort(function (p, q) { return String(p.district).localeCompare(String(q.district)); }).map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === S.gdist ? " selected" : "") + ">" + esc(x.district) + "</option>"; }).join("") + "</select>" : "") +
     '<div class="search">' + I("search") + '<input class="input" id="gf" type="search" placeholder="' + esc(t("filter_ph")) + '" aria-label="' + esc(t("filter_ph")) + '" value="' + esc(S.gfilter) + '"></div><button type="button" class="btn secondary" id="csv">' + I("download") + t("download_csv") + "</button></div>";
   render(kpis + tools + '<div class="mapbox" style="margin-bottom:20px"><div id="map" class="map"></div>' + (india ? mapTools("gt") : legend(WARD_STOPS, "", "layer_index", 2)) + "</div>" +
     '<div class="card" style="padding:0;overflow:hidden"><div style="padding:16px 20px 8px" class="row between"><h3>' + t("rank_label") + '</h3><span class="tiny muted">' + t("sort_hint") + '</span></div><div id="tbl"></div></div>' +
@@ -38,7 +42,7 @@ export function govView() {
   var ctrl = null;
   function table() {
     var f = S.gfilter.trim().toLowerCase(), nameKey = india ? "district" : "ward_name";
-    var list = rows.filter(function (x) { return !f || String(x[nameKey]).toLowerCase().indexOf(f) >= 0 || String(x.state || x.district || "").toLowerCase().indexOf(f) >= 0; });
+    var list = rows.filter(function (x) { return (!dist || x === dist) && (!f || String(x[nameKey]).toLowerCase().indexOf(f) >= 0 || String(x.state || x.district || "").toLowerCase().indexOf(f) >= 0); });
     var s = S.gsort && S.gsort.scope === key ? S.gsort : { k: india ? "hx_rank" : "hvi_rank", dir: 1 };
     list = list.slice().sort(function (p, q) { var x = p[s.k], y = q[s.k]; if (typeof x === "string") return s.dir * String(x).localeCompare(String(y)); return s.dir * ((x == null ? -1e9 : x) - (y == null ? -1e9 : y)); });
     var shown = list.slice(0, S.glimit);
@@ -77,10 +81,11 @@ export function govView() {
   table();
   var ft = null;
   $("gf").oninput = function (e) { clearTimeout(ft); ft = setTimeout(function () { S.gfilter = e.target.value; S.glimit = 60; table(); }, 120); };
-  if (india) $("st").onchange = function (e) { S.gstate = e.target.value; S.glimit = 60; govView(); };
+  if (india) $("st").onchange = function (e) { S.gstate = e.target.value; S.gdist = ""; S.glimit = 60; govView(); };
+  if ($("ds")) $("ds").onchange = function (e) { S.gdist = e.target.value; S.glimit = 60; govView(); };
   $("csv").onclick = function () { if (india) districtCsv(rows); else wardCsv(rows); };
-  var first = india && S.gstate && rows[0] ? rows[0] : null;
-  makeMap({ el: "map", center: india ? (first ? [first.lon, first.lat] : null) : DELHI.center, zoom: india ? (first ? 5.8 : null) : DELHI.zoom, wards: india ? null : "fill",
+  var first = dist || (india && S.gstate && rows[0] ? rows[0] : null);
+  makeMap({ el: "map", center: india ? (first ? [first.lon, first.lat] : null) : DELHI.center, zoom: india ? (first ? (dist ? 7.5 : 5.8) : null) : DELHI.zoom, wards: india ? null : "fill",
     onClick: function (ll, dp, wp) {
       if (!ctrl) return;
       var pop = !india && wp ? "<b>" + esc(title(wp.ward_name)) + "</b><br>" + esc(wp.district) + "<br>HVI " + fmt(wp.hvi, 2) + " · " + t(classKey(wp.hvi_class)) + "<br>" + t("day") + " " + fmt(wp.lst_day_mean_c) + " · " + t("night") + " " + fmt(wp.lst_night_mean_c)
@@ -88,6 +93,6 @@ export function govView() {
       if (!pop) return;
       ctrl.select(dp && dp.id, wp && wp.ward_no);
       popup(ctrl, ll, pop);
-    } }).then(function (c) { ctrl = c; if (india) bindTools("gt", c); }).catch(function () { mapFail("map"); });
+    } }).then(function (c) { ctrl = c; if (india) bindTools("gt", c); if (dist) c.select(dist.id, null); }).catch(function () { mapFail("map"); });
 }
-function bindScope() { document.querySelectorAll("#scope button").forEach(function (b) { b.onclick = function () { S.gscope = b.getAttribute("data-scope"); S.gfilter = ""; S.glimit = 60; govView(); }; }); }
+function bindScope() { document.querySelectorAll("#scope button").forEach(function (b) { b.onclick = function () { S.gscope = b.getAttribute("data-scope"); S.gdist = ""; S.gfilter = ""; S.glimit = 60; govView(); }; }); }
