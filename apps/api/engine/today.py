@@ -11,6 +11,7 @@ from functools import lru_cache
 
 from . import people as P
 from . import rules
+from . import verified as V
 from .solutions import fill_numbers
 
 DATA = os.path.join(os.path.dirname(__file__), "..", "data", "actions.json")
@@ -135,3 +136,25 @@ def build(persons: list[dict], hours: list[dict], nxt: list[dict], plan: dict, l
                            "higher_risk_today": bool(avoid or work_hot or (hot and CARE & set(reasons))),
                            "reasons": reasons, "actions": mine})
     return {"per_person": per_person, "today_actions": actions, "fan_group": strict}
+
+
+def work_plan(persons: list, nxt: list) -> dict | None:
+    """Outdoor work card: each hour of the work window at its outdoor heat level (IMD heat-index bands on max(heat index,
+    air), the same rule as work_hours_hot), the hours at the lowest level in the window for the heaviest work, and NCDC's
+    no-sun hours. Work/rest cycles are left out until a verified wet-bulb standard is supplied (docs/TEAM_TODO.md)."""
+    workers = [p for p in persons if p.get("outdoor_work")]
+    if not workers:
+        return None
+    p = workers[0]
+    win = (p.get("work_start") or WORK_DEFAULT[0], p.get("work_end") or WORK_DEFAULT[1])
+    hours = [{"time": r["time"], "t": r["t"], "hi": r["hi"], "twb": r.get("twb"),
+              "level_index": rules.base_from_heat_index(max(r["hi"], r["t"]))}
+             for r in nxt if in_window(r["time"][11:16], win)]
+    if not hours:
+        return None
+    hours.sort(key=lambda h: h["time"])
+    low = min(h["level_index"] for h in hours)
+    return {"window": list(win), "window_default": not (p.get("work_start") and p.get("work_end")), "hours": hours,
+            "best": ranges([h["time"][11:16] for h in hours if h["level_index"] == low]), "best_level_index": low,
+            "hot": ranges([h["time"][11:16] for h in hours if h["level_index"] >= 2]),
+            "avoid_sun": V.value("health.avoid_sun_hours"), "source": V.source("health.avoid_sun_hours")}
