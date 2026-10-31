@@ -68,6 +68,33 @@ def offset_estimate(next24: list, roof: str) -> list:
     return out
 
 
+def physics_check(hourly: list, preds: list, roof: str, cooler: bool) -> list:
+    """Physical bounds for a passive home (the model's training homes had no AC). Heat in a room comes from the outside air
+    of the past day and from sun through the roof; a fan moves air but cools nothing; an evaporative cooler can't take
+    air below its wet-bulb temperature. So each predicted hour must lie between
+      lowest outside air (or wet-bulb, with a cooler) of the past 24 h  and
+      highest outside air of the past 24 h + the largest measured indoor-minus-outdoor offset for this roof,
+    widened on both sides by the model's own 80 % error band. Returns the times that break the bounds (empty = physical).
+    A simple energy bound, not a full building energy balance."""
+    from . import verified as V
+    _, card = _model()
+    slack = card["residual_p90"] - card["residual_p10"]
+    o = V.value(OFFSET_KEY[roof])
+    gain = max(o["afternoon_iqr"][1], o["night_iqr"][1])
+    at = {r["time"]: i for i, r in enumerate(hourly)}
+    bad = []
+    for p in preds:
+        k = at.get(p["time"])
+        if k is None or k < 24:
+            continue
+        past = hourly[k - 24:k + 1]
+        low = min(r["twb"] if cooler and r.get("twb") is not None else r["t"] for r in past) - slack
+        high = max(r["t"] for r in past) + gain + slack
+        if not low <= p["indoor"] <= high:
+            bad.append(p["time"])
+    return bad
+
+
 def applicability(next24: list, in_delhi: bool) -> dict:
     """Is the forecast inside the conditions the model learned from? (training-range check from the model card)"""
     _, card = _model()

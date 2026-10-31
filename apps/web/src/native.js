@@ -36,11 +36,12 @@ function locateNative(onFix, onEnd) {
   }).catch(function (e) { finish(/disabled|services/i.test(String(e && e.message)) ? "unavailable" : "denied_app"); });
 }
 
-/* CSV export: a download on the website; on a phone, write the file to the cache and open the share sheet
+/* File export: a download on the website; on a phone, write the file to the cache and open the share sheet
    (WhatsApp, Drive, Files...), which is how people actually move a file off a phone */
-export function saveCsv(name, text) {
+export function saveCsv(name, text) { return saveFile(name, text, "text/csv"); }
+export function saveFile(name, text, type) {
   if (!NATIVE) {
-    var a = document.createElement("a"), url = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+    var a = document.createElement("a"), url = URL.createObjectURL(new Blob([text], { type: type }));
     a.href = url; a.download = name; a.click();
     setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
     return Promise.resolve();

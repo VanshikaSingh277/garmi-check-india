@@ -84,13 +84,36 @@ function submit() {
   render('<div class="card"><div class="row"><span class="spin"></span><span>' + t("loading") + "</span></div></div>" + skeletonCard(160) + "<br>" + skeletonCard(220), hero);
   var a = S.a;
   api("/api/status/individual", { lat: a.lat, lon: a.lon, roof: a.roof, vulnerable: a.vulnerable, devices: { fan: !!a.devices.fan, cooler: !!a.devices.cooler, ac: !!a.devices.ac }, roof_access: a.roof_access, cross_ventilation: a.cross_ventilation, budget: a.budget, lang: S.lang })
-    .then(function (r) { S.result = r; S.step = 9; store("gc_last", { at: new Date().toISOString(), r: r }); resultView(); })
+    .then(function (r) {
+      var last = r._sample && store("gc_last");
+      if (last) { S.result = last.r; S.result._offline = last.at; }
+      else { S.result = r; if (!r._sample) store("gc_last", { at: new Date().toISOString(), r: r }); }
+      S.step = 9; resultView();
+    })
     .catch(function () {
       /* offline: show the last result we have, clearly labelled with its time */
       var last = store("gc_last");
       if (last) { S.result = last.r; S.result._offline = last.at; S.step = 9; resultView(); }
       else { render(callout("alert", t("net_error") + ' <button class="btn sm secondary" type="button" data-retry>' + t("retry") + "</button>", "warn"), hero); bindRetry(submit); }
     });
+}
+
+/* ---------- outdoor work (only when someone works outdoors) ---------- */
+var LV = ["low", "mod", "high", "ext"];
+function workCard(w) {
+  if (!w || !w.hours.length) return "";
+  var span = function (rs) { return rs.map(function (x) { return x[0] + "–" + x[1]; }).join(", "); };
+  var strip = '<div class="workstrip" role="list">' + w.hours.map(function (h) {
+    var k = LV[Math.min(h.level_index, 3)];
+    return '<span role="listitem" class="lvl-' + k + '" title="' + esc(t("level_" + LEVELS[Math.min(h.level_index, 3)])) + " · " + fmt(Math.max(h.hi, h.t), 0) + '°C"><b>' + esc(h.time.slice(11, 13)) + "</b><i>" + fmt(Math.max(h.hi, h.t), 0) + "°</i></span>";
+  }).join("") + "</div>";
+  var body = '<p class="muted" style="margin-top:0">' + t(w.window_default ? "work_window_default" : "work_window", { a: w.window[0], b: w.window[1] }) + "</p>" + strip +
+    '<ul class="reasons" style="margin-top:12px">' +
+    "<li>" + (w.hours.every(function (h) { return h.level_index === w.best_level_index; }) ? t("work_all", { l: t("level_" + LEVELS[Math.min(w.best_level_index, 3)]) })
+      : t("work_best", { h: span(w.best), l: t("level_" + LEVELS[Math.min(w.best_level_index, 3)]) })) + "</li>" +
+    (w.hot.length ? "<li>" + t("work_hot", { h: span(w.hot) }) + "</li>" : "") +
+    "<li>" + t("work_sun", { a: w.avoid_sun.from_h, b: w.avoid_sun.to_h }) + "</li></ul>";
+  return card("hardhat", t("work_title"), body);
 }
 
 /* ---------- result ---------- */
@@ -194,9 +217,15 @@ export function resultView() {
     '<div class="kpi"><div class="l">' + I("cloud", "sm") + t("tomorrow") + " · " + t("feels_max") + '</div><div class="v"><span data-count="' + fmt(tm.hi_max, 0) + '">' + fmt(tm.hi_max, 0) + '</span><small>°C</small></div><div class="s">' + t("air_max") + " " + fmt(tm.tmax, 0) + "° · " + t("wetbulb") + " " + fmt(tm.twb_max, 0) + "°</div></div>" +
     (hasIn && ind.peak ? '<div class="kpi"><div class="l">' + I("home", "sm") + t("room_peak") + " · " + hm(ind.peak.time) + '</div><div class="v">' + fmt(ind.peak.low, 0) + "–" + fmt(ind.peak.high, 0) + "<small>°C</small></div></div>" : "") +
     (hasIn && ind.night_min ? '<div class="kpi"><div class="l">' + I("moon", "sm") + t("room_night") + '</div><div class="v">' + fmt(ind.night_min.low, 0) + "–" + fmt(ind.night_min.high, 0) + "<small>°C</small></div></div>" : "") + "</div>";
-  var note = ind.note_code === "outside_training_range" ? callout("alert", t("indoor_hidden", { t1: fmt(ind.applicability.trained_t_c[0], 0), t2: fmt(ind.applicability.trained_t_c[1], 0), h1: fmt(ind.applicability.trained_rh_pct[0], 0), h2: fmt(ind.applicability.trained_rh_pct[1], 0) }), "warn", "margin-top:12px")
-    : ind.note_code === "not_validated_here" ? callout("info", t("indoor_not_validated"), "warn", "margin-top:12px") : callout("info", t("indoor_note"), "", "margin-top:12px");
+  /* note codes from /api/status/individual: validated_delhi (model), offset_estimate (weather outside the model's range,
+     usually the hottest days), not_validated_here (numbers hidden outside Delhi; the plan still uses them, cautious end) */
+  var fit = ind.applicability || {}, range = fit.trained_t_c ? { t1: fmt(fit.trained_t_c[0], 0), t2: fmt(fit.trained_t_c[1], 0), h1: fmt(fit.trained_rh_pct[0], 0), h2: fmt(fit.trained_rh_pct[1], 0) } : null;
+  var outside = range && fit.ok === false ? " " + t("indoor_outside_range", range) : "";
+  var note = ind.note_code === "offset_estimate" ? callout("alert", t("indoor_offset") + outside, "warn", "margin-top:12px")
+    : ind.note_code === "not_validated_here" ? callout("info", t("indoor_not_validated") + outside, "warn", "margin-top:12px") : callout("info", t("indoor_note"), "", "margin-top:12px");
   if (ind.roof_proxy && hasIn) note += callout("info", t("roof_proxy_note"), "", "margin-top:8px");
+  /* a fallback or hidden estimate is explained up front, not only inside the temperature tab */
+  var topNote = ind.note_code === "validated_delhi" ? "" : '<div style="margin:-8px 0 20px">' + note + "</div>";
   var plan = '<div class="card"><div class="card-h"><div class="ic">' + I("clock") + "</div><h3>" + t("plan_title") + '</h3><div class="seg" id="ptabs" role="tablist"><button type="button" role="tab" data-t="plan" class="' + (S.ptab === "plan" ? "on" : "") + '" aria-selected="' + (S.ptab === "plan") + '">' + t("tab_plan") + '</button><button type="button" role="tab" data-t="temp" class="' + (S.ptab === "temp" ? "on" : "") + '" aria-selected="' + (S.ptab === "temp") + '">' + t("tab_temp") + '</button></div></div><div id="pbody" role="tabpanel"></div></div>';
   var fixes = card("list", t("fixes_title"), fixesBlock(r.fixes));
   var measure = '<details class="acc" id="measure"><summary>' + I("thermo") + t("measure_title") + I("chev-r", "chev") + '</summary><div class="body" id="measurebody"></div></details>';
@@ -204,9 +233,9 @@ export function resultView() {
     [["how_k_risk", "how_v_risk"], ["how_k_indoor", hasIn ? "how_v_indoor" : "how_v_indoor_off"], ["how_k_fan", fan.basis === "outdoor" ? "how_v_fan_out" : "how_v_fan"], ["how_k_windows", hasIn ? "how_v_windows" : "plan_no_windows"], ["how_k_fixes", "how_v_fixes"]]
       .map(function (x) { return '<div class="kv" style="display:block"><b style="display:block;text-align:left">' + t(x[0]) + '</b><span class="small muted">' + t(x[1]) + "</span></div>"; }).join("") +
     '<a class="btn ghost sm" href="#/how" style="margin-top:8px">' + t("read_more") + I("arrow-r", "sm") + "</a></div></details>";
-  render(offline + summary + kpis + '<div class="layout"><div class="stack">' + todayCard(r.fixes) + plan + fixes + measure + '</div><div class="stack">' + districtCard(p.district_heat, "mmap") + wardCard(p.ward) + sosCard() + howAcc + "</div></div>",
+  render(offline + summary + kpis + topNote + '<div class="layout"><div class="stack">' + todayCard(r.fixes) + workCard(r.work) + plan + fixes + measure + '</div><div class="stack">' + districtCard(p.district_heat, "mmap") + wardCard(p.ward) + sosCard() + howAcc + "</div></div>",
     pageHero({ id: "rm", eyebrow: t("level_title"), title: t("level_" + k), sub: esc(p.label || p.district || ""), mood: moodOf(k), tip: t("res_tip_" + k) }));
-  function paintPlan() { $("pbody").innerHTML = S.ptab === "plan" ? planView(r) : chartSVG(ind.next24, ind.outdoor24, fan) + note; if (S.ptab !== "plan") bindScrub($("pbody")); }
+  function paintPlan() { $("pbody").innerHTML = S.ptab === "plan" ? planView(r) : chartSVG(ind.next24, ind.outdoor24, fan) + (topNote ? "" : note); if (S.ptab !== "plan") bindScrub($("pbody")); }
   paintPlan();
   document.querySelectorAll("#ptabs button").forEach(function (b) { b.onclick = function () {
     S.ptab = b.getAttribute("data-t");

@@ -41,6 +41,8 @@ async function result(lang, place) {
   return { ...r, errs };
 }
 
+// an uncaught failure must not leave the browser running: its pages pile up as blank "Thandak" windows
+try {
 const delhiEn = await result("en", { lat: 28.6139, lon: 77.209 });
 res.push(["P1-01", "Family result still works (browser)", delhiEn.level && delhiEn.reasons > 0 && delhiEn.home && delhiEn.plan && delhiEn.fixes > 0 && !delhiEn.errs.length,
   `level=${delhiEn.level} reasons=${delhiEn.reasons} yourHome=${delhiEn.home} plan=${delhiEn.plan} fixes=${delhiEn.fixes} errors=${delhiEn.errs.slice(0, 2).join("; ") || "none"}`]);
@@ -63,6 +65,8 @@ await p.evaluateOnNewDocument(() => document.addEventListener("securitypolicyvio
 for (const r of ["#/", "#/app", "#/area", "#/gov", "#/how", "#/sources"]) { await p.goto(BASE + r, { waitUntil: "networkidle2" }).catch(() => {}); await sleep(3000); }
 const maps = await p.evaluate(() => document.querySelectorAll(".maplibregl-canvas").length);
 res.push(["P1-18", "Site works under the CSP (browser)", csp.length === 0, `CSP violations: ${csp.slice(0, 3).join(" / ") || "none"}; map canvases on last page: ${maps}`]);
-await b.close();
+} finally {
+  await b.close();
+}
 fs.writeFileSync(OUT, JSON.stringify(res));
 console.log(res.map((r) => (r[2] ? "PASS " : "FAIL ") + r[0] + " " + r[3]).join("\n"));

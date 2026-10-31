@@ -11,12 +11,21 @@ import { t, setLang } from "./i18n/index.js";
 import { I } from "./icons.js";
 import { $ } from "./util.js";
 import { S, save, APP_ROUTES } from "./state.js";
-import { api } from "./api.js";
+import { api, whenSample } from "./api.js";
 import { hooks } from "./ui.js";
 import { route, go } from "./router.js";
 import { initNative, setStatusBar } from "./native.js";
 import { NATIVE } from "./config.js";
 import { districtCsv, wardCsv } from "./export.js";
+
+/* Shown while screens are filled from the bundled sample because the server can't be reached. */
+whenSample(function (meta) {
+  var bar = $("samplebar");
+  if (!meta) { bar.hidden = true; return; }
+  var d = new Date(meta.date + "T" + meta.time).toLocaleDateString(S.lang === "hi" ? "hi-IN" : "en-IN", { day: "numeric", month: "long", year: "numeric" });
+  bar.textContent = t("sample_banner", { d: d });
+  bar.hidden = false;
+});
 
 var NAV = [{ r: "app", ic: "home", k: "nav_home" }, { r: "me", ic: "thermo", k: "nav_me" }, { r: "area", ic: "users", k: "nav_area" }, { r: "gov", ic: "landmark", k: "nav_gov" }];
 

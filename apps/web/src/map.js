@@ -22,8 +22,8 @@ function heatRamp() { return [1, 2, 3, 4, 5].map(function (i) { return cssVar("-
 
 var maps = [], lib = null, geoD = null, geoW = null;
 if (import.meta.env.VITE_DEBUG) window.__maps = maps;  // on-device debugging only (set in .env.app.local)
-function distGeo() { if (!geoD) geoD = api(GEO.districts).catch(function (e) { geoD = null; throw e; }); return geoD; }
-function wardGeo() { if (!geoW) geoW = api(GEO.wards).catch(function (e) { geoW = null; throw e; }); return geoW; }
+export function distGeo() { if (!geoD) geoD = api(GEO.districts).catch(function (e) { geoD = null; throw e; }); return geoD; }
+export function wardGeo() { if (!geoW) geoW = api(GEO.wards).catch(function (e) { geoW = null; throw e; }); return geoW; }
 export function destroyMaps() { maps.forEach(function (m) { try { m.remove(); } catch (e) {} }); maps.length = 0; }
 export function loadLib() {
   if (!lib) lib = Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl-worker.mjs?url"), import("maplibre-gl/dist/maplibre-gl.css")])
@@ -34,7 +34,7 @@ export function loadLib() {
 export function warmMaps() { loadLib().catch(function () {}); distGeo().catch(function () {}); }
 
 function ramp(prop, st) { var e = ["interpolate", ["linear"], ["to-number", ["get", prop]]], H = heatRamp(); st.forEach(function (v, i) { e.push(v, H[i]); }); return e; }
-function distFill(layer) { return ["case", ["==", ["typeof", ["get", layer]], "number"], ramp(layer, LAYERS[layer].stops), cssVar("--surface")]; }
+function distFill(layer) { return ["case", ["==", ["typeof", ["get", layer]], "number"], ramp(layer, LAYERS[layer].stops), cssVar("--ink-muted")]; }  // grey = no data, never a heat colour
 function circle(lon, lat, r) {
   var pts = [], k = 48, dx = r / (111320 * Math.cos(lat * Math.PI / 180)), dy = r / 110574;
   for (var i = 0; i <= k; i++) { var a = 2 * Math.PI * i / k; pts.push([lon + dx * Math.cos(a), lat + dy * Math.sin(a)]); }
@@ -103,19 +103,33 @@ export function makeMap(opts) {
     return ctrl;
   });
 }
-export function legend(stops, unit, labelKey, d) { return '<div class="legend"><b>' + t(labelKey) + '</b><div class="bar"></div><div class="ends"><span>' + t("lower") + " ≤" + fmt(stops[0], d) + unit + "</span><span>" + t("higher") + " ≥" + fmt(stops[4], d) + unit + "</span></div></div>"; }
+export function legend(stops, unit, labelKey, d, noData) { return '<div class="legend"><b>' + t(labelKey) + '</b><div class="bar"></div><div class="ends"><span>' + t("lower") + " ≤" + fmt(stops[0], d) + unit + "</span><span>" + t("higher") + " ≥" + fmt(stops[4], d) + unit + "</span></div>" + (noData ? '<span class="nodata"><i></i>' + t("no_data") + "</span>" : "") + "</div>"; }
 export function mapTools(id) {
   var L = LAYERS[S.layer];
   return '<div class="maptools"><div class="seg" id="' + id + '">' + Object.keys(LAYERS).map(function (k) { return '<button type="button" data-layer="' + k + '" class="' + (k === S.layer ? "on" : "") + '">' + t(LAYERS[k].key) + "</button>"; }).join("") + "</div></div>" +
-    '<div id="' + id + '_lg">' + legend(L.stops, L.unit, L.key, L.d) + "</div>";
+    '<div id="' + id + '_lg">' + legend(L.stops, L.unit, L.key, L.d, true) + "</div>";
 }
 export function bindTools(id, ctrl) {
   document.querySelectorAll("#" + id + " button").forEach(function (b) { b.onclick = function () {
     S.layer = b.getAttribute("data-layer");
     var L = LAYERS[S.layer];
     document.querySelectorAll("#" + id + " button").forEach(function (x) { x.classList.toggle("on", x === b); });
-    $(id + "_lg").innerHTML = legend(L.stops, L.unit, L.key, L.d);
+    $(id + "_lg").innerHTML = legend(L.stops, L.unit, L.key, L.d, true);
     ctrl.setLayer(S.layer);
   }; });
 }
 export function mapFail(el) { var n = $(el); if (n) n.outerHTML = '<div class="callout">' + I("info") + "<div>" + t("map_fail") + "</div></div>"; }
+/* 1 km hotspot squares (city view): a GeoJSON of squares around each cell centre, coloured by prop over stops */
+export function addCells(ctrl, cells, sizeKm, prop, stops) {
+  return ctrl.ready.then(function () {
+    var m = ctrl.map, dy = sizeKm / 2 / 110.574;
+    var fc = { type: "FeatureCollection", features: cells.map(function (c) {
+      var dx = sizeKm / 2 / (111.32 * Math.cos(c.lat * Math.PI / 180));
+      return { type: "Feature", properties: c, geometry: { type: "Polygon", coordinates: [[[c.lon - dx, c.lat - dy], [c.lon + dx, c.lat - dy], [c.lon + dx, c.lat + dy], [c.lon - dx, c.lat + dy], [c.lon - dx, c.lat - dy]]] } };
+    }) };
+    if (m.getSource("hc")) { m.getSource("hc").setData(fc); return; }
+    if (m.getLayer("df")) m.setLayoutProperty("df", "visibility", "none");  // district colours would mix with the squares
+    m.addSource("hc", { type: "geojson", data: fc });
+    m.addLayer({ id: "hcf", type: "fill", source: "hc", paint: { "fill-color": ramp(prop, stops), "fill-opacity": 0.72 } });
+  });
+}
