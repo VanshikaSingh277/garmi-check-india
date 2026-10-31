@@ -5,6 +5,15 @@ Baseline tests: 77 passed, 0 failed (2026-10-24; `python tests/test_*.py` for ea
 User choices: test-case format = default ID | Title | Preconditions | Steps | Expected | Priority | Type (not answered yet); API collection tool = Bruno (`docs/api/bruno/`, chosen by default; Postman can import it); PRs = leave branches (not answered yet)
 
 Decisions:
+- 2026-10-31: Ward planner takes a ₹ crore budget for trees, cool roofs or both (`/api/gov/plan_trees?budget_inr=`, new `/api/gov/plan_coolroofs`). Places nothing until the cost and roof inputs are verified (TEAM_TODO); 211 tests pass.
+- 2026-10-29: Phone-ready pass (branch `backend/p8-phone-ready`, uncommitted):
+  - Release APK: built by `apps/web/scripts/build-release.sh` against the public HTTPS API (`thandak-india-api.vercel.app`, CORS already allows the app). The script refuses non-https addresses and any `http://localhost` left in the bundle. Signed with a key generated outside the repo (TEAM_TODO: back it up). Plain http is allowed only in debug builds, only for localhost (`src/debug` network security config).
+  - `model_loaded: false` on the live API is not a fault: the flag reports a lazy per-instance load, and the live room estimate works.
+  - Offline: the app falls back to bundled samples (real engine answers for Delhi, 15:00 on 28 May 2024, from the recorded fixture; `scripts/build_sample_data.py`), always under a "sample data, not today's weather" banner. A home's own last real result wins over the sample, and samples are never cached or saved.
+  - Bug fixed: the app waited for note code `outside_training_range`, which the API never sends, so on extreme Delhi days the offset fallback was labelled as the ±1.5 °C model. The note now follows the real codes and shows above the plan when the estimate is a fallback or hidden.
+  - Ward cooling scenario (`/api/gov/scenario`, `ml/model_a/train_ward_scenario.py`): constrained linear model, trees and water never warmer than built-up land; leave-one-district-out MAE 0.63 °C day / 0.43 °C night vs 1.01 / 0.71 baseline; a monotone XGBoost was no better. Surface temperature only, not roofs (Model A's albedo caveat stands). Government view only; never touches anyone's heat level.
+  - The one unranked map polygon ("DATA NOT AVAILABLE", Jammu and Kashmir) is grey with a legend entry, a popup and a note under the table.
+  - Exports: GeoJSON for districts and wards, and a printable per-ward sheet (website: print dialog; app: shared as HTML).
 - 2026-10-25: Security audit:
   - Git history and the built site have no secrets.
   - Every route's guard and ownership check was reviewed.

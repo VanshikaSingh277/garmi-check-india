@@ -72,3 +72,93 @@ actions:actions.go_cooler,"{label}: in the hottest hours ({H}), move them to the
 actions:actions.extra_care,{label} needs extra care in the heat today: check on them often and watch for the warning signs.,{label} को आज गर्मी में ख़ास ध्यान चाहिए: बार-बार हाल पूछें और खतरे के लक्षणों पर नज़र रखें।,,to review
 templates:message_templates.json (all),see apps/api/data/message_templates.json,see apps/api/data/message_templates.json,,to review
 templates:worker_brief_head,"Thandak brief: {day}, {count} homes to check.",ठंडक: {day} {count} घरों का हाल लेना है।,,to review
+app:sample_banner,"Can't reach the Thandak server. You're seeing sample data recorded in Delhi on {d}, not today's weather for your area.","Thandak सर्वर से जुड़ नहीं पाए। यह {d} को दिल्ली में दर्ज नमूना डेटा है, आपके इलाक़े का आज का मौसम नहीं।",,to review
+app:no_data,No data,डेटा नहीं,,to review
+app:no_data_popup,"This area is on the map, but the district data we rank doesn't cover it, so it has no score.","यह इलाक़ा नक्शे पर है, पर जिस ज़िला डेटा से हम रैंक करते हैं उसमें शामिल नहीं, इसलिए इसका कोई स्कोर नहीं है।",,to review
+app:no_data_note,{n} area on the map has no data and isn't ranked ({s}). It's shown in grey.,नक्शे पर {n} इलाक़े का डेटा नहीं है और उसे रैंक नहीं किया गया ({s})। इसे स्लेटी रंग में दिखाया गया है।,,to review
+app:sc_title,Cooling scenario: more trees in the hottest wards,ठंडक का अनुमान: सबसे गर्म वार्डों में ज़्यादा पेड़,,to review
+app:sc_intro,Turn part of each ward's built-up or bare land into tree cover and see the estimated change in its surface temperature.,"हर वार्ड की कुछ बनी हुई या खाली ज़मीन पर पेड़ लगाने से उसकी सतह का तापमान कितना बदल सकता है, इसका अनुमान देखें।",,to review
+app:sc_wards,Which wards,कौन से वार्ड,,to review
+app:sc_top,Top {n} by HVI,HVI में ऊपर के {n},,to review
+app:sc_all,All wards,सभी वार्ड,,to review
+app:sc_trees,Extra tree cover (share of the ward's area),अतिरिक्त पेड़ (वार्ड के क्षेत्रफल का हिस्सा),,to review
+app:sc_pp,points,अंक,,to review
+app:sc_from,Planted on,कहाँ लगाएँ,,to review
+app:sc_from_built,Built-up land,बनी हुई ज़मीन,,to review
+app:sc_from_bare,Bare land,खाली ज़मीन,,to review
+app:sc_k_wards,Wards,वार्ड,,to review
+app:sc_k_people,People living there,वहाँ रहने वाले लोग,,to review
+app:sc_k_65,Aged 65+,65+ उम्र,,to review
+app:sc_k_area,Land converted,बदली गई ज़मीन,,to review
+app:sc_k_day,"Day surface, people-weighted","दिन में सतह, आबादी के हिसाब से",,to review
+app:sc_k_night,"Night surface, people-weighted","रात में सतह, आबादी के हिसाब से",,to review
+app:sc_col_day,Day °C (80% range),दिन °C (80% दायरा),,to review
+app:sc_col_night,Night °C,रात °C,,to review
+app:sc_night_warm,"Trees on bare land cool the day but can warm the night, because bare soil loses heat quickly after dark.","खाली ज़मीन पर पेड़ दिन में ठंडक देते हैं, पर रात को गर्मी बढ़ा सकते हैं, क्योंकि खुली मिट्टी अँधेरा होते ही जल्दी ठंडी हो जाती है।",,to review
+app:sc_caveat,"Model estimate of ward-average surface temperature from satellites (pre-monsoon), not air temperature. It's based on how wards with more or fewer trees differ today, not on measured projects, and it doesn't cover roofs. Typical error on districts the model never saw: {day} °C by day, {night} °C at night.","यह उपग्रह से मापे गए वार्ड के औसत सतह तापमान (मानसून से पहले) का मॉडल अनुमान है, हवा का तापमान नहीं। यह आज ज़्यादा और कम पेड़ों वाले वार्डों के अंतर पर आधारित है, किसी मापे गए प्रोजेक्ट पर नहीं, और छतों पर लागू नहीं होता। जिन ज़िलों को मॉडल ने कभी नहीं देखा, उन पर आम गलती: दिन में {day} °C, रात में {night} °C।",,to review
+app:download_geojson,Download GeoJSON,GeoJSON डाउनलोड करें,,to review
+app:sheet_btn,Ward sheet,वार्ड शीट,,to review
+app:sheet_heat,Heat profile,गर्मी का ब्योरा,,to review
+app:sheet_rank,Heat vulnerability rank,गर्मी से जोखिम में रैंक,,to review
+app:sheet_people,People,लोग,,to review
+app:sheet_scenario,If {pp} points of built-up land became tree cover,अगर {pp} अंक बनी हुई ज़मीन पर पेड़ लगें,,to review
+app:sheet_source,"Source: Thandak. Surface temperature: Landsat, pre-monsoon 2021–26 ward means. Population: WorldPop 2025. Ward boundaries are pre-2022.","स्रोत: Thandak. सतह का तापमान: Landsat, मानसून से पहले 2021–26 के वार्ड औसत। आबादी: WorldPop 2025। वार्ड सीमाएँ 2022 से पहले की हैं।",,to review
+app:indoor_not_validated,"Room temperatures are shown only in Delhi for now, where the model was checked against measured homes. Your plan below still uses the estimate, on the cautious side.","कमरे का तापमान अभी सिर्फ़ दिल्ली में दिखाया जाता है, जहाँ मॉडल को असली घरों के माप से परखा गया है। नीचे का प्लान फिर भी इसी अंदाज़े का इस्तेमाल करता है, सावधानी वाले सिरे से।",,to review
+app:indoor_offset,"Today the room range comes from a simpler method: the outside air plus how much warmer Delhi homes with your kind of roof measured. It's wider and rougher than usual, so go by the high end.","आज कमरे का दायरा एक आसान तरीक़े से निकाला गया है: बाहर की हवा, और आपकी जैसी छत वाले दिल्ली के घर कितने ज़्यादा गर्म मापे गए। यह आम दिनों से चौड़ा और मोटा अंदाज़ा है, इसलिए ऊपर वाले सिरे को मानें।",,to review
+app:indoor_outside_range,"The room model only learned from outside air of {t1}–{t2} °C and humidity of {h1}–{h2}%, and today's forecast goes beyond that, which happens most on the hottest days.","कमरे के मॉडल ने सिर्फ़ {t1}–{t2} °C की बाहरी हवा और {h1}–{h2}% नमी से सीखा है, और आज का पूर्वानुमान इससे बाहर जाता है, जो सबसे ज़्यादा सबसे गर्म दिनों में होता है।",,to review
+app:sc_mode_even,Same for each ward,हर वार्ड में बराबर,,to review
+app:sc_mode_plan,Best use of a budget,बजट का सबसे अच्छा इस्तेमाल,,to review
+app:sc_budget,Land to plant with trees,पेड़ लगाने के लिए ज़मीन,,to review
+app:sc_goal,Cool the most,सबसे ज़्यादा ठंडक किसे,,to review
+app:sc_goal_people,People,लोगों को,,to review
+app:sc_goal_elderly,People aged 65+,65+ उम्र के लोगों को,,to review
+app:sc_goal_vulnerable,Vulnerable people (HVI-weighted),जोखिम वाले लोगों को (HVI के हिसाब से),,to review
+app:sc_plan_note,"Planted where each km² cools the most people, with no ward converting more than {cap} points of its area. {used} of {km2} km² placed.","पेड़ वहाँ लगाए गए जहाँ हर km² सबसे ज़्यादा लोगों को ठंडक दे, और किसी वार्ड में उसके क्षेत्रफल के {cap} अंक से ज़्यादा ज़मीन नहीं बदली गई। {km2} में से {used} km² लगाए गए।",,to review
+app:scope_cities,City hotspots,शहरों के गर्म इलाक़े,,to review
+app:hc_median,Typical surface temperature,सतह का आम तापमान,,to review
+app:hc_p90,Hottest 10% of squares from,सबसे गर्म 10% वर्ग इससे ऊपर,,to review
+app:hc_cells,1 km squares,1 km के वर्ग,,to review
+app:hc_scenes,Satellite passes used,इस्तेमाल हुए उपग्रह पास,,to review
+app:hc_legend,Surface vs city median,"सतह, शहर के औसत की तुलना में",,to review
+app:hc_hottest,Hottest places in {c},{c} की सबसे गर्म जगहें,,to review
+app:hc_place,Place,जगह,,to review
+app:hc_lst,Surface °C,सतह °C,,to review
+app:hc_vs,vs city °C,शहर से °C,,to review
+app:hc_vs_short,vs city,शहर से,,to review
+app:hc_built,Built-up,बनी हुई ज़मीन,,to review
+app:hc_note,"Each square is {km} km wide: the median pre-monsoon (April–June) surface temperature from Landsat, {y1}–{y2}, around 10:30 in the morning. Reasons come from a model in which more trees or water can never make a place hotter; on areas it never saw it's off by about {mae} °C (a plain city average is off by {base} °C).","हर वर्ग {km} km चौड़ा है: Landsat से मानसून से पहले (अप्रैल–जून) की सतह का औसत (माध्यिका) तापमान, {y1}–{y2}, सुबह लगभग 10:30 बजे। कारण एक ऐसे मॉडल से हैं जिसमें ज़्यादा पेड़ या पानी किसी जगह को कभी ज़्यादा गर्म नहीं कर सकते; जिन इलाक़ों को इसने कभी नहीं देखा, उन पर यह लगभग {mae} °C चूकता है (शहर का सीधा औसत {base} °C चूकता है)।",,to review
+app:government_sub,"Every district ranked by recent summer heat and who lives there, from the same weather data as the daily heat level. A planning screen, not a full risk assessment.","हर ज़िला हाल की गर्मियों की तपिश और वहाँ रहने वालों के हिसाब से रैंक किया गया है, उसी मौसम डेटा से जिससे रोज़ का गर्मी स्तर निकलता है। यह योजना बनाने की स्क्रीन है, पूरा जोखिम आकलन नहीं।",,to review
+app:m2_d,"For 734 districts: summer daytime high, night low, humid heat (wet-bulb) and days of 40 °C or more (2021–2025), plus older people, young children and crowding, ranked across India. It's an operational index: it uses the same weather source as the daily heat level and is rebuilt each season. It isn't a full heat-risk assessment; CEEW's 2025 district study uses many more indicators, and a rank comparison with it is pending its district data.","734 ज़िलों के लिए: गर्मियों का दिन का अधिकतम, रात का न्यूनतम, उमस भरी गर्मी (वेट-बल्ब) और 40 °C या उससे ज़्यादा वाले दिन (2021–2025), साथ में बुज़ुर्ग, छोटे बच्चे और भीड़-भाड़, पूरे भारत में रैंक किए गए। यह एक परिचालन (ऑपरेशनल) सूचकांक है: यह रोज़ के गर्मी स्तर वाले मौसम स्रोत का ही इस्तेमाल करता है और हर मौसम में दोबारा बनता है। यह पूरा गर्मी-जोखिम आकलन नहीं है; CEEW का 2025 का ज़िला अध्ययन कहीं ज़्यादा संकेतकों का इस्तेमाल करता है, और उससे रैंक की तुलना उसके ज़िला डेटा मिलने पर होगी।",,to review
+app:work_title,Outdoor work today,आज बाहर का काम,,to review
+app:work_window,"Your work hours {a}–{b}, each hour at its outdoor heat level (feels-like °C).","आपके काम के घंटे {a}–{b}, हर घंटा उसके बाहरी गर्मी स्तर के साथ (महसूस होने वाला °C)।",,to review
+app:work_window_default,"Daytime work hours {a}–{b} (change them in your answers), each hour at its outdoor heat level (feels-like °C).","दिन के काम के घंटे {a}–{b} (अपने जवाबों में बदलें), हर घंटा उसके बाहरी गर्मी स्तर के साथ (महसूस होने वाला °C)।",,to review
+app:work_best,Best hours for the heaviest work: {h} (heat level: {l}).,सबसे भारी काम के लिए सबसे अच्छे घंटे: {h} (गर्मी स्तर: {l})।,,to review
+app:work_hot,"High heat or worse: {h}. Stay in the shade as much as you can, cover your head and drink water frequently (NCDC).","ज़्यादा या उससे भी ज़्यादा गर्मी: {h}। जितना हो सके छाँव में रहें, सिर ढकें और बार-बार पानी पिएँ (NCDC)।",,to review
+app:work_sun,Government advice (NCDC): avoid working in the sun from {a}:00 to {b}:00.,सरकारी सलाह (NCDC): {a}:00 से {b}:00 बजे तक धूप में काम करने से बचें।,,to review
+app:work_all,Every work hour today is at the same heat level: {l}.,आज काम का हर घंटा एक ही गर्मी स्तर पर है: {l}।,,to review
+app:sc_cost,Estimated cost: ₹{inr} (₹{per} per km²).,अनुमानित लागत: ₹{inr} (₹{per} प्रति km²)।,,to review
+app:hc_air,"At {s} weather stations in these cities ({n} clear satellite passes, 2021–25), the ground surface was a median {d} °C hotter than the air at the same moment (most passes {lo} to {hi} °C), and surface differences between places were much larger than air differences. Use these maps to find where surfaces heat most; heat levels for people come from air temperature.","इन शहरों के {s} मौसम स्टेशनों पर ({n} साफ़ उपग्रह पास, 2021–25), ज़मीन की सतह उसी समय की हवा से औसतन (माध्यिका) {d} °C ज़्यादा गर्म थी (ज़्यादातर पास {lo} से {hi} °C), और जगहों के बीच सतह का अंतर हवा के अंतर से कहीं ज़्यादा था। इन नक्शों से पता करें कि सतहें सबसे ज़्यादा कहाँ तपती हैं; लोगों के लिए गर्मी स्तर हवा के तापमान से तय होता है।",,to review
+app:sc_unit,Plan by,किस आधार पर योजना,,to review
+app:sc_unit_km2,Area (km²),क्षेत्रफल (km²),,to review
+app:sc_unit_inr,Budget (₹ crore),बजट (₹ करोड़),,to review
+app:sc_budget_inr,Budget,बजट,,to review
+app:sc_cr,₹{n} crore,₹{n} करोड़,,to review
+app:sc_what,Spend it on,किस पर खर्च करें,,to review
+app:sc_what_trees,Trees,पेड़,,to review
+app:sc_what_roofs,Cool roofs,ठंडी छत (कूल रूफ़),,to review
+app:sc_what_both,Both,दोनों,,to review
+app:sc_split,Split: trees / cool roofs,बँटवारा: पेड़ / ठंडी छत,,to review
+app:sc_spent,{used} of {budget} placed.,{budget} में से {used} लगाए गए।,,to review
+app:sc_separate,"Trees change a ward's surface temperature and cool roofs change the air inside the homes under them. They're measured differently, so their °C figures are shown separately and never added.","पेड़ वार्ड की सतह का तापमान बदलते हैं और ठंडी छत अपने नीचे वाले घरों के अंदर की हवा। दोनों अलग तरह से मापे जाते हैं, इसलिए इनके °C अलग-अलग दिखाए गए हैं और कभी जोड़े नहीं जाते।",,to review
+app:sc_h_trees,Trees: ward surface temperature,पेड़: वार्ड की सतह का तापमान,,to review
+app:sc_h_roofs,Cool roofs: air inside homes under sheet roofs,ठंडी छत: टीन/चादर की छत वाले घरों के अंदर की हवा,,to review
+app:sc_trees_missing,"A rupee plan for trees needs a verified cost of new tree cover per km², which the team is still checking. Until then, plan trees by area (km²).","पेड़ों की रुपये में योजना के लिए प्रति km² नए पेड़ों की जाँची हुई लागत चाहिए, जिसे टीम अभी जाँच रही है। तब तक पेड़ों की योजना क्षेत्रफल (km²) से बनाएँ।",,to review
+app:sc_roofs_missing,"A rupee plan for cool roofs needs three verified figures: the cost per m², the roof area of a typical sheet-roof home, and people per home. The team is still checking them, so no roofs are placed yet.","ठंडी छत की रुपये में योजना के लिए तीन जाँचे हुए आँकड़े चाहिए: प्रति m² लागत, चादर की छत वाले आम घर की छत का क्षेत्रफल, और प्रति घर लोग। टीम अभी इन्हें जाँच रही है, इसलिए अभी कोई छत नहीं लगाई गई।",,to review
+app:sc_k_homes,Homes,घर,,to review
+app:sc_k_indoor,"Indoor air, each home",हर घर के अंदर की हवा,,to review
+app:sc_indoor_range,{lo} to {hi} °C cooler,{lo} से {hi} °C ठंडी,,to review
+app:sc_roofs_none,This budget is less than the cost of one roof.,यह बजट एक छत की लागत से भी कम है।,,to review
+app:sc_roof_cost,₹{inr} for these roofs (₹{home} per home: {m2} m² at ₹{per} per m²).,"इन छतों पर ₹{inr} (प्रति घर ₹{home}: {m2} m², ₹{per} प्रति m² की दर से)।",,to review
+app:sc_col_homes,Homes (of sheet-roof homes),घर (चादर की छत वाले घरों में से),,to review
+app:sc_col_inr,Cost,लागत,,to review
+app:sc_roofs_note,"Sheet-roof (metal or asbestos) homes in each ward are estimated from its district's Census 2011 share, not counted ward by ward. Wards come first by HVI (or by their share of people aged 65+). The effect, {lo} to {hi} °C cooler indoor air, is from small Indian studies and applies only to rooms right under the treated roof. Never stand on asbestos sheets or scrape them.","हर वार्ड में चादर (धातु या एस्बेस्टस) की छत वाले घरों का अनुमान उसके ज़िले के जनगणना 2011 के हिस्से से लगाया गया है, वार्ड-वार गिनती से नहीं। वार्ड HVI के क्रम में (या 65+ उम्र के लोगों के हिस्से के क्रम में) चुने जाते हैं। असर, अंदर की हवा {lo} से {hi} °C ठंडी, छोटे भारतीय अध्ययनों से है और सिर्फ़ उपचारित छत के ठीक नीचे वाले कमरों पर लागू होता है। एस्बेस्टस की चादरों पर कभी खड़े न हों और उन्हें खुरचें नहीं।",,to review

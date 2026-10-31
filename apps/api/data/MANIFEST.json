@@ -17,10 +17,12 @@
   "india_places.tsv.gz": "9ac4dc0a6e11b6bf26add472100ee2630e3977885e98d3c381a6af6b6f2546e6",
   "indoor_model_card.json": "0a1ea3701036edb781fdc0e10d8965f4f2b778d9d0a60e488c04a27932d900c3",
   "indoor_xgb_model.json": "f5b3a63ebb05ae122dff7914886795b74c6ff3e6144a8d7982330ecd4afe0496",
+  "lst_vs_air.json": "bf73f2c62bed3e72f3c216b74163b58c02d9cc186ff89fcd1846b398ee5ba0ab",
   "message_templates.json": "36cefa3b108ab9cf759c2d558ff096c2b033811b1b9ebf84e9922990896965aa",
   "model_a_card.json": "27590a9b95bbf0f5bdff07c7d4d0a972063913ab342b6a7f9c535c4a1663ef58",
   "sources.json": "66e01383ab3ff85393cf2ec0505bc477b7524c279b6787d9a2342faef520c150",
-  "verified_numbers.csv": "11aec90cb881e5b88a38c59d0f03bf8cce9e53563a90a8b501f95050f4466b55",
+  "verified_numbers.csv": "42efb13baa69095103d74f72cdcb1caf68e516997a8194805e420462177100a9",
+  "ward_scenario.json": "0073c54be399a4c961af155eb684de7196c2d3adec090bca22172f6e22556784",
   "wards.geojson": "793d1ab305891f15d6790198d0fe7461b12de34615400d12e922d6edf689da10"
  }
 }

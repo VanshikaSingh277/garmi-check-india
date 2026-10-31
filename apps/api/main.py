@@ -24,7 +24,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app import api_v1, calibrate, config, db, gov, households, http, imd, learn, levels, manifest, notify, observe, secure, workers
 from app.schemas import Person
-from engine import areas, districts, indoor, normals, people, places, plan, rules, solutions, today, weather
+from engine import areas, districts, indoor, normals, people, places, plan, rules, scenario, solutions, today, weather
 from engine import verified as V
 
 API_VERSION = "0.3.0"
@@ -359,6 +359,9 @@ def _room(q: IndividualIn, place: dict, w: dict, nxt: list, model_roof: str, hom
         if q.power_cut_hours and (q.devices.fan or q.devices.cooler):
             off = {h["time"]: h for h in indoor.predict(w["hourly"], start, model_roof, False, False)}
             hours = [off[h["time"]] if any(today.in_window(h["time"][11:16], c) for c in q.power_cut_hours) else h for h in hours]
+        fit["physics_violations"] = len(indoor.physics_check(w["hourly"], hours, model_roof, q.devices.cooler))
+        if fit["physics_violations"]:       # a physically impossible hour: use the measured roof offsets instead
+            hours, basis = indoor.offset_estimate(nxt, model_roof), "offset"
     else:
         hours, basis = indoor.offset_estimate(nxt, model_roof), "offset"
     calibrated = basis == "model" and home is not None and calibrate.summary(home)["applied"]
@@ -414,7 +417,7 @@ def _status(q: IndividualIn, home=None):
                    "basis": basis, "numbers_shown": show, "applicability": fit, "note_code": note, "model": indoor.model_info(),
                    "roof_proxy": MODEL_ROOF.get(q.roof), "outdoor24": [{"time": r["time"], "t": r["t"]} for r in nxt]},
         "risk": risk, "fan": fan, "plan": day_plan,
-        "per_person": advice["per_person"], "today_actions": advice["today_actions"],
+        "per_person": advice["per_person"], "today_actions": advice["today_actions"], "work": today.work_plan(persons, nxt),
         "fixes": fixes,
         "how": {"risk": "weather only: IMD heat-index bands (on the air temperature when higher) + IMD heatwave rules (45 / 47 C, or "
                         "4.5 / 6.4 C above the 1991-2020 normal; plains, hill and coastal limits) for the headline day + wet-bulb danger limit"
@@ -533,6 +536,56 @@ def gov_rank(scope: Literal["india", "delhi"] = "india", state: Optional[str] = 
     r = districts.ranking(state, limit)
     chk = districts.checks()
     return {"scope": "india", **r, "checks": chk, "solutions": sol, "notes": chk.get("notes", [])}
+
+
+@api.get("/api/gov/scenario")
+def gov_scenario(wards: Optional[str] = Query(None, max_length=2400, pattern=r"^[A-Za-z0-9_]+(,[A-Za-z0-9_]+)*$"),
+                 tree_pp: float = Query(10, ge=1, le=50), source: Literal["built", "bare"] = Query("built", alias="from")):
+    """Delhi ward cooling scenario: turn tree_pp percentage points of each ward's built-up (or bare) land into tree cover and
+    estimate the change in ward mean surface temperature (engine/scenario.py). No wards given means all of them."""
+    rows = _json("gov_rank.json")["wards"]
+    if wards:
+        want = set(wards.split(","))
+        if len(want) > 300:
+            raise ApiError(422, "invalid_input", "At most 300 wards")
+        rows = [w for w in rows if w["ward_no"] in want]
+    return scenario.simulate(rows, tree_pp, source)
+
+
+@api.get("/api/gov/plan_trees")
+def gov_plan_trees(area_km2: Optional[float] = Query(None, gt=0, le=100), budget_inr: Optional[float] = Query(None, gt=0, le=1e12),
+                   source: Literal["built", "bare"] = Query("built", alias="from"),
+                   objective: Literal["people", "elderly", "vulnerable"] = "people", max_pp: float = Query(20, ge=1, le=50)):
+    """Delhi: where to plant area_km2 (or budget_inr worth) of new tree cover for the most cooling where people live
+    (engine/scenario.optimise). Neither given means 5 km2."""
+    if area_km2 is not None and budget_inr is not None:
+        raise ApiError(422, "invalid_input", "Give area_km2 or budget_inr, not both")
+    if area_km2 is None and budget_inr is None:
+        area_km2 = 5
+    return scenario.optimise(_json("gov_rank.json")["wards"], area_km2, source, objective, max_pp, budget_inr)
+
+
+@api.get("/api/gov/plan_coolroofs")
+def gov_plan_coolroofs(budget_inr: float = Query(..., gt=0, le=1e12),
+                       objective: Literal["people", "elderly", "vulnerable"] = "people"):
+    """Delhi: which wards' sheet-roof homes a cool-roof budget should reach first (engine/scenario.plan_coolroofs)."""
+    return scenario.plan_coolroofs(_json("gov_rank.json")["wards"], budget_inr, objective)
+
+
+@api.get("/api/gov/hotspots")
+def gov_hotspots(city: Optional[str] = Query(None, pattern=r"^[a-z]{2,20}$")):
+    """City surface-heat hotspots (1 km cells, ml/model_a/build_city_hotspots.py). No city: the list of cities with summaries.
+    Includes the satellite-vs-station air temperature check (ml/validation/lst_vs_air.py) so the map is read correctly."""
+    if not os.path.exists(os.path.join(DATA, "city_hotspots.json")):
+        raise ApiError(503, "not_built", "City hotspots not built yet")
+    d = _json("city_hotspots.json")
+    check = _json("lst_vs_air.json") if os.path.exists(os.path.join(DATA, "lst_vs_air.json")) else None
+    if city is None:
+        return {"cities": [{"key": k, "name": c["name"], "lst_median_c": c["lst_median_c"], "cells": len(c["cells"])}
+                           for k, c in d["cities"].items()], "caveats": d["caveats"], "air_check": check}
+    if city not in d["cities"]:
+        raise ApiError(404, "not_found", "No hotspot map for this city")
+    return {"key": city, **d["cities"][city], "source": d["source"], "caveats": d["caveats"], "air_check": check}
 
 
 @api.get("/api/outdoor")

@@ -45,6 +45,18 @@ Things only the team can supply. The build never fills these from memory (spec �
 | "Alerts paused" message | `apps/api/data/message_templates.json` (new template) | Approved English and Hindi text for telling pilot users alerts are paused | Team | Open |
 | Pilot targets | `docs/launch/PILOT_PLAN.md` success measures | Targets for delivery rate, opt-out rate, opens and errors per day | Team | Open |
 | p99 delay of about 2 s in the load test | `docs/launch/GATE_P7_launch.md` | Decide whether to investigate before the pilot (about 1 request in 100) | Team | Open |
+| Back up the release signing key | `%LOCALAPPDATA%\Thandak-tools\release\` (`thandak-release.jks` + `keystore.properties`), used by `apps/web/scripts/build-release.sh` | Two offline copies kept by two people; every future app update must be signed with this key | Team | Open |
+| Redeploy the API with the ward scenario | Vercel project `thandak-india-api` (new `/api/gov/scenario`, `data/ward_scenario.json`) | Redeploy from this branch once merged; until then the app's scenario card shows a network error | Team | Open |
+| INSAT-3D/3DR land surface temperature | `pipelines/satellite/` (new MOSDAC adapter) | A MOSDAC account (registration) and the product IDs to use | Team | Open |
+| Bhuvan land use / LISS-IV / Cartosat layers | `pipelines/satellite/` | Bhuvan API token and licence terms for redistribution | Team | Open |
+| Air temperature to compare with LST | New validation in `ml/model_a/` | CPCB CAAQMS or IMD AWS station hourly temperature for Delhi, pre-monsoon 2021–26, with licence | Team | Open |
+| CEEW district heat-risk index | Rank-correlation check against `gov_rank` (the app already says a comparison is pending) | District scores or classes for the 734 districts and their licence. Checked 2026-10-29: the May 2025 report PDF has no district table; Annexure 1 points to separate state handbooks. Ask CEEW for the data. | Team | Open |
+| Room model outside Delhi | `ml/indoor/` retraining (monotone constraints and an energy-balance check need the raw 2016 data, which isn't in the repo) | The S1 training table, plus indoor/outdoor logger data from at least one more city | Team | Open |
+| Cost of new tree cover in Delhi | `verified_numbers.csv` `cost.tree_cover_per_km2` (TO VERIFY) | ₹ per km² of planting on built-up or bare land plus at least 3 years of care, with a primary source (e.g. Delhi Forest Department or MCD schedule of rates). Until then the ward planner's ₹ budget places no trees | Team | Open |
+| Cool-roof planner inputs | `verified_numbers.csv` `cost.coolroof_per_m2` ("Reported": needs a primary source), `coolroof.roof_area_per_home_m2`, `household.persons_per_home` (both TO VERIFY) | A current ₹/m² from a schedule of rates or state order; typical roof area (m²) of a Delhi sheet-roof home; people per household for those homes (e.g. Census 2011 houselisting). Until all three are verified the ₹ cool-roof planner places no roofs | Team | Open |
+| Asbestos roof measurements | `verified_numbers.csv` `roof.offset.*` (asbestos now reuses tin) | Measured indoor-minus-outdoor offsets for asbestos-roof homes, with source | Team | Open |
+| Outdoor work/rest timings by wet-bulb | `verified_numbers.csv` (see the existing "outdoor work-hour" row) | Work/rest cycles by wet-bulb band from a citable standard, approved by the team | Team | Open |
+| More languages (Tamil, Telugu, Marathi, Bengali, Gujarati) | `apps/web/src/i18n/` | A native reviewer per language before any health text ships | Team | Open |
 
 ## Ambulance numbers by state and UT
 
