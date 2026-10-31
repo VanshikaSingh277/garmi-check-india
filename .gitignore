@@ -21,3 +21,6 @@ apps/api/.cache/
 # Secrets and backups (backend kit)
 secrets/
 backups/
+
+# rebuildable satellite grids (pipelines/satellite/city_grid.py)
+data/cache/

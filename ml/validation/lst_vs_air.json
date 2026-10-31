@@ -1,0 +1,107 @@
+{
+ "about": "Landsat surface temperature vs IMD station air temperature at the moment of each clear pass (ml/validation/lst_vs_air.py).",
+ "built": "2026-10-29",
+ "air_source": "IMD synoptic stations via Meteostat bulk hourly (CC BY-NC 4.0)",
+ "lst_source": "Landsat 8/9 Collection 2 Level-2 ST_B10, 1 km mean around each station, Apr-Jun 2021-2025",
+ "pairs": 316,
+ "stations": [
+  {
+   "station": "42181",
+   "city": "Delhi",
+   "name": "Palam",
+   "pairs": 66,
+   "lst_median_c": 45.9,
+   "air_median_c": 35.0,
+   "lst_minus_air_median_c": 11.6,
+   "lst_minus_air_p10_p90_c": [
+    7.1,
+    13.7
+   ],
+   "pass_to_pass_r": 0.78
+  },
+  {
+   "station": "42182",
+   "city": "Delhi",
+   "name": "Safdarjung",
+   "pairs": 66,
+   "lst_median_c": 40.5,
+   "air_median_c": 34.5,
+   "lst_minus_air_median_c": 7.1,
+   "lst_minus_air_p10_p90_c": [
+    3.2,
+    9.2
+   ],
+   "pass_to_pass_r": 0.74
+  },
+  {
+   "station": "42348",
+   "city": "Jaipur",
+   "name": "Jaipur Sanganer",
+   "pairs": 66,
+   "lst_median_c": 48.0,
+   "air_median_c": 35.8,
+   "lst_minus_air_median_c": 11.7,
+   "lst_minus_air_p10_p90_c": [
+    9.8,
+    14.6
+   ],
+   "pass_to_pass_r": 0.81
+  },
+  {
+   "station": "42647",
+   "city": "Ahmedabad",
+   "name": "Ahmedabad",
+   "pairs": 63,
+   "lst_median_c": 48.6,
+   "air_median_c": 35.1,
+   "lst_minus_air_median_c": 12.8,
+   "lst_minus_air_p10_p90_c": [
+    10.2,
+    16.1
+   ],
+   "pass_to_pass_r": 0.35
+  },
+  {
+   "station": "43128",
+   "city": "Hyderabad",
+   "name": "Hyderabad Airport (Begumpet)",
+   "pairs": 33,
+   "lst_median_c": 45.7,
+   "air_median_c": 32.6,
+   "lst_minus_air_median_c": 13.4,
+   "lst_minus_air_p10_p90_c": [
+    9.2,
+    15.6
+   ],
+   "pass_to_pass_r": 0.26
+  },
+  {
+   "station": "VOHS0",
+   "city": "Hyderabad",
+   "name": "Hyderabad (Shamshabad)",
+   "pairs": 22,
+   "lst_median_c": 43.5,
+   "air_median_c": 32.3,
+   "lst_minus_air_median_c": 10.0,
+   "lst_minus_air_p10_p90_c": [
+    6.4,
+    13.3
+   ],
+   "pass_to_pass_r": 0.61
+  }
+ ],
+ "all_pairs": {
+  "lst_minus_air_median_c": 11.0,
+  "lst_minus_air_p10_p90_c": [
+   6.0,
+   14.6
+  ],
+  "r": 0.62,
+  "lst_per_air_c_slope": 0.95
+ },
+ "between_stations": {
+  "spearman_lst_vs_air_medians": 0.77,
+  "n": 6
+ },
+ "reading": "Surface temperature runs well above air temperature at the late-morning pass, so LST maps show where surfaces heat most, not the air temperature people feel. Use LST to rank and compare places, and forecasts or station air temperature for health thresholds."
+}
